@@ -1,0 +1,173 @@
+/* ---------------------------------------------------- */
+/* Home Page Specific Styles */
+/* ---------------------------------------------------- */
+
+.page-title {
+    color: var(--color-text-main);
+    margin-bottom: var(--spacing-lg);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* 1. Dashboard Grid Layout (Desktop First) */
+.dashboard-grid {
+    display: grid;
+    /* Defines a three-column layout: Calendar/Todo (1/3), Time/Notes (1/3), Team/AI (1/3) */
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(150px, auto); /* Ensures minimum height for rows */
+    gap: var(--spacing-lg);
+}
+
+/* Define Grid Areas for specific widgets (for flexible placement) */
+.calendar-widget {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.todo-widget {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.time-tracker-widget {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3; /* Spans two rows for a larger chart area */
+}
+
+.team-tracker-widget {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+}
+
+.notes-widget {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+.team-list-widget {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4; 
+    /* This will shift down when the layout changes */
+}
+
+/* 2. Widget General Styling */
+.widget-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+
+.widget-title i {
+    margin-right: 8px;
+    color: var(--color-primary); /* Use primary color for icons */
+}
+
+.calendar-widget .widget-title i {
+    color: white; /* Override for primary background */
+}
+
+/* Calendar Widget Specifics */
+.deadline-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+.deadline-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: var(--spacing-sm) 0 var(--spacing-md);
+}
+.calendar-widget .view-link {
+    color: white;
+    text-decoration: underline;
+    opacity: 0.9;
+}
+
+/* To-Do Widget Specifics */
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+}
+.task-list li {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--color-border);
+}
+.task-list li:last-child {
+    border-bottom: none;
+}
+.task-text {
+    margin-left: var(--spacing-sm);
+}
+
+/* AI Team Tracker Widget Specifics */
+#summary-prompt {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    margin-bottom: var(--spacing-md);
+    resize: vertical;
+}
+
+.ai-output {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background-color: var(--color-background-main);
+    border-left: 3px solid var(--color-primary);
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+.ai-output.hidden {
+    display: none;
+}
+
+/* Team List Widget */
+.team-list {
+    list-style: none;
+    padding: 0;
+}
+.team-member {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+}
+.team-member .profile-avatar {
+    margin-right: var(--spacing-sm);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        /* Switch to a 2-column layout on smaller desktops/tablets */
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Redefine grid areas for 2 columns */
+    .calendar-widget { grid-column: 1 / 2; grid-row: 1 / 2; }
+    .todo-widget { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .time-tracker-widget { grid-column: 1 / 2; grid-row: 2 / 3; }
+    .team-tracker-widget { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .notes-widget { grid-column: 1 / 2; grid-row: 3 / 4; }
+    .team-list-widget { grid-column: 2 / 3; grid-row: 3 / 4; }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        /* Switch to a 1-column stack on mobile */
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+    }
+    
+    /* All items stack vertically */
+    .dashboard-grid > div {
+        grid-column: 1 / 2 !important;
+        grid-row: auto !important;
+    }
+}

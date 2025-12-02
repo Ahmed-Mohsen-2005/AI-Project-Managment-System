@@ -9,7 +9,7 @@ from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from config.database_config import SECRET_KEY
 from data.db_session import ScopedSession, get_db
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 home_bp = Blueprint("home", __name__)
 def create_app():
@@ -31,9 +31,8 @@ def create_app():
 
 @home_bp.route("/")
 def home():
-    return """
-    <h1>Welcome to our AI project management tool</h1>
-    """
+    return render_template("home.html")
+
 
 if __name__ == "__main__":
     app = create_app()

@@ -1,0 +1,253 @@
+:root {
+    /* Color Variables (Light Theme Defaults) */
+    --color-primary: #4a90e2; /* Blue */
+    --color-primary-dark: #3a79c9;
+    --color-text-main: #333333;
+    --color-text-secondary: #777777;
+    --color-background-main: #f4f7f9;
+    --color-background-card: #ffffff;
+    --color-border: #e0e6ed;
+    --color-sidebar: #2c3e50; /* Dark Blue/Grey */
+    --color-sidebar-text: #ecf0f1;
+    --color-sidebar-hover: #34495e;
+    
+    /* Font and Spacing */
+    --font-family: 'Inter', sans-serif;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --header-height: 60px;
+    --sidebar-width: 250px;
+}
+
+/* Base Reset and Typography */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-main);
+    background-color: var(--color-background-main);
+    min-height: 100vh;
+}
+
+/* 1. Main Layout (CSS Grid) */
+#app-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: var(--header-height) 1fr;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* 2. Sidebar Styling */
+#sidebar {
+    grid-row: 1 / 3;
+    background-color: var(--color-sidebar);
+    color: var(--color-sidebar-text);
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: width 0.3s ease;
+}
+
+.logo-section {
+    font-size: 18px;
+    font-weight: bold;
+    padding: var(--spacing-sm) 0 var(--spacing-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: var(--spacing-lg);
+}
+
+.main-nav {
+    flex-grow: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    text-decoration: none;
+    color: var(--color-sidebar-text);
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    cursor: pointer; 
+}
+
+.nav-item i {
+    margin-right: var(--spacing-md);
+    width: 20px;
+    text-align: center;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: var(--color-sidebar-hover);
+}
+
+/* --- Nested Submenu Styles --- */
+.nav-item.has-submenu {
+    cursor: pointer;
+    justify-content: space-between;
+    margin-bottom: 0; 
+}
+
+.submenu {
+    max-height: 0; /* Hidden by default */
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.1); 
+    border-radius: 6px;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Class added by JS to open the submenu */
+.nav-item-parent.open .submenu {
+    max-height: 200px; 
+}
+
+.submenu-item {
+    padding-left: 45px; /* Indent submenu items */
+    font-size: 13px;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.submenu-icon {
+    transition: transform 0.3s ease;
+}
+
+.nav-item-parent.open .submenu-icon {
+    transform: rotate(180deg);
+}
+.nav-item-parent.open > .nav-item {
+    background-color: var(--color-sidebar-hover); /* Keep parent highlighted when open */
+}
+
+/* 3. Header Styling */
+#top-header {
+    grid-column: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    background-color: var(--color-background-card);
+    padding: 0 var(--spacing-lg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.search-bar-container {
+    position: relative;
+    flex-grow: 0.8;
+    max-width: 500px;
+}
+
+#global-search {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 40px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-background-main);
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+}
+
+.user-actions button, .user-actions a {
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    color: var(--color-text-main);
+    margin-left: var(--spacing-sm);
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.user-actions button:hover {
+    background-color: var(--color-background-main);
+}
+
+#add-new-btn {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 500;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.profile-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+/* 4. Main Content */
+#main-content {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    overflow-y: auto; /* Allows content area to scroll */
+}
+
+#page-content {
+    padding: var(--spacing-lg);
+}
+
+/* Component Styling (Cards) */
+.card {
+    background-color: var(--color-background-card);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Utility Classes */
+.flex-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #app-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--header-height) 1fr;
+    }
+    
+    #sidebar {
+        display: none; /* Hide sidebar on small screens */
+    }
+
+    #top-header {
+        grid-column: 1 / 2;
+    }
+
+    #main-content {
+        grid-column: 1 / 2;
+    }
+
+    .search-bar-container {
+        flex-grow: 1;
+        max-width: none;
+    }
+}

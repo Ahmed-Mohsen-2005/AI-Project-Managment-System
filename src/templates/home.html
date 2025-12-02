@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AIPMS{% endblock title %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock extra_css %}
+
+{% block content %}
+    <h1 class="page-title">Welcome Back, Project Lead!</h1>
+    
+    <div class="dashboard-grid">
+        
+        <!-- Widget 1: Calendar (Next Deadline) -->
+        <div class="card calendar-widget">
+            <h2 class="widget-title"><i class="fas fa-calendar-alt"></i> Calendar</h2>
+            <p class="deadline-label">Next Critical Deadline:</p>
+            <p class="deadline-value">Dec 20 - Website Backend Final Design (5 days remaining)</p>
+            <a href="/calendar" class="view-link">View Full Calendar</a>
+        </div>
+
+        <!-- Widget 2: To-Do List -->
+        <div class="card todo-widget">
+            <h2 class="widget-title"><i class="fas fa-list-check"></i> My To-do List</h2>
+            <ul id="personal-tasks" class="task-list">
+                <li>
+                    <input type="checkbox" checked>
+                    <span class="task-text">Review Project Brief (WI-105)</span>
+                </li>
+                <li>
+                    <input type="checkbox">
+                    <span class="task-text">Schedule Client Call for Friday</span>
+                </li>
+                <li>
+                    <input type="checkbox">
+                    <span class="task-text">Approve PR from Alice (WI-220)</span>
+                </li>
+            </ul>
+            <button class="btn btn-primary btn-sm add-task-btn"><i class="fas fa-plus"></i> Add Quick Task</button>
+        </div>
+
+        <!-- Widget 3: Time Tracker (Simulation of Progress Chart) -->
+        <div class="card time-tracker-widget">
+            <h2 class="widget-title"><i class="fas fa-chart-area"></i> Time Tracker</h2>
+            <p class="metric-label">Logged Hours vs. Estimate (This Week)</p>
+            <!-- Placeholder for chart visualization -->
+            <div class="chart-placeholder">
+                <img src="https://placehold.co/400x150/4a90e2/ffffff?text=Burndown+Chart+Placeholder" alt="Time Tracking Chart">
+            </div>
+            <p class="metric-value">Overall Velocity: 95%</p>
+        </div>
+
+        <!-- Widget 4: Team Tracker (AI Feature Showcase - FR-401) -->
+        <div class="card team-tracker-widget">
+            <h2 class="widget-title"><i class="fas fa-robot"></i> AI Team Tracker</h2>
+            <p class="metric-label">Generate Executive Summary (FR-401)</p>
+            <textarea id="summary-prompt" placeholder="Summarize project updates for last 7 days focusing on Blockers..."></textarea>
+            <button id="generate-summary-btn" class="btn btn-primary"><i class="fas fa-magic"></i> Generate Summary</button>
+            <div id="ai-output" class="ai-output hidden">
+                <p>Generating...</p>
+            </div>
+        </div>
+
+        <!-- Widget 5: Notes/Wiki Quick Access -->
+        <div class="card notes-widget">
+            <h2 class="widget-title"><i class="fas fa-sticky-note"></i> Quick Notes</h2>
+            <ul class="note-list">
+                <li>Product Launch Meeting (Draft)</li>
+                <li>Client Feedback v1.2</li>
+                <li>Q3 Budget Review</li>
+            </ul>
+            <a href="/notes" class="view-link">All Docs</a>
+        </div>
+
+        <!-- Widget 6: Team Members -->
+        <div class="card team-list-widget">
+            <h2 class="widget-title"><i class="fas fa-users"></i> Project Team</h2>
+            <ul class="team-list">
+                <li class="team-member">
+                    <img src="https://placehold.co/30x30/f05f40/ffffff?text=A" class="profile-avatar" alt="Alice">
+                    <span>Alice J. (Backend)</span>
+                </li>
+                <li class="team-member">
+                    <img src="https://placehold.co/30x30/00bcd4/ffffff?text=B" class="profile-avatar" alt="Bob">
+                    <span>Bob S. (Frontend)</span>
+                </li>
+                <li class="team-member">
+                    <img src="https://placehold.co/30x30/8bc34a/ffffff?text=C" class="profile-avatar" alt="Charlie">
+                    <span>Charlie W. (QA)</span>
+                </li>
+            </ul>
+        </div>
+        
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock extra_js %}
