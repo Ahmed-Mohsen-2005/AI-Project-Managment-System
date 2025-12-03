@@ -12,12 +12,12 @@ class Priority(Enum):
     HIGH = 3
 
 class Task:
-    def __init__(self, task_id, title, status, priority, estimate_Hours, due_date, assigned_id, created_by, history):
+    def __init__(self, task_id, title, status, priority, estimate_hours, due_date, assigned_id, created_by, history):
         self.task_id: int = task_id
         self.title: str = title
         self.status: Status = status
         self.priority: Priority = priority
-        self.estimate_Hours: int = estimate_Hours
+        self.estimate_hours: int = estimate_hours
         self.due_date: datetime.date = due_date
         self.assigned_id = assigned_id
         self.created_by = created_by 
