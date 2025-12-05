@@ -1,24 +1,35 @@
+/* Import Google Font: Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
 :root {
-    /* Color Variables (Light Theme Defaults) */
-    --color-primary: #4a90e2; /* Blue */
-    --color-primary-dark: #3a79c9;
-    --color-text-main: #333333;
-    --color-text-secondary: #777777;
-    --color-background-main: #f4f7f9;
+    /* Color Variables (Modern Light/Dark Combo) */
+    --color-primary: #3498db; /* Vivid Blue */
+    --color-primary-dark: #2980b9;
+    --color-text-main: #2c3e50; 
+    --color-text-secondary: #95a5a6; 
+    --color-background-main: #f8f9fa; 
     --color-background-card: #ffffff;
     --color-border: #e0e6ed;
-    --color-sidebar: #2c3e50; /* Dark Blue/Grey */
-    --color-sidebar-text: #ecf0f1;
+    
+    /* Dark Sidebar Theme */
+    --color-sidebar: #2c3e50; 
+    --color-sidebar-text: #ecf0f1; 
     --color-sidebar-hover: #34495e;
+    --color-sidebar-active: #3498db; 
     
     /* Font and Spacing */
     --font-family: 'Inter', sans-serif;
     --spacing-xs: 4px;
     --spacing-sm: 8px;
-    --spacing-md: 16px;
+    --spacing-md: 12px;
     --spacing-lg: 24px;
-    --header-height: 60px;
-    --sidebar-width: 250px;
+    --header-height: 64px;
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px; 
+    --border-radius-base: 8px; 
+    
+    /* Slower Transition Time for smoother feel */
+    --transition-time: 0.4s;
 }
 
 /* Base Reset and Typography */
@@ -30,7 +41,7 @@
 
 body {
     font-family: var(--font-family);
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     color: var(--color-text-main);
     background-color: var(--color-background-main);
@@ -40,10 +51,17 @@ body {
 /* 1. Main Layout (CSS Grid) */
 #app-container {
     display: grid;
+    /* Default: Sidebar width + Content width */
     grid-template-columns: var(--sidebar-width) 1fr;
     grid-template-rows: var(--header-height) 1fr;
     height: 100vh;
     overflow: hidden;
+    transition: grid-template-columns var(--transition-time) ease;
+}
+
+/* New class for collapsed state */
+#app-container.sidebar-collapsed {
+    grid-template-columns: var(--sidebar-collapsed-width) 1fr;
 }
 
 /* 2. Sidebar Styling */
@@ -53,18 +71,44 @@ body {
     color: var(--color-sidebar-text);
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-md);
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: width 0.3s ease;
+    padding: var(--spacing-lg) var(--spacing-md);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); 
+    transition: width var(--transition-time) ease, padding var(--transition-time) ease;
+    overflow-x: hidden;
+    z-index: 20; /* Ensure it stays above content on smaller screens */
+}
+
+/* Collapsed Sidebar Adjustments */
+#app-container.sidebar-collapsed #sidebar {
+    width: var(--sidebar-collapsed-width);
+    padding: var(--spacing-lg) var(--spacing-sm);
+    align-items: center;
 }
 
 .logo-section {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 700;
     padding: var(--spacing-sm) 0 var(--spacing-lg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
     margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
 }
+
+.logo-section .logo-icon {
+    font-size: 24px;
+    margin-right: var(--spacing-sm);
+}
+
+/* Hide text in collapsed state */
+#app-container.sidebar-collapsed .logo-section span,
+#app-container.sidebar-collapsed .nav-item span {
+    display: none;
+}
+#app-container.sidebar-collapsed .logo-section .logo-icon {
+    margin: 0;
+}
+
 
 .main-nav {
     flex-grow: 1;
@@ -73,62 +117,93 @@ body {
 .nav-item {
     display: flex;
     align-items: center;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-md);
     margin-bottom: var(--spacing-sm);
     text-decoration: none;
     color: var(--color-sidebar-text);
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
-    cursor: pointer; 
+    border-radius: var(--border-radius-base);
+    transition: background-color var(--transition-time) ease, color var(--transition-time) ease;
+    cursor: pointer;
+    white-space: nowrap; 
 }
 
 .nav-item i {
     margin-right: var(--spacing-md);
     width: 20px;
     text-align: center;
+    transition: margin-right var(--transition-time) ease;
 }
 
-.nav-item:hover, .nav-item.active {
+/* Icon only in collapsed state */
+#app-container.sidebar-collapsed .nav-item i {
+    margin-right: 0;
+}
+
+.nav-item:hover {
     background-color: var(--color-sidebar-hover);
+}
+
+.nav-item.active {
+    background-color: var(--color-primary); 
+    color: var(--color-background-card);
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3); 
+}
+.nav-item.active:hover {
+    background-color: var(--color-primary-dark);
 }
 
 /* --- Nested Submenu Styles --- */
 .nav-item.has-submenu {
     cursor: pointer;
     justify-content: space-between;
-    margin-bottom: 0; 
+    margin-bottom: 0;
 }
 
 .submenu {
-    max-height: 0; /* Hidden by default */
+    max-height: 0; 
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-    background-color: rgba(0, 0, 0, 0.1); 
-    border-radius: 6px;
+    transition: max-height var(--transition-time) cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    background-color: rgba(0, 0, 0, 0.15); 
+    border-radius: var(--border-radius-base);
+    margin-top: -4px; 
     margin-bottom: var(--spacing-sm);
 }
 
 /* Class added by JS to open the submenu */
 .nav-item-parent.open .submenu {
-    max-height: 200px; 
+    max-height: 300px; /* Needs to be large enough to contain all items */
 }
 
 .submenu-item {
-    padding-left: 45px; /* Indent submenu items */
-    font-size: 13px;
+    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 45px; 
+    font-size: 14px;
     margin-bottom: 0;
     border-radius: 0;
 }
-
-.submenu-icon {
-    transition: transform 0.3s ease;
+.submenu-item i {
+    font-size: 13px; 
 }
 
-.nav-item-parent.open .submenu-icon {
-    transform: rotate(180deg);
-}
 .nav-item-parent.open > .nav-item {
-    background-color: var(--color-sidebar-hover); /* Keep parent highlighted when open */
+    background-color: var(--color-sidebar-hover);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-footer .logout {
+    color: #e74c3c; 
+}
+.sidebar-footer .logout:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
 }
 
 /* 3. Header Styling */
@@ -140,13 +215,23 @@ body {
     height: var(--header-height);
     background-color: var(--color-background-card);
     padding: 0 var(--spacing-lg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
     z-index: 10;
+}
+
+#sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    margin-right: var(--spacing-lg);
+    cursor: pointer;
+    color: var(--color-text-main);
+    transition: color var(--transition-time) ease;
 }
 
 .search-bar-container {
     position: relative;
-    flex-grow: 0.8;
+    flex-grow: 1;
     max-width: 500px;
 }
 
@@ -154,8 +239,15 @@ body {
     width: 100%;
     padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 40px;
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: var(--border-radius-base);
     background-color: var(--color-background-main);
+    transition: border-color var(--transition-time) ease, box-shadow var(--transition-time) ease;
+}
+
+#global-search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
 .search-icon {
@@ -166,19 +258,14 @@ body {
     color: var(--color-text-secondary);
 }
 
-.user-actions button, .user-actions a {
-    background: none;
-    border: none;
-    padding: var(--spacing-sm);
-    cursor: pointer;
-    color: var(--color-text-main);
-    margin-left: var(--spacing-sm);
-    border-radius: 6px;
-    transition: background-color 0.2s;
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
 
-.user-actions button:hover {
-    background-color: var(--color-background-main);
+.user-actions button, .user-actions a {
+    transition: background-color var(--transition-time) ease, transform 0.1s;
 }
 
 #add-new-btn {
@@ -186,20 +273,26 @@ body {
     color: white;
     font-weight: 500;
     padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
 }
 
 .profile-avatar {
-    width: 30px;
-    height: 30px;
+    width: 36px; 
+    height: 36px;
     border-radius: 50%;
     vertical-align: middle;
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-background-card); 
 }
+
 
 /* 4. Main Content */
 #main-content {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
-    overflow-y: auto; /* Allows content area to scroll */
+    overflow-y: auto; 
 }
 
 #page-content {
@@ -209,16 +302,22 @@ body {
 /* Component Styling (Cards) */
 .card {
     background-color: var(--color-background-card);
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius-base);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
+    transition: transform var(--transition-time) ease, box-shadow var(--transition-time) ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Utility Classes */
 .flex-row {
     display: flex;
-    gap: var(--spacing-md);
+    gap: var(--spacing-lg);
 }
 
 .grid-cols-2 {
@@ -227,7 +326,25 @@ body {
     gap: var(--spacing-lg);
 }
 
+
 /* Responsive adjustments */
+@media (max-width: 992px) {
+    /* Hide 'Add New' text on smaller screens */
+    #add-new-btn .btn-text {
+        display: none;
+    }
+    #add-new-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+    .search-bar-container {
+        max-width: 300px;
+    }
+}
+
+
 @media (max-width: 768px) {
     #app-container {
         grid-template-columns: 1fr;
@@ -235,11 +352,24 @@ body {
     }
     
     #sidebar {
-        display: none; /* Hide sidebar on small screens */
+        /* Mobile Overlay Setup */
+        position: fixed; 
+        left: 0;
+        top: 0;
+        width: 260px; 
+        height: 100vh;
+        transform: translateX(-100%); 
+        transition: transform var(--transition-time) ease-in-out;
+        box-shadow: 6px 0 15px rgba(0, 0, 0, 0.2);
+    }
+    /* When sidebar-open class is added by JS */
+    #app-container.sidebar-open #sidebar {
+        transform: translateX(0); 
     }
 
     #top-header {
         grid-column: 1 / 2;
+        padding: 0 var(--spacing-md);
     }
 
     #main-content {
@@ -248,6 +378,12 @@ body {
 
     .search-bar-container {
         flex-grow: 1;
+        margin: 0 var(--spacing-md);
         max-width: none;
+    }
+
+    /* Hide notification button on tiny screens */
+    .user-actions #notification-btn {
+        display: none;
     }
 }

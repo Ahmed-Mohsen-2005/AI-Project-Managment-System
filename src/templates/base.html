@@ -3,97 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AIPMS{% endblock title %}</title>
+    <title>{% block title %}AIPMS | AI Project Management{% endblock title %}</title>
     
-    <!-- Global Stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Block for page-specific CSS -->
     {% block extra_css %}{% endblock extra_css %}
 </head>
 <body>
     <div id="app-container">
         
-        <!-- 1. Sidebar Navigation -->
         <aside id="sidebar">
             <div class="logo-section">
-                <i class="fas fa-robot"></i> <span>AIPMS</span>
+                <i class="fas fa-robot logo-icon"></i> <span>AIPMS</span>
             </div>
             <nav class="main-nav">
                 
-                <a href="/home" id="nav-dashboard" class="nav-item">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                <a href="/" id="nav-home" class="nav-item">
+                    <i class="fas fa-home-alt"></i> <span>Home</span>
                 </a>
                 
-                <!-- Nested Boards Section -->
                 <div class="nav-item-parent" id="nav-boards-parent">
                     <div class="nav-item has-submenu" id="boards-toggle">
-                        <i class="fas fa-columns"></i> Boards
+                        <i class="fas fa-columns"></i> <span>Boards</span>
                         <i class="fas fa-chevron-down submenu-icon"></i>
                     </div>
                     <div class="submenu" id="boards-submenu">
-                        <a href="/boards/board" class="nav-item submenu-item" id="nav-board"><i class="fas fa-table-list"></i> Board</a>
-                        <a href="/boards/sprints" class="nav-item submenu-item" id="nav-sprints"><i class="fas fa-layer-group"></i> Sprints</a>
-                        <a href="/boards/projects" class="nav-item submenu-item" id="nav-projects"><i class="fas fa-folder-open"></i> Projects</a>
-                        <a href="/boards/backlog" class="nav-item submenu-item" id="nav-backlog"><i class="fas fa-clipboard-list"></i> Backlog</a>
+                        <a href="/boards/board" class="nav-item submenu-item" id="nav-board"><i class="fas fa-table-list"></i> <span>Board</span></a>
+                        <a href="/boards/sprints" class="nav-item submenu-item" id="nav-sprints"><i class="fas fa-layer-group"></i> <span>Sprints</span></a>
+                        <a href="/boards/dashboard" class="nav-item submenu-item" id="nav-dashboard"><i class="fas fa-dashboard"></i> <span>Dashboard</span></a>
+                        <a href="/boards/backlog" class="nav-item submenu-item" id="nav-backlog"><i class="fas fa-clipboard-list"></i> <span>Backlog</span></a>
                     </div>
                 </div>
                 
-                <a href="/repos" id="nav-repos" class="nav-item">
-                    <i class="fas fa-code-branch"></i> Repos
+                <a href="/repositories" id="nav-repos" class="nav-item">
+                    <i class="fas fa-code-branch"></i> <span>Repos</span>
                 </a>
                 <a href="/chats" id="nav-chats" class="nav-item">
-                    <i class="fas fa-comments"></i> Chats
+                    <i class="fas fa-comments"></i> <span>Chats</span>
                 </a>
                 <a href="/reports" id="nav-reports" class="nav-item">
-                    <i class="fas fa-chart-line"></i> Reports
+                    <i class="fas fa-chart-line"></i> <span>Reports</span>
                 </a>
                 
             </nav>
             <div class="sidebar-footer">
                 <a href="/settings" class="nav-item">
-                    <i class="fas fa-cog"></i> Settings
+                    <i class="fas fa-cog"></i> <span>Settings</span>
                 </a>
                 <a href="/logout" class="nav-item logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
                 </a>
             </div>
         </aside>
 
-        <!-- 2. Main Content Area -->
         <main id="main-content">
-            <!-- Header/Top Bar -->
             <header id="top-header">
                 <button id="sidebar-toggle" title="Toggle Sidebar"><i class="fas fa-bars"></i></button>
                 <div class="search-bar-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="search" id="global-search" placeholder="Search tasks, projects, or users...">
+                    <input type="search" id="global-search" placeholder="Search tasks, projects, or users (Ctrl+K)...">
                 </div>
                 <div class="user-actions">
-                    <button id="add-new-btn"><i class="fas fa-plus"></i> Add New</button>
+                    <button id="add-new-btn"><i class="fas fa-plus"></i> <span class="btn-text">Add New</span></button>
                     <button id="notification-btn" title="Notifications"><i class="fas fa-bell"></i></button>
                     <a href="/profile" class="user-profile-link" title="Profile">
-                        <img src="https://placehold.co/30x30/4A90E2/FFFFFF?text=U" alt="User Profile" class="profile-avatar">
+                        <img src="https://placehold.co/36x36/3498db/FFFFFF?text=U" alt="User Profile" class="profile-avatar">
                     </a>
                 </div>
             </header>
 
-            <!-- Page Specific Content -->
             <section id="page-content">
                 {% block content %}
-                    <!-- Content from specific pages (e.g., home.html, board.html) will be injected here -->
-                {% endblock content %}
+                    {% endblock content %}
             </section>
         </main>
     </div>
 
-    <!-- Global JavaScript -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     
-    <!-- Block for page-specific JS -->
     {% block extra_js %}{% endblock extra_js %}
 </body>
 </html>

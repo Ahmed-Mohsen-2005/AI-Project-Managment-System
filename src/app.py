@@ -29,6 +29,41 @@ def create_app():
 @home_bp.route("/")
 def home():
     return render_template("home.html")
+@home_bp.route("/repositories")
+def repositories():
+    return render_template("repositories.html")
+
+@home_bp.route("/boards/board")
+def board():
+    return render_template("board/board.html")
+
+@home_bp.route("/boards/dashboard")
+def dashboard():
+    return render_template("board/dashboard.html")
+
+@home_bp.route("/boards/sprints")
+def sprints():
+    return render_template("board/sprints.html")
+
+@home_bp.route("/boards/backlog")
+def backlog():
+    return render_template("board/backlog.html")
+
+@home_bp.route("/chats")
+def chats():
+    return render_template("chats.html")
+
+@home_bp.route("/reports")
+def reports():
+    return render_template("reports.html")
+
+@home_bp.route("/settings")
+def settings():
+    return render_template("settings.html")
+
+@home_bp.route("/profile")
+def profile():
+    return render_template("profile.html")
 
 
 if __name__ == "__main__":
