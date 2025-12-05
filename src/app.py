@@ -7,22 +7,14 @@ from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
-from services.auth_service import check_db_connection 
 from config.database_config import SECRET_KEY
-from data.db_session import ScopedSession, get_db
+from data.db_session import get_db
 from flask import Blueprint, render_template
 
 home_bp = Blueprint("home", __name__)
 def create_app():
-    app = Flask(__name__)
-    app.config["SECRET_KEY"] = SECRET_KEY
-    with app.app_context():
-        print("--- Running SQL Server Connection Test ---")
-        try:
-            check_db_connection()
-        except Exception:
-            print("🚨 APPLICATION STARTUP ABORTED. Check your .env file and SQL Server ODBC driver.")
-            
+    app = Flask(__name__)   
+    db = get_db() 
     print("Project Sentinel Application and SQL Server connection pool initialized.")
     app.register_blueprint(home_bp)
     app.register_blueprint(user_bp)
@@ -33,11 +25,7 @@ def create_app():
     app.register_blueprint(notification_bp)
     app.register_blueprint(integration_bp)
     app.register_blueprint(file_attachment_bp)
-    @app.teardown_appcontext
-    def remove_session(exception=None):
-        ScopedSession.remove()
     return app
-
 @home_bp.route("/")
 def home():
     return render_template("home.html")
