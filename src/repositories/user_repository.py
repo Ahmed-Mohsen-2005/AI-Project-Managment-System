@@ -6,11 +6,11 @@ class UserRepository:
         self.db = DatabaseConnection().get_connection()
     def get_all(self):
         cursor = self.db.cursor(dictionary=True)
-        cursor.execute("SELECT id, name, email FROM users")
+        cursor.execute("SELECT user_id, name, email FROM userr")
         rows = cursor.fetchall()
         return [Userr(**row) for row in rows]
     def get_by_id(self, id):
         cursor = self.db.cursor(dictionary=True)
-        cursor.execute("SELECT id, name, email FROM users WHERE id=%s", (id,))
+        cursor.execute("SELECT user_id, name, email FROM userr WHERE id=%s", (id,))
         row = cursor.fetchone()
         return Userr(**row) if row else None
