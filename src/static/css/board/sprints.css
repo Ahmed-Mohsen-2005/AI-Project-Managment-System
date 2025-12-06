@@ -1,0 +1,272 @@
+/* ---------------------------------------------------- */
+/* Sprints Page Specific Styles */
+/* ---------------------------------------------------- */
+
+:root {
+    --status-active: #4a90e2;    /* Blue */
+    --status-complete: #4CAF50;  /* Green */
+    --status-future: #a0a0a0;    /* Grey */
+    --item-bg-hover: #f1f4f8;
+}
+
+/* Page Layout and Header */
+.sprints-container {
+    padding: var(--spacing-lg);
+}
+
+.sprints-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.sprints-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    min-width: 150px;
+    background-color: white;
+}
+
+.btn-styled {
+    background: linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+    transition: all 0.2s ease;
+}
+
+/* 1. Sprint List Area (Container for Items) */
+.sprint-list-area {
+    padding: var(--spacing-md);
+}
+
+.sprint-list-header, .sprint-item {
+    display: grid;
+    /* Define 6 columns: Status, Title/Duration, Velocity, AI Forecast, Tasks, Actions */
+    grid-template-columns: 0.8fr 3.5fr 1fr 1.5fr 1fr 0.8fr; 
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 13px;
+}
+
+.sprint-list-header {
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--spacing-sm);
+}
+
+/* 2. Individual Sprint Item Styling */
+.sprint-item {
+    background-color: white;
+    margin-bottom: 4px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    border-radius: 4px;
+    padding: var(--spacing-md) 0;
+}
+
+.sprint-item:hover {
+    background-color: var(--item-bg-hover);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    width: 80px;
+}
+.status-badge.active { background-color: var(--status-active); color: white; }
+.status-badge.complete { background-color: var(--status-complete); color: white; }
+.status-badge.future { background-color: var(--status-future); color: white; }
+
+.sprint-duration {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    display: block;
+    margin-top: 2px;
+}
+
+/* 3. Metric Styling (Velocity & Forecast) */
+.col-velocity, .col-forecast {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.velocity-bar {
+    background-color: #ddd;
+    border-radius: 4px;
+    height: 8px;
+    width: 80%;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.velocity-fill {
+    height: 100%;
+    background-color: var(--status-complete);
+    transition: width 0.5s ease-out;
+}
+
+.forecast-label {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.forecast-value.delayed { color: var(--risk-high-color); }
+.forecast-value.on-time { color: var(--status-complete); }
+
+/* 4. MODAL STYLES (Inherited from board.css) */
+/* The modal styles themselves (.modal, .modal-content, .form-group) are copied directly */
+
+#create-sprint-modal {
+    /* Ensures this modal uses the floating window style */
+    display: none; 
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-bg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .sprint-list-header, .sprint-item {
+        /* Collapse to fewer columns: Status, Title, Forecast, Tasks */
+        grid-template-columns: 0.8fr 3fr 1.5fr 1.5fr 0.8fr;
+        font-size: 12px;
+    }
+    .col-velocity { display: none; } /* Hide velocity column on smaller screens */
+}
+/* ---------------------------------------------------- */
+/* Sprints Page Specific Styles */
+/* ---------------------------------------------------- */
+
+:root {
+    --status-active: #4a90e2;    /* Blue */
+    --status-complete: #4CAF50;  /* Green */
+    --status-future: #a0a0a0;    /* Grey */
+    --item-bg-hover: #f1f4f8;
+    --modal-bg: rgba(0, 0, 0, 0.6);
+}
+
+/* Page Layout and Header */
+.sprints-container {
+    padding: var(--spacing-lg);
+}
+/* ... [Other header and list styles remain the same] ... */
+
+
+.sprints-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    min-width: 150px;
+    background-color: white;
+}
+
+.btn-styled {
+    background: linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+    transition: all 0.2s ease;
+}
+
+/* ... [Sprint list header, item, and metric styles remain the same] ... */
+
+/* 4. MODAL STYLES (Specific to the Create Sprint Modal) */
+
+/* The Modal Backdrop */
+#create-sprint-modal.modal {
+    display: none; 
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--modal-bg);
+    backdrop-filter: blur(2px);
+}
+
+/* The Floating Modal Content Box */
+#create-sprint-modal .modal-content {
+    background-color: var(--color-background-card);
+    /* FIX: Centering using fixed position and transform */
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    
+    padding: var(--spacing-lg);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal form element styling (replicated from board.css) */
+#create-sprint-modal input[type="text"],
+#create-sprint-modal input[type="date"],
+#create-sprint-modal select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--color-background-main); 
+    color: var(--color-text-main);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Keyframes (Ensure smooth animation while centered) */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) translateY(-20px); }
+    to { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .sprint-list-header, .sprint-item {
+        /* Collapse to fewer columns: Status, Title, Forecast, Tasks */
+        grid-template-columns: 0.8fr 3fr 1.5fr 1.5fr 0.8fr;
+        font-size: 12px;
+    }
+    .col-velocity { display: none; } /* Hide velocity column on smaller screens */
+}

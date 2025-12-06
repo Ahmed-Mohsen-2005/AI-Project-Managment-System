@@ -1,0 +1,171 @@
+/* ---------------------------------------------------- */
+/* Reports Page Specific Styles */
+/* ---------------------------------------------------- */
+
+:root {
+    --ai-highlight: #4a90e2;    /* Primary Blue */
+    --chart-bg: #f5f5f5;
+    --rca-color: #cc6600;
+}
+
+/* Header and Controls */
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.reports-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    min-width: 180px;
+    background-color: white;
+}
+
+.btn-styled {
+    background: linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: #a0a0a0;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* 1. Reports Grid Layout */
+.reports-grid {
+    display: grid;
+    /* Grid structure: 1fr (main chart/output) | 1fr (metrics/details) */
+    grid-template-columns: 2fr 1fr; 
+    grid-template-rows: auto auto; 
+    gap: var(--spacing-lg);
+}
+
+.card {
+    padding: var(--spacing-lg);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    background-color: white;
+    border-radius: 10px;
+}
+
+/* Widget Layout */
+.report-output-widget {
+    grid-column: 1 / 2; /* Left Column */
+    grid-row: 1 / 3; /* Spans both rows */
+    display: flex;
+    flex-direction: column;
+}
+.chart-area-widget {
+    grid-column: 2 / 3; /* Right Column */
+    grid-row: 1 / 2;
+}
+.metrics-details-widget {
+    grid-column: 2 / 3; /* Right Column */
+    grid-row: 2 / 3;
+}
+
+/* 2. Content Specific Styles */
+.widget-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--spacing-sm);
+}
+
+.ai-report-box {
+    flex-grow: 1;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: var(--spacing-md);
+    background-color: var(--chart-bg);
+    margin-bottom: var(--spacing-md);
+    white-space: pre-wrap; /* Preserve formatting for AI summary */
+    line-height: 1.5;
+    font-size: 14px;
+    color: var(--color-text-main);
+    
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.ai-report-box strong.highlight {
+    color: var(--ai-highlight);
+    font-weight: 700;
+}
+
+.chart-visualization-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    min-height: 300px;
+    background-color: var(--chart-bg);
+    border-radius: 6px;
+}
+
+.analysis-list {
+    list-style: none;
+    padding: 0;
+}
+.analysis-list li {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px dashed var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+.analysis-list li:last-child {
+    border-bottom: none;
+}
+
+.mt-md { margin-top: var(--spacing-md); }
+.full-width-btn { width: 100%; }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .reports-grid {
+        grid-template-columns: 1fr; /* Single column stack */
+    }
+    .reports-grid > div {
+        grid-column: 1 / -1;
+    }
+    .report-output-widget {
+        grid-row: 1 / 2; /* Push output back to top */
+    }
+    .chart-area-widget {
+        grid-row: 2 / 3;
+    }
+    .metrics-details-widget {
+        grid-row: 3 / 4;
+    }
+    .chart-visualization-placeholder {
+        min-height: 250px;
+    }
+}

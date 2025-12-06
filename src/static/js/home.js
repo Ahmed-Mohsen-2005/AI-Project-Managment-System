@@ -1,264 +1,100 @@
-// Global MOCK Data for demonstration (simulating fetch from Task Service)
-const MOCK_TASKS = [
-    { id: 101, title: 'Implement user auth API endpoint', status: 'To Do', priority: 'P1', assignee: 'Bob S.', risk_score: 95, due: 'Dec 15' },
-    { id: 102, title: 'Design Database Schema for User/RBAC', status: 'In Progress', priority: 'P2', assignee: 'Alice J.', risk_score: 70, due: 'Dec 18' },
-    { id: 103, title: 'Integrate GitHub Webhook Handler', status: 'In Progress', priority: 'P1', assignee: 'You', risk_score: 45, due: 'Dec 20' },
-    { id: 104, title: 'Refactor old task component (Tech Debt)', status: 'Under Review', priority: 'P3', assignee: 'Charlie W.', risk_score: 15, due: 'Dec 10' },
-    { id: 105, title: 'Finalize Deployment Pipeline', status: 'Done', priority: 'P1', assignee: 'DevOps', risk_score: 5, due: 'Dec 05' },
-];
+// --- MOCK Data Source for Personal/Portfolio Overview ---
+// Simulating data received from Resource & Task Services for the current user
+const MOCK_PERSONAL_DATA = {
+    tasksDueToday: 5,
+    personalRiskScore: 65, // AI Overload Risk Score (FR-301)
+    myVelocity: 100, // Tasks completed vs planned last sprint
+    projectCount: 3,
+    
+    urgentTasks: [
+        { id: 1002, title: 'Fix critical security vulnerability (Backend)', priority: 'P1', link: '/tasks/1002' },
+        { id: 405, title: 'Investigate S3 connection timeout (Frontend)', priority: 'P2', link: '/tasks/405' },
+        { id: 112, title: 'Finalize Sprint 5 Review (UX)', priority: 'P2', link: '/tasks/112' },
+    ]
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-    const kanbanBoard = document.getElementById('kanban-board');
-    const quickAddBtn = document.getElementById('quick-add-task-btn');
-    const modal = document.getElementById('quick-add-modal');
-    const closeBtn = document.querySelector('.close-btn');
-    const quickAddForm = document.getElementById('quick-add-form');
+    const generateBtn = document.getElementById('generate-summary-btn');
+    const summaryPrompt = document.getElementById('summary-prompt');
+    const aiOutput = document.getElementById('ai-output');
+    const API_URL = '/api/v1/ai/portfolio_summary'; // Endpoint for Portfolio AI (FR-401)
+
+    // --- INITIALIZATION ---
+    loadPersonalMetrics();
+    renderUrgentTasks(MOCK_PERSONAL_DATA.urgentTasks);
     
-    // Initialize the board and load tasks
-    loadTasksToBoard();
+    if (generateBtn) {
+        generateBtn.addEventListener('click', handleGenerateSummary);
+    }
     
-    // Attach drag events to tasks already rendered (for the initial load)
-    attachDragListeners();
-
-    // --- MODAL CONTROL LOGIC ---
-    quickAddBtn.addEventListener('click', openQuickAddModal);
-    closeBtn.addEventListener('click', closeQuickAddModal);
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            closeQuickAddModal();
-        }
-    });
-    quickAddForm.addEventListener('submit', handleQuickAddSubmit);
-
-
-    function openQuickAddModal() {
-        modal.style.display = 'block';
-    }
-
-    function closeQuickAddModal() {
-        modal.style.display = 'none';
-        quickAddForm.reset(); // Clear the form on close
-    }
-
-    function handleQuickAddSubmit(e) {
-        e.preventDefault();
+    function loadPersonalMetrics() {
+        // Loads data into the top metric bar
+        document.getElementById('tasks-due-today').textContent = MOCK_PERSONAL_DATA.tasksDueToday;
+        document.getElementById('personal-risk-score').textContent = MOCK_PERSONAL_DATA.personalRiskScore + '%';
+        document.getElementById('my-velocity').textContent = MOCK_PERSONAL_DATA.myVelocity + '%';
+        document.getElementById('project-count').textContent = MOCK_PERSONAL_DATA.projectCount;
         
-        const title = document.getElementById('task-title-input').value.trim();
-        const assignee = document.getElementById('task-assignee').value;
-        const priority = document.getElementById('task-priority').value;
-        const dueDate = document.getElementById('task-due').value;
-
-        if (!title) {
-            console.error("Task title is required.");
+        // Add visual indicator if personal risk is high
+        if (MOCK_PERSONAL_DATA.personalRiskScore > 60) {
+            document.getElementById('personal-risk-score').style.color = '#cc6600'; // Amber/Warning
+        }
+    }
+    
+    function renderUrgentTasks(tasks) {
+        const list = document.getElementById('urgent-tasks-list');
+        list.innerHTML = '';
+        if (tasks.length === 0) {
+            list.innerHTML = '<li><span class="task-text">No urgent tasks currently assigned.</span></li>';
             return;
         }
-
-        const newTask = {
-            id: Date.now(),
-            title: title,
-            status: 'To Do', // New tasks always start in 'To Do'
-            priority: priority,
-            assignee: assignee,
-            risk_score: 20, // Low initial risk score
-            due: dueDate || 'TBD',
-            last_commit: 'Task manually created.'
-        };
         
-        // --- API ACTION: Submit Task Data ---
-        submitNewTask(newTask);
-
-        closeQuickAddModal();
+        tasks.forEach(task => {
+            // Apply red color if P1
+            const priorityClass = task.priority === 'P1' ? 'text-red-600' : '';
+            const item = document.createElement('li');
+            item.innerHTML = `
+                <span class="task-text ${priorityClass}">
+                    ${task.priority}: ${task.title}
+                </span>
+                <a href="${task.link}" class="view-link">View</a>
+            `;
+            list.appendChild(item);
+        });
     }
-    
-    function submitNewTask(taskData) {
-        console.log(`[ACTION] Submitting new task via API:`, taskData);
-        
+
+    // --- AI PORTFOLIO ASSISTANT (FR-401 Simulation) ---
+    async function handleGenerateSummary() {
+        const promptText = summaryPrompt.value.trim();
+        if (!promptText) return;
+
+        // Show loading state
+        displayAiOutput('<p><i class="fas fa-spinner fa-spin"></i> Analyzing portfolio risks...</p>', true);
+        generateBtn.disabled = true;
+
         // --- REAL API CALL Placeholder ---
-        // In production, this would be a fetch POST to the Flask Controller (Task Controller):
-        /*
-        fetch('/api/v1/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(taskData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Assuming data returns the final task object with a real ID
-            const createdTask = data.task || { ...taskData, id: data.id };
-            addCardToBoard(createdTask);
-            console.log(`Task ${createdTask.id} created successfully.`);
-        })
-        .catch(error => {
-            console.error("Task Creation Failed:", error);
-        });
-        */
+        // In production, this would be a fetch POST to the Flask Controller:
+        // fetch(API_URL, { method: 'POST', body: JSON.stringify({ prompt: promptText, user: current_user_id }) })
         
-        // --- Simulation Success ---
-        addCardToBoard(taskData);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate latency
+
+        // Mock AI Response based on the personal/portfolio context
+        const summary = `AI Portfolio Insight: The Core Backend Initiative currently shows the highest risk (45% AI Risk Index). Your personal workload is manageable (65% overload risk). Recommended focus for the next 48 hours: Clear P1 tasks from the Backend initiative.`;
+        
+        displayAiOutput(`<p class="summary-header">AI Portfolio Insight:</p><p>${summary}</p>`, false);
+        generateBtn.disabled = false;
     }
     
-    function addCardToBoard(task) {
-        const card = createTaskCard(task);
-        const todoList = document.querySelector('#column-todo .task-list');
+    function displayAiOutput(html, isLoading) {
+        aiOutput.innerHTML = html;
+        aiOutput.classList.remove('hidden');
         
-        todoList.appendChild(card);
-        updateTaskCounts();
-        attachDragListeners(); // Attach drag listeners to the new card
-    }
-
-});
-
-// --- TASK RENDERING AND MAPPING (REMAINING FUNCTIONS) ---
-
-function getRiskClass(score) {
-    if (score >= 80) return 'risk-high';
-    if (score >= 40) return 'risk-medium';
-    return 'risk-low';
-}
-
-function getPriorityClass(priority) {
-    return `priority-${priority.toLowerCase()}`;
-}
-
-function createTaskCard(task) {
-    const riskClass = getRiskClass(task.risk_score);
-    const priorityClass = getPriorityClass(task.priority);
-    
-    const card = document.createElement('div');
-    card.className = `task-card ${riskClass}`;
-    card.draggable = true;
-    card.id = `task-${task.id}`;
-    card.setAttribute('data-task-id', task.id);
-    card.setAttribute('data-priority', task.priority);
-    
-    card.innerHTML = `
-        <div class="card-header">
-            <span class="task-title">${task.title}</span>
-            <span class="priority-tag ${priorityClass}">${task.priority}</span>
-        </div>
-        <small class="task-id">WI-${task.id}</small>
-        <p class="last-commit">${task.last_commit || 'No recent commit.'}</p>
-        <div class="card-details">
-            <div class="task-assignee">
-                <i class="fas fa-user-circle"></i> ${task.assignee}
-            </div>
-            <div class="risk-score">
-                <i class="fas fa-microchip"></i> AI Risk: ${task.risk_score}%
-            </div>
-            <div class="task-due">
-                <i class="fas fa-clock"></i> ${task.due}
-            </div>
-        </div>
-    `;
-    return card;
-}
-
-function loadTasksToBoard() {
-    console.log("Fetching tasks and AI scores from Task Service...");
-    const columns = {};
-    document.querySelectorAll('.kanban-column').forEach(col => {
-        columns[col.getAttribute('data-status')] = col.querySelector('.task-list');
-    });
-
-    // --- SIMULATION of API fetch('/api/v1/tasks') ---
-    setTimeout(() => {
-        MOCK_TASKS.forEach(task => {
-            const card = createTaskCard(task);
-            if (columns[task.status]) {
-                columns[task.status].appendChild(card);
-            }
-        });
-        updateTaskCounts();
-        attachDragListeners();
-    }, 500); // Quick load simulation
-}
-
-// --- DRAG AND DROP LOGIC (REMOVED GLOBAL WINDOW FUNCS) ---
-
-let draggedItem = null;
-
-function attachDragListeners() {
-    document.querySelectorAll('.task-card').forEach(card => {
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
-    });
-}
-
-// Handler executed when drag starts on a task card
-function handleDragStart(e) {
-    draggedItem = this;
-    e.dataTransfer.setData('text/plain', this.getAttribute('data-task-id'));
-    setTimeout(() => this.classList.add('dragging'), 0);
-}
-
-// Handler executed when drag ends
-function handleDragEnd() {
-    this.classList.remove('dragging');
-    draggedItem = null;
-}
-
-// Global function (called from ondragover in HTML)
-window.handleDragOver = function(e) {
-    e.preventDefault(); // Allows element to be dropped
-    const list = e.currentTarget;
-    if (draggedItem && draggedItem.parentElement !== list) {
-        list.classList.add('drag-over');
-    }
-}
-
-// Global function (called from ondrop in HTML)
-window.handleDrop = function(e) {
-    e.preventDefault();
-    const list = e.currentTarget;
-    list.classList.remove('drag-over');
-    
-    if (draggedItem) {
-        const taskId = draggedItem.getAttribute('data-task-id');
-        const oldStatus = draggedItem.closest('.kanban-column').getAttribute('data-status');
-        const newStatus = list.closest('.kanban-column').getAttribute('data-status');
+        // Use amber for portfolio insights
+        aiOutput.style.borderLeftColor = '#cc6600'; 
         
-        // Move the element in the DOM
-        list.appendChild(draggedItem);
-        
-        // --- API ACTION: Update Task Status ---
-        updateTaskStatus(taskId, newStatus, oldStatus);
-        updateTaskCounts();
-    }
-}
-
-// --- BACKEND INTEGRATION LOGIC ---
-
-function updateTaskStatus(taskId, newStatus, oldStatus) {
-    console.log(`[ACTION] Updating Task WI-${taskId}: ${oldStatus} -> ${newStatus}`);
-    
-    // --- REAL API CALL Placeholder ---
-    // In production, this would be a fetch POST/PUT to the Flask Controller:
-    /*
-    fetch(`/api/v1/tasks/${taskId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Status update failed');
+        if (isLoading) {
+             aiOutput.classList.add('loading');
+        } else {
+             aiOutput.classList.remove('loading');
         }
-        console.log(`Task ${taskId} status updated successfully.`);
-    })
-    .catch(error => {
-        console.error("Status Update Failed:", error);
-        // --- Rollback Logic ---
-        // Find the old column and move the card back on failure
-        const oldColumn = document.querySelector(`[data-status="${oldStatus}"] .task-list`);
-        oldColumn.appendChild(document.getElementById(`task-${taskId}`));
-        updateTaskCounts();
-    });
-    */
-}
-
-function updateTaskCounts() {
-    document.querySelectorAll('.kanban-column').forEach(column => {
-        const count = column.querySelector('.task-list').children.length;
-        column.querySelector('.task-count').textContent = `(${count})`;
-    });
-}
+    }
+});

@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Load Initial Repository Data ---
     async function loadRepositories() {
-        console.log("Fetching repository list from /api/v1/integration/repos...");
+        console.log("Fetching repository list from /api/v1/integration/repositories");
         
         // --- REAL API CALL (Simulation) ---
         // Replace this setTimeout with a real fetch() call to your Flask Controller:

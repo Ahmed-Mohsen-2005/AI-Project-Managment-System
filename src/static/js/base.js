@@ -1,92 +1,131 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- Element Mapping ---
     const appContainer = document.getElementById('app-container');
-    const sidebar = document.getElementById('sidebar');
-    const toggleButton = document.getElementById('sidebar-toggle');
+    const boardsParent = document.getElementById('nav-boards-parent');
+    const boardsToggle = document.getElementById('boards-toggle');
     const globalSearch = document.getElementById('global-search');
     
-    const boardsToggle = document.getElementById('boards-toggle');
-    const boardsParent = document.getElementById('nav-boards-parent');
+    // Notification Panel Elements
+    const notificationBtn = document.getElementById('notification-btn');
+    const notificationPanel = document.getElementById('notification-panel');
+    const closeNotificationBtn = document.getElementById('close-notifications');
     
-    // Check if we are on a mobile device based on screen width
-    const isMobile = () => window.innerWidth <= 768;
-
-    // --- 1. Sidebar Toggle Functionality ---
-    if (sidebar && toggleButton) {
-        toggleButton.addEventListener('click', () => {
-            if (isMobile()) {
-                // Mobile: Toggle overlay state
-                appContainer.classList.toggle('sidebar-open');
-            } else {
-                // Desktop: Toggle collapsed state (grid layout shift)
-                appContainer.classList.toggle('sidebar-collapsed');
-                // Ensure nested menu closes if collapsed on desktop
-                if (appContainer.classList.contains('sidebar-collapsed') && boardsParent.classList.contains('open')) {
-                    boardsParent.classList.remove('open');
-                }
-            }
-        });
-
-        // Close mobile overlay if clicking main content when open
-        document.getElementById('main-content').addEventListener('click', () => {
-             if (appContainer.classList.contains('sidebar-open')) {
-                appContainer.classList.remove('sidebar-open');
-             }
-        });
-    }
-
-    // --- 2. Nested Menu Toggle Functionality (Boards Menu) ---
-    if (boardsToggle && boardsParent) {
-        boardsToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            boardsParent.classList.toggle('open');
-            // The CSS handles the max-height transition based on the 'open' class
-        });
-
-        // Close nested menu if clicking outside (on desktop)
-        document.addEventListener('click', (e) => {
-            if (!boardsParent.contains(e.target) && boardsParent.classList.contains('open') && !isMobile()) {
-                boardsParent.classList.remove('open');
-            }
-        });
-    }
-
-    // --- 3. Active Navigation Link Styling ---
-    const currentPath = window.location.pathname.replace(/\/$/, ""); // Normalize path
-    const navItems = document.querySelectorAll('.main-nav a.nav-item');
+    // Logout Modal Elements
+    const logoutButton = document.getElementById('logout-button');
+    const logoutModal = document.getElementById('logout-modal');
+    const confirmLogoutBtn = document.getElementById('confirm-logout');
+    const cancelLogoutBtn = document.getElementById('cancel-logout');
     
-    navItems.forEach(item => {
-        const itemPath = item.getAttribute('href') ? item.getAttribute('href').replace(/\/$/, "") : null;
+    // --- 1. Navigation & Toggle Logic ---
+    
+    // Global Sidebar Toggle (for responsive mode and desktop utility)
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+        // Toggles mobile sidebar open class on the container
+        appContainer.classList.toggle('sidebar-open');
+        appContainer.classList.toggle('sidebar-collapsed'); // Toggle desktop collapsed state
         
-        if (itemPath && itemPath === currentPath) {
+        // Close notification panel if sidebar is opened over it (mobile UX fix)
+        if (appContainer.classList.contains('sidebar-open') && notificationPanel && notificationPanel.classList.contains('open')) {
+             notificationPanel.classList.remove('open');
+        }
+    });
+
+    // Nested Boards Menu Toggle
+    if (boardsToggle && boardsParent) {
+        boardsToggle.addEventListener('click', () => {
+            boardsParent.classList.toggle('open');
+        });
+    }
+
+    // Active Navigation Link Styling & Initial Submenu State
+    const currentPath = window.location.pathname.replace(/\/$/, ""); 
+    document.querySelectorAll('.main-nav a.nav-item').forEach(item => {
+        const itemPath = item.getAttribute('href').replace(/\/$/, "");
+        
+        // Match the current URL to the navigation item
+        if (itemPath === currentPath) {
             item.classList.add('active');
             
-            // If the active item is a submenu item, ensure its parent is open
-            if (item.classList.contains('submenu-item')) {
-                const parent = item.closest('.nav-item-parent');
-                if (parent) {
-                    parent.classList.add('open');
-                }
+            // If nested item is active, ensure its parent is open
+            if (item.closest('.nav-item-parent')) {
+                item.closest('.nav-item-parent').classList.add('open');
             }
         }
     });
 
-    // --- 4. Global Add New Button Handler ---
-    const addNewBtn = document.getElementById('add-new-btn');
-    if (addNewBtn) {
-        addNewBtn.addEventListener('click', () => {
-            console.log("Add New button clicked. Triggering quick creation modal...");
-            // Add your modal/API logic here
+    // --- 2. Notification Panel Logic (CRITICAL FIX FOR PAGES) ---
+    // This handler ensures the notification button works on ALL pages by attaching
+    // the listener only if the elements exist.
+    if (notificationBtn && notificationPanel && closeNotificationBtn) {
+        notificationBtn.addEventListener('click', () => {
+            notificationPanel.classList.toggle('open');
+            // Close sidebar if it's open on mobile for better UX
+            if (appContainer.classList.contains('sidebar-open')) {
+                appContainer.classList.remove('sidebar-open');
+            }
+        });
+        
+        closeNotificationBtn.addEventListener('click', () => {
+            notificationPanel.classList.remove('open');
+        });
+    }
+    
+    // --- 3. Logout Modal Logic ---
+    if (logoutButton && logoutModal) {
+        // Open modal when logout button is clicked
+        logoutButton.addEventListener('click', () => {
+            logoutModal.classList.remove('hidden');
+            logoutModal.style.display = 'block'; // Make visible
+            
+            // Close notification panel if open
+            if (notificationPanel && notificationPanel.classList.contains('open')) {
+                 notificationPanel.classList.remove('open');
+            }
+        });
+
+        // Close modal when cancel button is clicked
+        cancelLogoutBtn.addEventListener('click', () => {
+            logoutModal.classList.add('hidden');
+            logoutModal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (e) => {
+            if (e.target === logoutModal) {
+                logoutModal.classList.add('hidden');
+                logoutModal.style.display = 'none';
+            }
+        });
+        
+        // Final action: Confirm logout
+        confirmLogoutBtn.addEventListener('click', () => {
+            console.log("[LOGOUT] User confirmed logout. Executing session termination...");
+            window.location.href = '/logout'; 
         });
     }
 
-    // --- 5. Keyboard Shortcut for Search ---
+
+    // --- 4. Global Action Handlers ---
+    
+    // Quick Add Button
+    document.getElementById('add-new-btn').addEventListener('click', () => {
+        console.log("Global 'Add New' clicked. Opening universal creation modal...");
+    });
+
+    // Global Search Utility (Ctrl+K)
+    document.addEventListener('keydown', (e) => {
+        // Check for Ctrl + K (or Cmd + K on Mac)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            globalSearch.focus();
+            globalSearch.select();
+        }
+    });
+
     if (globalSearch) {
-        document.addEventListener('keydown', (e) => {
-            // Check for Ctrl+K (or Cmd+K on Mac)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                globalSearch.focus();
-            }
+        globalSearch.addEventListener('input', () => {
+            console.log(`Searching globally for: ${globalSearch.value}`);
         });
     }
 });

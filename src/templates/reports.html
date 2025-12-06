@@ -5,9 +5,70 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
 {% endblock extra_css %}
+
 {% block content %}
-<!-- Write the code heeereeeee -->
-<p>Reports Page coming soon</p>
+    <div class="reports-container">
+        
+        <!-- Reports Header and Controls -->
+        <header class="reports-header">
+            <h1 class="page-title"><i class="fas fa-chart-line"></i> Analytics & Reporting Hub</h1>
+            <div class="reports-controls">
+                
+                <div class="control-group">
+                    <label for="report-type-select">Report Type:</label>
+                    <select id="report-type-select" class="filter-select">
+                        <option value="summary">Executive Summary (AI)</option>
+                        <option value="velocity">Sprint Velocity History</option>
+                        <option value="risk">Predictive Risk Forecast</option>
+                        <option value="rca">Root Cause Analysis (RCA)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="project-filter">Project:</label>
+                    <select id="project-filter" class="filter-select">
+                        <option value="1">Core Backend Initiative</option>
+                        <option value="2">Frontend UI Revamp</option>
+                        <option value="all">Portfolio View</option>
+                    </select>
+                </div>
+                
+                <button id="export-report-btn" class="btn btn-secondary"><i class="fas fa-download"></i> Export PDF</button>
+            </div>
+        </header>
+
+        <!-- Main Reports Grid -->
+        <div class="reports-grid">
+            
+            <!-- Widget 1: Report Display / AI Output -->
+            <div class="card report-output-widget">
+                <h2 class="widget-title" id="report-output-title">Executive Summary (AI Generated)</h2>
+                
+                <div id="ai-summary-output" class="ai-report-box scrollable-content">
+                    <p class="loading-message">Select a report type and project to generate data.</p>
+                </div>
+                
+                <button id="generate-report-btn" class="btn btn-primary btn-styled full-width-btn mt-md"><i class="fas fa-microchip"></i> Generate Report</button>
+            </div>
+            
+            <!-- Widget 2: Visualization / Chart Area -->
+            <div class="card chart-area-widget">
+                <h2 class="widget-title" id="chart-title">Velocity Chart</h2>
+                <div id="chart-visualization" class="chart-visualization-placeholder">
+                    <img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=Chart+Visualization+Area" alt="Chart Placeholder">
+                </div>
+            </div>
+
+            <!-- Widget 3: Key Data Points / RCA Details -->
+            <div class="card metrics-details-widget">
+                <h2 class="widget-title">Key Metrics & Analysis Details</h2>
+                <ul id="analysis-details-list" class="analysis-list">
+                    <!-- Metrics loaded by JS -->
+                </ul>
+            </div>
+
+        </div>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

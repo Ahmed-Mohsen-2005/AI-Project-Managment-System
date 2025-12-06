@@ -11,7 +11,7 @@
     --risk-low-color: #4CAF50;
     --priority-p1: #e91e63; /* Pink/Urgent */
     --priority-p2: #ff9800; /* Orange/Medium */
-    --priority-p3: #4a90e2; /* Blue/Low */
+    --priority-p3: var(--color-primary); /* Blue/Low */
     --modal-bg: rgba(0, 0, 0, 0.6);
 }
 
@@ -190,7 +190,7 @@
 
 /* 4. MODAL Styling */
 .modal {
-    display: none; /* Hidden by default */
+    display: none; /* Hidden by default, shown by JS */
     position: fixed;
     z-index: 100;
     left: 0;
@@ -199,17 +199,22 @@
     height: 100%;
     overflow: auto;
     background-color: var(--modal-bg);
+    backdrop-filter: blur(2px);
 }
 
 .modal-content {
     background-color: var(--color-background-card);
-    margin: 10% auto;
+    /* FIX: Centering the modal as a floating window */
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    
     padding: var(--spacing-lg);
     border-radius: 12px;
     width: 90%;
     max-width: 450px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    position: relative;
     animation: fadeIn 0.3s ease-out;
 }
 
@@ -241,8 +246,10 @@
     margin-bottom: 5px;
     font-weight: 600;
     font-size: 13px;
+    color: var(--color-text-main); 
 }
 
+/* Styling for Inputs and Selects */
 .modal-content input[type="text"],
 .modal-content input[type="date"],
 .modal-content select {
@@ -251,17 +258,29 @@
     border: 1px solid var(--color-border);
     border-radius: 6px;
     font-size: 14px;
-    background-color: var(--color-background-main);
+    background-color: var(--color-background-main); 
+    color: var(--color-text-main);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: var(--color-primary); 
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    outline: none;
+}
+
 .full-width-btn {
     width: 100%;
     margin-top: var(--spacing-md);
 }
 
-/* Keyframes */
+/* Keyframes: Ensure the center transform is maintained during animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    /* Starting state: Centered, but pulled up 20px, and invisible */
+    from { opacity: 0; transform: translate(-50%, -50%) translateY(-20px); }
+    /* Ending state: Centered and visible */
+    to { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
 }
 
 /* Responsive Grid Adjustment */

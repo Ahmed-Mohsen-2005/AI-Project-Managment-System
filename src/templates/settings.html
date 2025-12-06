@@ -5,9 +5,203 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
 {% endblock extra_css %}
+
 {% block content %}
-<!-- Write the code heeereeeee -->
-<p>Settings Page coming soon</p>
+    <div class="settings-container card">
+        <h1 class="page-title"><i class="fas fa-cog"></i> Account & System Settings</h1>
+
+        <div class="settings-grid">
+            
+            <!-- Column 1: Navigation Tabs -->
+            <aside class="settings-tabs">
+                <button class="tab-item active" data-tab="general"><i class="fas fa-sliders-h"></i> General & Profile</button>
+                <button class="tab-item" data-tab="security"><i class="fas fa-shield-alt"></i> Security & RBAC</button>
+                <button class="tab-item" data-tab="integrations"><i class="fas fa-plug"></i> Integrations</button>
+                <button class="tab-item" data-tab="ai-governance"><i class="fas fa-brain"></i> AI Governance</button>
+                <button class="tab-item" data-tab="notifications"><i class="fas fa-bell"></i> Notifications</button>
+            </aside>
+
+            <!-- Column 2: Tab Content -->
+            <main class="settings-content">
+                
+                <!-- 1. General & Profile Tab -->
+                <div class="tab-pane active" id="pane-general">
+                    <h2 class="pane-title">General Application Settings</h2>
+                    
+                    <section class="setting-section">
+                        <h3>Display Preferences</h3>
+                        <div class="setting-group">
+                            <label class="toggle-switch">Dark Mode
+                                <input type="checkbox" id="dark-mode-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-group">
+                            <label for="language-select">Language</label>
+                            <select id="language-select">
+                                <option>English (US)</option>
+                                <option>Arabic (AR)</option>
+                            </select>
+                        </div>
+                    </section>
+                    
+                    <section class="setting-section">
+                        <h3>Account Actions</h3>
+                        <div class="setting-group">
+                            <p>Current Email: <span id="user-email">jana.ahmed@aipms.com</span></p>
+                        </div>
+                        <div class="setting-group">
+                            <button id="update-profile-btn" class="btn btn-primary">Update Profile</button>
+                            <button id="delete-account-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete Account</button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 2. Security & RBAC Tab -->
+                <div class="tab-pane" id="pane-security">
+                    <h2 class="pane-title">Security & Role Management (Admin Only)</h2>
+                    
+                    <section class="setting-section">
+                        <h3>Authentication</h3>
+                        <div class="setting-group flex-justify">
+                            <label>Two-Factor Authentication (2FA)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="2fa-toggle" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </section>
+                    
+                    <section class="setting-section" id="rbac-management-section">
+                        <h3>Role-Based Access Control (FR-201)</h3>
+                        <div class="setting-group">
+                            <label for="manage-user-select">Manage User Permissions:</label>
+                            <select id="manage-user-select" class="full-width-input">
+                                <option value="1">Alice J. (Team Member)</option>
+                                <option value="2">Bob S. (Project Manager)</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="current-role">Current Role:</label>
+                            <span id="current-role" class="status-badge status-active">Project Manager</span>
+                        </div>
+                        
+                        <div class="setting-group permission-grid">
+                            <label class="grid-header">Permission</label>
+                            <label class="grid-header">Status</label>
+                            
+                            <!-- Permission Item 1 -->
+                            <span class="permission-name">Manage Budget (FR-403)</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" data-permission="manage_budget" checked>
+                                <span class="slider round"></span>
+                            </label>
+
+                            <!-- Permission Item 2 -->
+                            <span class="permission-name">Create Projects (FR-101)</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" data-permission="create_project">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <button id="save-rbac-btn" class="btn btn-primary mt-md">Save Permissions</button>
+                    </section>
+                </div>
+
+                <!-- 3. Integrations Tab -->
+                <div class="tab-pane" id="pane-integrations">
+                    <h2 class="pane-title">External Tool Connections</h2>
+                    
+                    <section class="setting-section integration-item">
+                        <div class="integration-info">
+                            <i class="fab fa-github"></i> <h3>GitHub</h3>
+                            <span class="status-indicator status-connected">Connected</span>
+                        </div>
+                        <button class="btn btn-secondary disconnect-btn" data-integration="github">Disconnect</button>
+                    </section>
+                    
+                    <section class="setting-section integration-item">
+                        <div class="integration-info">
+                            <i class="fab fa-slack"></i> <h3>Slack Notifications</h3>
+                            <span class="status-indicator status-connected">Connected</span>
+                        </div>
+                        <button class="btn btn-secondary disconnect-btn" data-integration="slack">Disconnect</button>
+                    </section>
+                    
+                    <section class="setting-section integration-item">
+                        <div class="integration-info">
+                            <i class="fab fa-google-drive"></i> <h3>Google Drive (Audit/Files)</h3>
+                            <span class="status-indicator status-disconnected">Disconnected</span>
+                        </div>
+                        <button class="btn btn-primary connect-btn" data-integration="gdrive">Connect</button>
+                    </section>
+                </div>
+
+                <!-- 4. AI Governance Tab -->
+                <div class="tab-pane" id="pane-ai-governance">
+                    <h2 class="pane-title">AI Model & Governance (FR-508)</h2>
+                    
+                    <section class="setting-section">
+                        <h3>Model Information</h3>
+                        <p><strong>Active Model Version:</strong> <span id="model-version">v2.1.4 (Active)</span></p>
+                        <p><strong>Last Training Date:</strong> 2025-11-28</p>
+                    </section>
+                    
+                    <section class="setting-section">
+                        <h3>AI Feature Controls</h3>
+                        <div class="setting-group flex-justify">
+                            <label>Enable Predictive Risk Scores (FR-203)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-group flex-justify">
+                            <label>Enable Sentiment Analysis (FR-503)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </section>
+                    
+                    <section class="setting-section">
+                        <h3>Audit & Compliance (FR-508)</h3>
+                        <p>All AI decisions and model updates are logged and traceable.</p>
+                        <button class="btn btn-secondary mt-md"><i class="fas fa-file-export"></i> Export AI Audit Log</button>
+                    </section>
+                </div>
+
+                <!-- 5. Notifications Tab -->
+                <div class="tab-pane" id="pane-notifications">
+                    <h2 class="pane-title">Notification Channels</h2>
+                    
+                    <section class="setting-section">
+                        <h3>Email Preferences</h3>
+                        <div class="setting-group flex-justify">
+                            <label>Receive Email Alerts for P1 Tasks</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </section>
+                    
+                    <section class="setting-section">
+                        <h3>Slack Configuration (Linked via Integration)</h3>
+                        <p>Alerts are currently sent to **#backend-devs** on task status change.</p>
+                        <div class="setting-group flex-justify">
+                            <label>Receive Alerts for Swarm Assignment (FR-202)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block extra_js %}

@@ -27,6 +27,9 @@ def create_app():
     app.register_blueprint(file_attachment_bp)
     return app
 @home_bp.route("/")
+def root():
+    return render_template("home.html")
+@home_bp.route("/home")
 def home():
     return render_template("home.html")
 @home_bp.route("/repositories")

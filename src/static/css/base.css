@@ -387,3 +387,260 @@ body {
         display: none;
     }
 }
+.notification-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px;
+    height: 100%;
+    background-color: var(--color-background-card);
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+}
+.notification-panel.open {
+    transform: translateX(0);
+}
+
+.panel-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel-header h3 {
+    font-size: 18px;
+}
+
+#notification-list {
+    list-style: none;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-background-main);
+    cursor: pointer;
+}
+.notification-item:hover {
+    background-color: var(--color-background-main);
+}
+
+.notification-item i {
+    margin-right: var(--spacing-sm);
+    color: var(--color-primary);
+}
+
+.notification-item.unread {
+    background-color: #fcecec;
+    border-left: 4px solid var(--color-notification-unread);
+    font-weight: 500;
+}
+
+.panel-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+
+/* 6. Logout Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+    display: none; /* Controlled by JS */
+    z-index: 999;
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-background-card);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-base);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+}
+.modal-title i {
+    margin-right: var(--spacing-sm);
+    color: var(--color-danger);
+}
+
+.modal-actions {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-secondary:hover {
+    background-color: #95a5a6;
+}
+
+.btn-danger-style {
+    background-color: var(--color-danger);
+}
+.btn-danger-style:hover {
+    background-color: var(--color-danger-dark);
+}
+
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translate(-50%, -40%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+
+/* 7. Responsive adjustments */
+@media (max-width: 900px) {
+    #app-container {
+        grid-template-columns: 1fr;
+    }
+    
+    #sidebar {
+        /* Mobile Overlay Setup: Off-screen by default */
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        transform: translateX(calc(-1 * var(--sidebar-width)));
+        transition: transform 0.3s ease-out;
+    }
+    #app-container.sidebar-open #sidebar {
+        transform: translateX(0);
+    }
+
+    #top-header {
+        grid-column: 1 / 2;
+    }
+
+    #main-content {
+        grid-column: 1 / 2;
+    }
+    .btn-text {
+        display: none; /* Hide button text on small screens */
+    }
+    .search-bar-container {
+        flex-grow: 1;
+        margin: 0 var(--spacing-md);
+    }
+}
+/* 3. Header Styling */
+#top-header {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    background-color: var(--color-background-card);
+    padding: 0 var(--spacing-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); 
+    z-index: 10;
+}
+
+#sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    margin-right: var(--spacing-lg);
+    cursor: pointer;
+    color: var(--color-text-main);
+    transition: color var(--transition-time) ease;
+}
+
+.search-bar-container {
+    position: relative;
+    flex-grow: 1; /* Changed to grow 1 for better spacing on desktop */
+    max-width: 500px; /* Adjusted max width */
+    margin-right: var(--spacing-lg);
+}
+
+#global-search {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 40px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-base);
+    background-color: var(--color-background-main);
+    transition: border-color var(--transition-time) ease, box-shadow var(--transition-time) ease;
+}
+
+#global-search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.icon-btn:hover {
+    background-color: var(--color-background-main);
+}

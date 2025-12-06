@@ -1,108 +1,73 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - AIPMS{% endblock title %}
+{% block title %}My Overview - AIPMS{% endblock title %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 {% endblock extra_css %}
 
 {% block content %}
-    <div class="dashboard-header">
-        <h1 class="page-title">Welcome Back, Project Lead!</h1>
-        <div class="header-filters">
-            <label for="project-filter">Project:</label>
-            <select id="project-filter">
-                <option value="all">All Active Projects</option>
-                <option value="p1">Core Backend Initiative</option>
-                <option value="p2">Frontend UI Revamp</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="dashboard-grid">
+    <div class="personal-overview-container">
         
-        <!-- ROW 1: Key Metrics and Alerts (Full Width) -->
-        <div class="card metric-row-card">
-            <h2 class="widget-title"><i class="fas fa-exclamation-triangle alert-icon"></i> Critical Alerts & Forecast</h2>
-            <div id="ai-alert-summary" class="metric-summary-bar">
-                <div class="alert-item risk-low">
-                    <span class="alert-indicator">3</span> Tasks At Risk (Overdue / Blocked)
-                </div>
-                <div class="alert-item stress-high">
-                    <span class="alert-indicator">0.75</span> Team Stress Index (FR-503)
-                </div>
-                <div class="alert-item velocity-ok">
-                    <span class="alert-indicator">98%</span> Portfolio Velocity
-                </div>
-                <div class="alert-item budget-warn">
-                    <span class="alert-indicator">12%</span> Budget Overrun Forecast (FR-403)
-                </div>
+        <header class="dashboard-header">
+            <h1 class="page-title"><i class="fas fa-user-circle"></i> My Personal Workload & Portfolio</h1>
+            <div class="header-status">
+                <span class="metric-label">Last Sync: Just Now</span>
+            </div>
+        </header>
+
+        <!-- 1. Key Personal Metrics -->
+        <div class="card personal-metric-bar-grid">
+            <div class="metric-box">
+                <p class="metric-value" id="tasks-due-today">5</p>
+                <p class="metric-label">Tasks Due Today</p>
+            </div>
+            <div class="metric-box">
+                <p class="metric-value" id="personal-risk-score">65%</p>
+                <p class="metric-label">Personal Overload Risk (AI)</p>
+            </div>
+            <div class="metric-box">
+                <p class="metric-value" id="my-velocity">100%</p>
+                <p class="metric-label">My Velocity (Last Sprint)</p>
+            </div>
+            <div class="metric-box">
+                <p class="metric-value" id="project-count">3</p>
+                <p class="metric-label">Active Projects</p>
             </div>
         </div>
-
-        <!-- ROW 2, Column 1: AI & Reporting Tools (Expanded Widget) -->
-        <div class="card ai-reporting-widget">
-            <h2 class="widget-title"><i class="fas fa-magic"></i> AI Executive Assistant (FR-401)</h2>
-            <p class="metric-label">Generate Summary or Request Root Cause Analysis (RCA)</p>
-            <div class="ai-input-group">
-                <textarea id="summary-prompt" placeholder="Summarize 'Core Backend Initiative' performance last sprint, focusing on resource utilization and blockers."></textarea>
-                <button id="generate-summary-btn" class="btn btn-primary"><i class="fas fa-robot"></i> Generate Analysis</button>
-            </div>
-            <div id="ai-output" class="ai-output hidden">
-                <p>Awaiting analysis...</p>
-            </div>
-        </div>
-
-        <!-- ROW 2, Column 2: Quick Task View (Scrollable) -->
-        <div class="card task-list-widget">
-            <h2 class="widget-title"><i class="fas fa-list-check"></i> Assigned & Urgent Tasks</h2>
-            <ul id="assigned-tasks" class="task-list scrollable-list">
-                <!-- Tasks loaded via JS -->
-                <li><input type="checkbox" checked> <span class="task-text text-red-600">P1: Fix critical security vulnerability (WI-1002)</span> <span class="task-owner">Alice</span></li>
-                <li><input type="checkbox"> <span class="task-text">P2: Implement user profile view (WI-105)</span> <span class="task-owner">Bob</span></li>
-                <li><input type="checkbox"> <span class="task-text">P3: Draft PRD for V2 features (WI-110)</span> <span class="task-owner">You</span></li>
-                <li><input type="checkbox"> <span class="task-text">P4: Write unit tests for API endpoints</span> <span class="task-owner">Charlie</span></li>
-                <li><input type="checkbox" checked> <span class="task-text">Review and merge Alice's PR (WI-220)</span> <span class="task-owner">You</span></li>
-                <li><input type="checkbox"> <span class="task-text">Update deployment script for staging</span> <span class="task-owner">DevOps</span></li>
-                <li><input type="checkbox"> <span class="task-text">Schedule Client Call for Friday</span> <span class="task-owner">You</span></li>
-            </ul>
-            <a href="/boards/board" class="view-link">View All Tasks on Board &rarr;</a>
-        </div>
-
-        <!-- ROW 3: Charts and Calendar/Team (Small Widgets) -->
         
-        <!-- Widget 4: Velocity Chart -->
-        <div class="card chart-widget small-widget">
-            <h2 class="widget-title"><i class="fas fa-chart-bar"></i> Sprint Velocity</h2>
-            <div class="chart-placeholder">
-                <img src="https://placehold.co/200x100/f05f40/ffffff?text=Velocity+Chart" alt="Sprint Velocity Chart">
+        <!-- 2. Main Content Grid -->
+        <div class="main-content-grid">
+            
+            <!-- Widget 1: Urgent Tasks Across All Projects -->
+            <div class="card urgent-tasks-widget full-span">
+                <h2 class="widget-title"><i class="fas fa-fire-alt"></i> P1/P2 Tasks Across Portfolio</h2>
+                <ul id="urgent-tasks-list" class="task-list scrollable-list">
+                    <!-- Tasks loaded by JS -->
+                </ul>
+                <a href="/boards/backlog" class="view-link">Manage Priority in Backlog &rarr;</a>
             </div>
-        </div>
 
-        <!-- Widget 5: Resource Utilization -->
-        <div class="card chart-widget small-widget">
-            <h2 class="widget-title"><i class="fas fa-hourglass-half"></i> Resource Utilization</h2>
-            <div class="chart-placeholder">
-                <p class="metric-value large-value">85%</p>
-                <p class="metric-label">Avg. Load This Week</p>
+            <!-- Widget 2: AI Executive Assistant (Portfolio Summary) -->
+            <div class="card ai-summary-widget small-span">
+                <h2 class="widget-title"><i class="fas fa-robot"></i> AI Portfolio Assistant</h2>
+                <textarea id="summary-prompt" placeholder="Ask the AI for a summary of high-risk projects or your upcoming week's workload..."></textarea>
+                <button id="generate-summary-btn" class="btn btn-primary"><i class="fas fa-magic"></i> Get AI Insight</button>
+                <div id="ai-output" class="ai-output hidden">Awaiting analysis...</div>
             </div>
-        </div>
 
-        <!-- Widget 6: Calendar (Condensed) -->
-        <div class="card small-widget calendar-condensed">
-            <h2 class="widget-title"><i class="fas fa-calendar-day"></i> Next Event</h2>
-            <p class="deadline-value">Dec 20</p>
-            <p class="deadline-label">Backend Design Final Review</p>
-        </div>
+            <!-- Widget 3: Quick Calendar & Deadlines -->
+            <div class="card quick-calendar-widget small-span">
+                <h2 class="widget-title"><i class="fas fa-calendar-check"></i> Key Deadlines</h2>
+                <ul id="deadline-list" class="deadline-list scrollable-list">
+                    <li><span class="deadline-date">Dec 20:</span> Backend Design Review (Core Backend)</li>
+                    <li><span class="deadline-date">Dec 22:</span> UI Feature Freeze (Frontend Revamp)</li>
+                    <li><span class="deadline-date">Jan 05:</span> Final Testing Due (Core Backend)</li>
+                </ul>
+                <a href="/boards/sprints" class="view-link">View Sprints Timeline &rarr;</a>
+            </div>
 
-        <!-- Widget 7: Team Members & Status -->
-        <div class="card small-widget team-condensed">
-            <h2 class="widget-title"><i class="fas fa-user-friends"></i> Team Status</h2>
-            <p class="metric-value large-value text-green-600">4/5</p>
-            <p class="metric-label">Online & Available</p>
         </div>
-
-        
     </div>
 {% endblock content %}
 
