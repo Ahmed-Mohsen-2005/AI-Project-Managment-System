@@ -1,114 +1,114 @@
 /* ---------------------------------------------------- */
-/* Home Page Specific Styles */
+/* Home Page Specific Styles (Modern Grid) */
 /* ---------------------------------------------------- */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
 
 .page-title {
     color: var(--color-text-main);
-    margin-bottom: var(--spacing-lg);
     font-size: 24px;
     font-weight: 600;
 }
 
-/* 1. Dashboard Grid Layout (Desktop First) */
+.header-filters select {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: var(--color-background-card);
+}
+
+/* 1. Main Dashboard Grid */
 .dashboard-grid {
     display: grid;
-    /* Defines a three-column layout: Calendar/Todo (1/3), Time/Notes (1/3), Team/AI (1/3) */
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(150px, auto); /* Ensures minimum height for rows */
+    /* Defines a primary 3-column layout */
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: auto auto auto; /* 3 rows of content */
     gap: var(--spacing-lg);
 }
 
-/* Define Grid Areas for specific widgets (for flexible placement) */
-.calendar-widget {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    background-color: var(--color-primary);
-    color: white;
+/* ROW 1: Full-width Metrics/Alerts */
+.metric-row-card {
+    grid-column: 1 / -1; /* Span all columns */
+    padding: var(--spacing-md);
+    border-left: 5px solid var(--color-primary); /* Highlight */
 }
 
-.todo-widget {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
+.metric-summary-bar {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-sm);
 }
 
-.time-tracker-widget {
-    grid-column: 2 / 3;
-    grid-row: 1 / 3; /* Spans two rows for a larger chart area */
-}
-
-.team-tracker-widget {
-    grid-column: 3 / 4;
-    grid-row: 1 / 2;
-}
-
-.notes-widget {
-    grid-column: 3 / 4;
-    grid-row: 2 / 3;
-}
-
-.team-list-widget {
-    grid-column: 3 / 4;
-    grid-row: 3 / 4; 
-    /* This will shift down when the layout changes */
-}
-
-/* 2. Widget General Styling */
-.widget-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: var(--spacing-md);
+.alert-item {
+    padding: var(--spacing-sm) 0;
+    font-weight: 500;
     display: flex;
     align-items: center;
 }
 
-.widget-title i {
-    margin-right: 8px;
-    color: var(--color-primary); /* Use primary color for icons */
-}
-
-.calendar-widget .widget-title i {
-    color: white; /* Override for primary background */
-}
-
-/* Calendar Widget Specifics */
-.deadline-label {
-    font-size: 12px;
-    opacity: 0.8;
-}
-.deadline-value {
-    font-size: 24px;
+.alert-indicator {
+    font-size: 18px;
     font-weight: bold;
-    margin: var(--spacing-sm) 0 var(--spacing-md);
-}
-.calendar-widget .view-link {
-    color: white;
-    text-decoration: underline;
-    opacity: 0.9;
+    margin-right: 8px;
 }
 
-/* To-Do Widget Specifics */
-.task-list {
-    list-style: none;
-    padding: 0;
+.risk-low { color: #cc6600; } /* Amber/Orange */
+.stress-high { color: #cc3333; } /* Red */
+.velocity-ok { color: #4CAF50; } /* Green */
+.budget-warn { color: #4a90e2; } /* Blue/Primary */
+
+
+/* ROW 2: Main Content Area (AI and Task List) */
+.ai-reporting-widget {
+    grid-column: 1 / 3; /* Spans 2/3 of the width */
+}
+
+.task-list-widget {
+    grid-column: 3 / 4; /* Takes 1/3 of the width */
+}
+
+.scrollable-list {
+    max-height: 300px; /* Constrain height */
+    overflow-y: auto;
+    padding-right: 5px;
     margin-bottom: var(--spacing-md);
 }
-.task-list li {
+
+/* ROW 3: Small Condensed Metrics (4 equal columns) */
+.chart-widget, .calendar-condensed, .team-condensed {
+    grid-column: span 1;
+    text-align: center;
     display: flex;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px dashed var(--color-border);
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
 }
-.task-list li:last-child {
-    border-bottom: none;
-}
-.task-text {
-    margin-left: var(--spacing-sm);
+.small-widget .widget-title {
+    justify-content: center;
 }
 
-/* AI Team Tracker Widget Specifics */
+.large-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin: 10px 0;
+}
+
+/* AI Widget Styling */
+.ai-input-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--spacing-md);
+}
+
 #summary-prompt {
     width: 100%;
-    min-height: 80px;
+    min-height: 120px;
     padding: var(--spacing-sm);
     border: 1px solid var(--color-border);
     border-radius: 6px;
@@ -120,52 +120,61 @@
     margin-top: var(--spacing-md);
     padding: var(--spacing-sm);
     background-color: var(--color-background-main);
-    border-left: 3px solid var(--color-primary);
+    border-left: 3px solid #cc6600; /* Amber for AI output */
     font-style: italic;
-    color: var(--color-text-secondary);
+    color: var(--color-text-main);
 }
-.ai-output.hidden {
-    display: none;
+.hidden {
+    display: none !important;
 }
 
-/* Team List Widget */
-.team-list {
+/* Task List Styling */
+.task-list {
     list-style: none;
     padding: 0;
 }
-.team-member {
+.task-list li {
     display: flex;
     align-items: center;
-    padding: var(--spacing-sm) 0;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-border);
+    justify-content: space-between;
 }
-.team-member .profile-avatar {
-    margin-right: var(--spacing-sm);
+.task-list li:last-child {
+    border-bottom: none;
+}
+.task-owner {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+.text-red-600 {
+    color: #cc3333;
+    font-weight: 600;
 }
 
 /* Responsive adjustments */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
     .dashboard-grid {
-        /* Switch to a 2-column layout on smaller desktops/tablets */
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 1fr; /* Switch to 2 columns */
     }
-
-    /* Redefine grid areas for 2 columns */
-    .calendar-widget { grid-column: 1 / 2; grid-row: 1 / 2; }
-    .todo-widget { grid-column: 2 / 3; grid-row: 1 / 2; }
-    .time-tracker-widget { grid-column: 1 / 2; grid-row: 2 / 3; }
-    .team-tracker-widget { grid-column: 2 / 3; grid-row: 2 / 3; }
-    .notes-widget { grid-column: 1 / 2; grid-row: 3 / 4; }
-    .team-list-widget { grid-column: 2 / 3; grid-row: 3 / 4; }
+    .metric-row-card { grid-column: 1 / -1; } /* Full width */
+    .ai-reporting-widget { grid-column: 1 / 3; grid-row: 2 / 3; } /* Full width on row 2 */
+    .task-list-widget { grid-column: 1 / 3; grid-row: 3 / 4; } /* Full width on row 3 */
+    
+    /* Small widgets (Row 4) switch to 2-col stack */
+    .chart-widget, .calendar-condensed, .team-condensed {
+        grid-column: span 1;
+        grid-row: auto;
+    }
 }
 
 @media (max-width: 768px) {
     .dashboard-grid {
-        /* Switch to a 1-column stack on mobile */
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto;
+        grid-template-columns: 1fr; /* Single column stack */
     }
-    
-    /* All items stack vertically */
+    .metric-summary-bar {
+        flex-direction: column;
+    }
     .dashboard-grid > div {
         grid-column: 1 / 2 !important;
         grid-row: auto !important;

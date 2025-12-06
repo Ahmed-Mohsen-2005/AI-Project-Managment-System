@@ -7,89 +7,101 @@
 {% endblock extra_css %}
 
 {% block content %}
-    <h1 class="page-title">Welcome Back, Project Lead!</h1>
+    <div class="dashboard-header">
+        <h1 class="page-title">Welcome Back, Project Lead!</h1>
+        <div class="header-filters">
+            <label for="project-filter">Project:</label>
+            <select id="project-filter">
+                <option value="all">All Active Projects</option>
+                <option value="p1">Core Backend Initiative</option>
+                <option value="p2">Frontend UI Revamp</option>
+            </select>
+        </div>
+    </div>
     
     <div class="dashboard-grid">
         
-        <!-- Widget 1: Calendar (Next Deadline) -->
-        <div class="card calendar-widget">
-            <h2 class="widget-title"><i class="fas fa-calendar-alt"></i> Calendar</h2>
-            <p class="deadline-label">Next Critical Deadline:</p>
-            <p class="deadline-value">Dec 20 - Website Backend Final Design (5 days remaining)</p>
-            <a href="/calendar" class="view-link">View Full Calendar</a>
-        </div>
-
-        <!-- Widget 2: To-Do List -->
-        <div class="card todo-widget">
-            <h2 class="widget-title"><i class="fas fa-list-check"></i> My To-do List</h2>
-            <ul id="personal-tasks" class="task-list">
-                <li>
-                    <input type="checkbox" checked>
-                    <span class="task-text">Review Project Brief (WI-105)</span>
-                </li>
-                <li>
-                    <input type="checkbox">
-                    <span class="task-text">Schedule Client Call for Friday</span>
-                </li>
-                <li>
-                    <input type="checkbox">
-                    <span class="task-text">Approve PR from Alice (WI-220)</span>
-                </li>
-            </ul>
-            <button class="btn btn-primary btn-sm add-task-btn"><i class="fas fa-plus"></i> Add Quick Task</button>
-        </div>
-
-        <!-- Widget 3: Time Tracker (Simulation of Progress Chart) -->
-        <div class="card time-tracker-widget">
-            <h2 class="widget-title"><i class="fas fa-chart-area"></i> Time Tracker</h2>
-            <p class="metric-label">Logged Hours vs. Estimate (This Week)</p>
-            <!-- Placeholder for chart visualization -->
-            <div class="chart-placeholder">
-                <img src="https://placehold.co/400x150/4a90e2/ffffff?text=Burndown+Chart+Placeholder" alt="Time Tracking Chart">
+        <!-- ROW 1: Key Metrics and Alerts (Full Width) -->
+        <div class="card metric-row-card">
+            <h2 class="widget-title"><i class="fas fa-exclamation-triangle alert-icon"></i> Critical Alerts & Forecast</h2>
+            <div id="ai-alert-summary" class="metric-summary-bar">
+                <div class="alert-item risk-low">
+                    <span class="alert-indicator">3</span> Tasks At Risk (Overdue / Blocked)
+                </div>
+                <div class="alert-item stress-high">
+                    <span class="alert-indicator">0.75</span> Team Stress Index (FR-503)
+                </div>
+                <div class="alert-item velocity-ok">
+                    <span class="alert-indicator">98%</span> Portfolio Velocity
+                </div>
+                <div class="alert-item budget-warn">
+                    <span class="alert-indicator">12%</span> Budget Overrun Forecast (FR-403)
+                </div>
             </div>
-            <p class="metric-value">Overall Velocity: 95%</p>
         </div>
 
-        <!-- Widget 4: Team Tracker (AI Feature Showcase - FR-401) -->
-        <div class="card team-tracker-widget">
-            <h2 class="widget-title"><i class="fas fa-robot"></i> AI Team Tracker</h2>
-            <p class="metric-label">Generate Executive Summary (FR-401)</p>
-            <textarea id="summary-prompt" placeholder="Summarize project updates for last 7 days focusing on Blockers..."></textarea>
-            <button id="generate-summary-btn" class="btn btn-primary"><i class="fas fa-magic"></i> Generate Summary</button>
+        <!-- ROW 2, Column 1: AI & Reporting Tools (Expanded Widget) -->
+        <div class="card ai-reporting-widget">
+            <h2 class="widget-title"><i class="fas fa-magic"></i> AI Executive Assistant (FR-401)</h2>
+            <p class="metric-label">Generate Summary or Request Root Cause Analysis (RCA)</p>
+            <div class="ai-input-group">
+                <textarea id="summary-prompt" placeholder="Summarize 'Core Backend Initiative' performance last sprint, focusing on resource utilization and blockers."></textarea>
+                <button id="generate-summary-btn" class="btn btn-primary"><i class="fas fa-robot"></i> Generate Analysis</button>
+            </div>
             <div id="ai-output" class="ai-output hidden">
-                <p>Generating...</p>
+                <p>Awaiting analysis...</p>
             </div>
         </div>
 
-        <!-- Widget 5: Notes/Wiki Quick Access -->
-        <div class="card notes-widget">
-            <h2 class="widget-title"><i class="fas fa-sticky-note"></i> Quick Notes</h2>
-            <ul class="note-list">
-                <li>Product Launch Meeting (Draft)</li>
-                <li>Client Feedback v1.2</li>
-                <li>Q3 Budget Review</li>
+        <!-- ROW 2, Column 2: Quick Task View (Scrollable) -->
+        <div class="card task-list-widget">
+            <h2 class="widget-title"><i class="fas fa-list-check"></i> Assigned & Urgent Tasks</h2>
+            <ul id="assigned-tasks" class="task-list scrollable-list">
+                <!-- Tasks loaded via JS -->
+                <li><input type="checkbox" checked> <span class="task-text text-red-600">P1: Fix critical security vulnerability (WI-1002)</span> <span class="task-owner">Alice</span></li>
+                <li><input type="checkbox"> <span class="task-text">P2: Implement user profile view (WI-105)</span> <span class="task-owner">Bob</span></li>
+                <li><input type="checkbox"> <span class="task-text">P3: Draft PRD for V2 features (WI-110)</span> <span class="task-owner">You</span></li>
+                <li><input type="checkbox"> <span class="task-text">P4: Write unit tests for API endpoints</span> <span class="task-owner">Charlie</span></li>
+                <li><input type="checkbox" checked> <span class="task-text">Review and merge Alice's PR (WI-220)</span> <span class="task-owner">You</span></li>
+                <li><input type="checkbox"> <span class="task-text">Update deployment script for staging</span> <span class="task-owner">DevOps</span></li>
+                <li><input type="checkbox"> <span class="task-text">Schedule Client Call for Friday</span> <span class="task-owner">You</span></li>
             </ul>
-            <a href="/notes" class="view-link">All Docs</a>
+            <a href="/boards/board" class="view-link">View All Tasks on Board &rarr;</a>
         </div>
 
-        <!-- Widget 6: Team Members -->
-        <div class="card team-list-widget">
-            <h2 class="widget-title"><i class="fas fa-users"></i> Project Team</h2>
-            <ul class="team-list">
-                <li class="team-member">
-                    <img src="https://placehold.co/30x30/f05f40/ffffff?text=A" class="profile-avatar" alt="Alice">
-                    <span>Alice J. (Backend)</span>
-                </li>
-                <li class="team-member">
-                    <img src="https://placehold.co/30x30/00bcd4/ffffff?text=B" class="profile-avatar" alt="Bob">
-                    <span>Bob S. (Frontend)</span>
-                </li>
-                <li class="team-member">
-                    <img src="https://placehold.co/30x30/8bc34a/ffffff?text=C" class="profile-avatar" alt="Charlie">
-                    <span>Charlie W. (QA)</span>
-                </li>
-            </ul>
+        <!-- ROW 3: Charts and Calendar/Team (Small Widgets) -->
+        
+        <!-- Widget 4: Velocity Chart -->
+        <div class="card chart-widget small-widget">
+            <h2 class="widget-title"><i class="fas fa-chart-bar"></i> Sprint Velocity</h2>
+            <div class="chart-placeholder">
+                <img src="https://placehold.co/200x100/f05f40/ffffff?text=Velocity+Chart" alt="Sprint Velocity Chart">
+            </div>
         </div>
+
+        <!-- Widget 5: Resource Utilization -->
+        <div class="card chart-widget small-widget">
+            <h2 class="widget-title"><i class="fas fa-hourglass-half"></i> Resource Utilization</h2>
+            <div class="chart-placeholder">
+                <p class="metric-value large-value">85%</p>
+                <p class="metric-label">Avg. Load This Week</p>
+            </div>
+        </div>
+
+        <!-- Widget 6: Calendar (Condensed) -->
+        <div class="card small-widget calendar-condensed">
+            <h2 class="widget-title"><i class="fas fa-calendar-day"></i> Next Event</h2>
+            <p class="deadline-value">Dec 20</p>
+            <p class="deadline-label">Backend Design Final Review</p>
+        </div>
+
+        <!-- Widget 7: Team Members & Status -->
+        <div class="card small-widget team-condensed">
+            <h2 class="widget-title"><i class="fas fa-user-friends"></i> Team Status</h2>
+            <p class="metric-value large-value text-green-600">4/5</p>
+            <p class="metric-label">Online & Available</p>
+        </div>
+
         
     </div>
 {% endblock content %}

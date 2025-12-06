@@ -5,9 +5,115 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/board/board.css') }}">
 {% endblock extra_css %}
+
 {% block content %}
-<!-- Write the code heeereeeee -->
-<p>Board Page coming soon</p>
+    <div class="board-container">
+        
+        <!-- Board Header and Controls -->
+        <header class="board-header">
+            <h1 class="page-title"><i class="fas fa-columns"></i> Kanban Board</h1>
+            <div class="board-controls">
+                
+                <!-- NEW: Project Selection Dropdown -->
+                <div class="control-group">
+                    <label for="project-filter">Project:</label>
+                    <select id="project-filter" class="filter-select">
+                        <option value="1">Core Backend Initiative (Current)</option>
+                        <option value="2">Frontend UI Revamp</option>
+                        <option value="3">AI Model Optimization</option>
+                        <option value="all">View All Projects</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="assignee-filter">Assignee:</label>
+                    <select id="assignee-filter" class="filter-select">
+                        <option value="all">All Team Members</option>
+                        <option value="You">You (Project Lead)</option>
+                        <option value="Alice J.">Alice J.</option>
+                        <option value="Bob S.">Bob S.</option>
+                    </select>
+                </div>
+                
+                <button id="quick-add-task-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> Quick Add Task</button>
+            </div>
+        </header>
+
+        <!-- Main Board Columns -->
+        <div id="kanban-board" class="kanban-board">
+            
+            <!-- Column 1: To Do -->
+            <div class="kanban-column" id="column-todo" data-status="To Do">
+                <h2 class="column-title">To Do <span class="task-count">(0)</span></h2>
+                <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                    <!-- Tasks will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Column 2: In Progress -->
+            <div class="kanban-column" id="column-in-progress" data-status="In Progress">
+                <h2 class="column-title">In Progress <span class="task-count">(0)</span></h2>
+                <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                    <!-- Tasks will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Column 3: Under Review -->
+            <div class="kanban-column" id="column-review" data-status="Under Review">
+                <h2 class="column-title">Under Review <span class="task-count">(0)</span></h2>
+                <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                    <!-- Tasks will be inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Column 4: Done -->
+            <div class="kanban-column" id="column-done" data-status="Done">
+                <h2 class="column-title">Done <span class="task-count">(0)</span></h2>
+                <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                    <!-- Tasks will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Quick Add Task MODAL Structure -->
+    <div id="quick-add-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Quick Create Task</h2>
+            <form id="quick-add-form">
+                <div class="form-group">
+                    <label for="task-title-input">Title</label>
+                    <input type="text" id="task-title-input" required placeholder="e.g., Fix critical API bug (WI-401)">
+                </div>
+                <div class="form-group">
+                    <label for="task-assignee">Assignee</label>
+                    <select id="task-assignee">
+                        <option value="You">You (Project Lead)</option>
+                        <option value="Alice J.">Alice J.</option>
+                        <option value="Bob S.">Bob S.</option>
+                        <option value="Charlie W.">Charlie W.</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority">Priority</label>
+                    <select id="task-priority" required>
+                        <option value="P2">P2 - Standard</option>
+                        <option value="P1">P1 - Urgent</option>
+                        <option value="P3">P3 - Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-due">Due Date</label>
+                    <input type="date" id="task-due">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-magic"></i> Create Task</button>
+            </form>
+        </div>
+    </div>
+
 {% endblock content %}
 
 {% block extra_js %}
