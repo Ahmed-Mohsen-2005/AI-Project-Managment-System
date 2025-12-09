@@ -1,0 +1,277 @@
+/* Import Google Font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #007bff; /* Blue */
+    --secondary-color: #6c757d; /* Gray */
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --background-color: #f4f7f6;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #dee2e6;
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* --- Container & Logo --- */
+
+.auth-container {
+    background: var(--card-background);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    width: 100%;
+    max-width: 400px;
+    transition: all 0.3s ease;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo h1 {
+    font-size: 32px;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.logo h1 .fas.fa-robot {
+    font-size: 38px;
+}
+
+.logo p {
+    font-size: 14px;
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+/* --- Toggle Switch --- */
+
+.toggle-switch {
+    display: flex;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    padding: 5px;
+}
+
+.toggle-btn {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--secondary-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 15px;
+}
+
+.toggle-btn.active {
+    background-color: var(--primary-color);
+    color: var(--card-background);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Forms & Inputs --- */
+
+.auth-form {
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.auth-form.active {
+    display: block; /* Shown when active */
+    opacity: 1;
+}
+
+.form-group {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: border-color 0.2s;
+}
+
+.form-group:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.form-group i {
+    color: var(--secondary-color);
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    padding: 5px 0;
+    font-size: 15px;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+/* --- Buttons --- */
+
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: var(--card-background);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+.btn-submit:active {
+    transform: scale(0.99);
+}
+
+/* --- Divider and OAuth --- */
+
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    font-size: 14px;
+    color: var(--secondary-color);
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.oauth-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-oauth {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-oauth i {
+    margin-right: 8px;
+}
+
+#btn-google:hover {
+    background-color: #f8f9fa;
+    border-color: #ea4335; /* Google Red */
+    color: #ea4335;
+}
+
+#btn-github:hover {
+    background-color: #f8f9fa;
+    border-color: #333; /* Github Black */
+    color: #333;
+}
+
+/* --- Utility Classes --- */
+
+.text-primary {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.text-primary:hover {
+    text-decoration: underline;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: var(--danger-color);
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Media Query for smaller screens */
+@media (max-width: 450px) {
+    .auth-container {
+        padding: 25px;
+        margin: 20px;
+    }
+    .oauth-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
