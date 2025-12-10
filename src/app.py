@@ -7,6 +7,7 @@ from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
+from controllers.auth_controller import auth_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from flask import Blueprint, render_template
@@ -21,6 +22,7 @@ app.register_blueprint(project_bp)
 app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
+app.register_blueprint(auth_bp)
 
 @app.route("/")
 def root():

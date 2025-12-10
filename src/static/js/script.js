@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // NOTE: HOME_PAGE_URL is now set as a global variable in the HTML using Jinja:
+    // NOTE: HOME_PAGE_URL is assumed to be defined globally in your HTML using Jinja:
     // const HOME_PAGE_URL = "{{ url_for('homepage') }}"; 
+
+    // Define API Endpoints using a global object (assuming your 'auth_bp' prefix is /api/v1/auth)
+    // NOTE: If you are using Jinja for the HTML, it's safer to define these URLs in the HTML too.
+    const API_ENDPOINTS = {
+        login: '/api/v1/auth/login',
+        register: '/api/v1/auth/register'
+    };
 
     // --- Element Selectors ---
     const loginToggle = document.getElementById('login-toggle');
@@ -8,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const errorMessage = document.getElementById('auth-error');
-
-    // ... (toggleForms and displayError functions remain the same) ...
 
     // --- Core Functions ---
 
@@ -57,44 +62,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Login Form Submission 🚀
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const username = document.getElementById('login-username').value;
+        const email = document.getElementById('login-username').value; // Using username input for email
         const password = document.getElementById('login-password').value;
 
-        // Simple validation/simulation
-        if (username.length < 3 || password.length < 6) {
-            displayError('Invalid credentials. Please check your username/email and password.');
-        } else {
-            // Success Simulation:
-            alert('Login successful! Redirecting to home page...');
-            
-            // --- REDIRECTION LOGIC USING GLOBAL JINJA VARIABLE ---
-            window.location.href = HOME_PAGE_URL;
-            // -----------------------------------------------------
+        // Client-side validation check
+        if (!email || !password) {
+             return displayError('Please enter both email/username and password.');
+        }
+
+        try {
+            const response = await fetch(API_ENDPOINTS.login, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Successful Login (Status 200)
+                // In a real app, you'd save the token/session data from 'data' here.
+                alert('Login successful! Welcome, ' + data.user.name + '!');
+                
+                // --- REDIRECTION LOGIC ---
+                window.location.href = HOME_PAGE_URL;
+            } else {
+                // Failed Login (Status 401/400/etc)
+                displayError(data.message || 'Login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Login Fetch Error:', error);
+            displayError('Could not connect to the server. Check your network.');
         }
     });
 
     // Signup Form Submission 🚀
-    signupForm.addEventListener('submit', (e) => {
+    signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const email = document.getElementById('signup-email').value;
+        const name = document.getElementById('signup-username').value; // Mapped to name
         const password = document.getElementById('signup-password').value;
 
-        // Simple validation/simulation
+        // Client-side validation check
         if (password.length < 8) {
             displayError('Password must be at least 8 characters long.');
             return;
         }
 
-        // Success Simulation:
-        alert('Account created successfully! Redirecting to home page...');
-        
-        // --- REDIRECTION LOGIC USING GLOBAL JINJA VARIABLE ---
-        window.location.href = HOME_PAGE_URL;
-        // -----------------------------------------------------
+        try {
+            const response = await fetch(API_ENDPOINTS.register, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Successful Signup (Status 201 Created)
+                alert('Account created successfully! Please log in.');
+                
+                // Switch to login form after successful registration
+                toggleForms('login-form');
+                signupForm.reset();
+            } else {
+                // Failed Signup (Status 409 Conflict, 400 Bad Request, etc.)
+                displayError(data.message || 'Registration failed. Please check your inputs.');
+            }
+        } catch (error) {
+            console.error('Signup Fetch Error:', error);
+            displayError('Could not connect to the server. Check your network.');
+        }
     });
 
     // OAuth button simulation (optional)
