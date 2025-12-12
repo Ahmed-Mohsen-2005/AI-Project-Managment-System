@@ -102,46 +102,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Signup Form Submission 🚀
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('signup-email').value;
-        const name = document.getElementById('signup-username').value; // Mapped to name
-        const password = document.getElementById('signup-password').value;
+    // ... (code above remains the same)
 
-        // Client-side validation check
-        if (password.length < 8) {
-            displayError('Password must be at least 8 characters long.');
-            return;
-        }
+    // Signup Form Submission 🚀
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('signup-email').value;
+        const name = document.getElementById('signup-username').value; // Mapped to name
+        const password = document.getElementById('signup-password').value;
 
-        try {
-            const response = await fetch(API_ENDPOINTS.register, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name, email, password }),
-            });
+        // Client-side validation check
+        if (password.length < 8) {
+            displayError('Password must be at least 8 characters long.');
+            return;
+        }
 
-            const data = await response.json();
+        try {
+            const response = await fetch(API_ENDPOINTS.register, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
 
-            if (response.ok) {
-                // Successful Signup (Status 201 Created)
-                alert('Account created successfully! Please log in.');
-                
-                // Switch to login form after successful registration
-                toggleForms('login-form');
-                signupForm.reset();
-            } else {
-                // Failed Signup (Status 409 Conflict, 400 Bad Request, etc.)
-                displayError(data.message || 'Registration failed. Please check your inputs.');
-            }
-        } catch (error) {
-            console.error('Signup Fetch Error:', error);
-            displayError('Could not connect to the server. Check your network.');
-        }
-    });
+            const data = await response.json();
+
+            if (response.ok) {
+                // Successful Signup (Status 201 Created)
+                alert('Account created successfully! Welcome!');
+                
+                // --- REDIRECTION LOGIC ---
+                // Instead of switching to login form, redirect to the home page.
+                window.location.href = HOME_PAGE_URL;
+                
+                // Note: In a real app, you would also need to ensure the user 
+                // is logged in (e.g., by checking for a token in the response 
+                // and storing it before redirecting).
+            } else {
+                // Failed Signup (Status 409 Conflict, 400 Bad Request, etc.)
+                displayError(data.message || 'Registration failed. Please check your inputs.');
+            }
+        } catch (error) {
+            console.error('Signup Fetch Error:', error);
+            displayError('Could not connect to the server. Check your network.');
+        }
+    });
+
+// ... (rest of the code remains the same)
 
     // OAuth button simulation (optional)
     document.querySelectorAll('.btn-oauth').forEach(button => {
