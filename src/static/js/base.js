@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Final action: Confirm logout
         confirmLogoutBtn.addEventListener('click', () => {
             console.log("[LOGOUT] User confirmed logout. Executing session termination...");
-            window.location.href = '/logout'; 
+            window.location.href = '/'; 
         });
     }
 
