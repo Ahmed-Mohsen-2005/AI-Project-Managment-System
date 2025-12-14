@@ -13,7 +13,7 @@ class DatabaseConnection:
                 self.connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="AhmedMohsen2005", 
+                password="ali2005", 
                 database="AIPMS"
                 )
                 print(" Connected to MySQL")
