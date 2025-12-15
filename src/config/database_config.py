@@ -5,11 +5,7 @@ load_dotenv()
 
 # --- Database Credentials (MySQL) ---
 DB_USER = os.getenv("DB_USER", "root")
-<<<<<<< HEAD
 DB_PASSWORD = os.getenv("DB_PASSWORD", "mazen2004") # Using the password from your query
-=======
-DB_PASSWORD = os.getenv("DB_PASSWORD", "ali2005") # Using the password from your query
->>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "3306") # Standard MySQL port
 DB_NAME = os.getenv("DB_NAME", "AIPMS")

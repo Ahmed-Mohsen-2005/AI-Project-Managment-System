@@ -291,13 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------
     // Other widgets
     function updateCalendarWidget(deadlines) {
-        const deadlineDisplay = document.getElementById('next-deadline-display');
-        if (deadlines && deadlines.length > 0) {
-            const nextDeadline = deadlines[0];
-            deadlineDisplay.textContent = `${nextDeadline.date} - ${nextDeadline.description}`;
-        } else {
-            deadlineDisplay.textContent = 'No upcoming deadlines';
-        }
+    if (deadlines && deadlines.length > 0) {
+        const nextDeadline = deadlines[0];
+        deadlineDisplay.textContent =
+            `${nextDeadline.date} - ${nextDeadline.description}`;
+        } 
     }
 
     function updateNotesWidget() {
