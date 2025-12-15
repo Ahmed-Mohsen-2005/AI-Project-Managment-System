@@ -13,7 +13,7 @@ try:
 
     if conn.is_connected():
         cursor = conn.cursor()
-        sql_query = "SELECT user_id, name, email from userr"
+        sql_query = "SELECT * from userr"
         print(f"\nExecuting Query: {sql_query}")
         cursor.execute(sql_query)
         results = cursor.fetchall()

@@ -8,3 +8,13 @@ def list_all_users():
     repo = RepositoryFactory.get_repository("user")
     users = repo.get_all()
     return jsonify([u.to_dict() for u in users]), 200
+
+@user_bp.route("/<int:user_id>", methods=["GET"])
+def get_user_by_id(user_id):
+    repo = RepositoryFactory.get_repository("user")
+    user = repo.get_by_id(user_id)
+    
+    if user:
+        return jsonify(user.to_dict()), 200
+    else:
+        abort(404, description="User not found")
