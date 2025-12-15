@@ -1,12 +1,3 @@
-// --- MOCK Data Source (Simulates fetch from Project Service) ---
-const MOCK_SPRINTS = [
-    { id: 1, name: 'Sprint 1 - Foundations', start: '2025-10-01', end: '2025-10-14', status: 'complete', velocity: 90, tasks_done: 18, total_tasks: 20, project_id: '1', ai_forecast: 'On Time' },
-    { id: 2, name: 'Sprint 2 - User Auth & RBAC', start: '2025-10-15', end: '2025-10-28', status: 'complete', velocity: 100, tasks_done: 22, total_tasks: 22, project_id: '1', ai_forecast: 'On Time' },
-    { id: 3, name: 'Sprint 3 - AI Monitoring MVP', start: '2025-11-01', end: '2025-11-14', status: 'complete', velocity: 75, tasks_done: 15, total_tasks: 20, project_id: '1', ai_forecast: 'Delayed by 2 days' },
-    { id: 4, name: 'Sprint 4 - Frontend Redesign', start: '2025-11-15', end: '2025-11-28', status: 'active', velocity: 60, tasks_done: 12, total_tasks: 20, project_id: '2', ai_forecast: 'Delayed by 1 day' },
-    { id: 5, name: 'Sprint 5 - Final Testing', start: '2025-12-01', end: '2025-12-14', status: 'future', velocity: 0, tasks_done: 0, total_tasks: 15, project_id: '1', ai_forecast: 'Needs Planning' },
-];
-
 document.addEventListener('DOMContentLoaded', () => {
     const sprintList = document.getElementById('sprint-item-list');
     const createSprintBtn = document.getElementById('create-new-sprint-btn');
@@ -15,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const createSprintForm = document.getElementById('create-sprint-form');
     const projectFilter = document.getElementById('project-filter');
     
+    // --- API CONFIGURATION ---
+    const API_BASE_URL = '/api/v1/sprints';
+
     // --- INITIALIZATION ---
     loadSprints();
     
@@ -31,29 +25,72 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeModal() { modal.style.display = 'none'; createSprintForm.reset(); }
 
     // --- DATA LOADING & RENDERING ---
-    function loadSprints() {
-        sprintList.innerHTML = '';
+    async function loadSprints() {
+        sprintList.innerHTML = ''; // Clear current list
+        
         const currentProjectId = projectFilter.value;
         
-        const filteredSprints = MOCK_SPRINTS.filter(s => 
-            currentProjectId === 'all' || s.project_id === currentProjectId
-        );
+        // Construct URL based on filter
+        let url = API_BASE_URL + "/";
+        if (currentProjectId !== 'all') {
+            url += `?project_id=${currentProjectId}`;
+        }
 
-        setTimeout(() => { // Simulate API latency
-            if (filteredSprints.length === 0) {
-                sprintList.innerHTML = '<li class="loading-message">No sprints found for this project.</li>';
+        try {
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const sprintsData = await response.json();
+
+            if (sprintsData.length === 0) {
+                sprintList.innerHTML = '<li class="loading-message">No sprints found.</li>';
                 return;
             }
             
-            filteredSprints.forEach(sprint => {
-                sprintList.insertAdjacentHTML('beforeend', createSprintRow(sprint));
+            sprintsData.forEach(sprintData => {
+                // Map the DB response to the format the UI expects
+                const uiSprint = mapApiDataToUiModel(sprintData);
+                sprintList.insertAdjacentHTML('beforeend', createSprintRow(uiSprint));
             });
-        }, 400);
+
+        } catch (error) {
+            console.error('Error loading sprints:', error);
+            sprintList.innerHTML = `<li class="error-message">Error loading sprints: ${error.message}</li>`;
+        }
+    }
+
+    /**
+     * Bridges the gap between Python DB keys (snake_case) and UI keys.
+     */
+    function mapApiDataToUiModel(apiData) {
+        // Handle case where status might be missing from DB or API
+        const statusVal = apiData.status ? apiData.status.toLowerCase() : 'future';
+        
+        return {
+            id: apiData.sprint_id,
+            name: apiData.name,
+            start: apiData.start_date, 
+            end: apiData.end_date,
+            status: statusVal,
+            velocity: apiData.velocity || 0,
+            project_id: apiData.project_id,
+            tasks_done: 0, // Placeholder
+            total_tasks: 0, // Placeholder
+            // Calculate forecast based on status if API doesn't provide it
+            ai_forecast: statusVal === 'future' ? 'Needs Planning' : 'On Time'
+        };
     }
     
     function createSprintRow(sprint) {
-        const statusClass = sprint.status;
-        const velocityPercent = sprint.status === 'complete' ? sprint.velocity : Math.floor((sprint.tasks_done / sprint.total_tasks) * 100);
+        // Handle division by zero
+        const velocityPercent = sprint.total_tasks > 0 
+            ? Math.floor((sprint.tasks_done / sprint.total_tasks) * 100) 
+            : 0;
+
+        const statusClass = sprint.status; 
         const forecastClass = sprint.ai_forecast.includes('Delayed') ? 'delayed' : 'on-time';
 
         return `
@@ -91,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- FORM SUBMISSION LOGIC ---
-    function handleCreateSprintSubmit(e) {
+    async function handleCreateSprintSubmit(e) {
         e.preventDefault();
         
         const name = document.getElementById('sprint-name-input').value.trim();
@@ -101,34 +138,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!name || !start || !end) return;
 
-        const newSprint = {
-            id: Date.now(),
+        // UPDATED PAYLOAD: 
+        // 1. Removed 'status' (DB doesn't use it anymore)
+        // 2. Added 'velocity' (DB expects it, default to 0)
+        const sprintPayload = {
             name: name,
-            start: start,
-            end: end,
-            status: 'future', 
-            velocity: 0,
-            tasks_done: 0,
-            total_tasks: 0,
             project_id: projectId,
-            ai_forecast: 'Needs Planning'
+            start_date: start, 
+            end_date: end,     
+            velocity: 0 
         };
         
-        // --- API ACTION: Submit New Sprint Data ---
-        submitNewSprint(newSprint);
-        closeModal();
-    }
-    
-    function submitNewSprint(sprintData) {
-        console.log(`[ACTION] Submitting new sprint: ${sprintData.name}`);
-        
-        // --- REAL API CALL Placeholder ---
-        // fetch('/api/v1/sprints', { method: 'POST', body: JSON.stringify(sprintData) })
-        // .then(response => { if (response.ok) MOCK_SPRINTS.push(sprintData); loadSprints(); })
-        
-        // --- Simulation Success ---
-        MOCK_SPRINTS.push(sprintData); // Add to mock array
-        loadSprints(); // Reload list to show the new sprint
+        try {
+            const response = await fetch(API_BASE_URL + "/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sprintPayload)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log(`[SUCCESS] Sprint created with ID: ${result.sprint_id}`);
+                closeModal();
+                loadSprints(); // Reload list
+            } else {
+                const err = await response.json();
+                alert('Error creating sprint: ' + (err.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            alert('Failed to connect to server.');
+        }
     }
 
 });
