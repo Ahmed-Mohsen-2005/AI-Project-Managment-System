@@ -21,5 +21,5 @@ class DatabaseConnection:
                 print(" ERROR connecting to MySQL:", e)
                 self.connection = None
 
-def get_connection(self):
-    return self.connection
+    def get_connection(self):
+        return self.connection
