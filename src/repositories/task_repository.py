@@ -9,8 +9,15 @@ class TaskRepository:
     
     def get_all(self):
         cursor = self.db.cursor(dictionary=True)
-        cursor.execute("SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id FROM Task")
+        # Ensure all columns are fetched for the Task model
+        query = """
+        SELECT task_id, sprint_id, title, status, priority, estimate_hours, 
+               due_date, created_by, assigned_id
+        FROM Task
+        """
+        cursor.execute(query)
         rows = cursor.fetchall()
+        # NOTE: Task model's __init__ must handle string/enum conversion for status/priority
         return [Task(**row) for row in rows]
     
     def get_by_id(self, task_id):
@@ -117,3 +124,32 @@ class TaskRepository:
         return [Task(**row) for row in rows]
 
 
+    def get_backlog_tasks(self, project_id=None):
+        cursor = self.db.cursor(dictionary=True)
+
+        query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours,
+                   due_date, created_by, assigned_id
+            FROM Task
+            WHERE sprint_id IS NULL
+        """
+
+        params = ()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        cursor.close()
+
+        return [Task(**row) for row in rows]
+    def get_by_sprint_id(self, sprint_id):
+        """Fetches all tasks belonging to a specific sprint."""
+        cursor = self.db.cursor(dictionary=True)
+        query = """
+        SELECT task_id, sprint_id, title, status, priority, estimate_hours, 
+               due_date, created_by, assigned_id
+        FROM Task
+        WHERE sprint_id = %s
+        ORDER BY priority DESC, due_date ASC
+        """
+        cursor.execute(query, (sprint_id,))
+        rows = cursor.fetchall()
+        return [Task(**row) for row in rows]
