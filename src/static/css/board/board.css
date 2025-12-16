@@ -286,7 +286,7 @@
 
 .priority-high {
     background: #fef2f2;
-    color: #ef4444;
+    color: #d90b0b;
 }
 
 .priority-medium {
@@ -296,7 +296,7 @@
 
 .priority-low {
     background: #f0fdf4;
-    color: #10b981;
+    color: #25b50f;
 }
 
 .task-priority i {
