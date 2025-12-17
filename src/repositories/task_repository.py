@@ -19,6 +19,24 @@ class TaskRepository:
         row = cursor.fetchone()
         return Task(**row) if row else None
     
+    def get_by_sprint(self, sprint_id):
+        """
+        Fetch all tasks for a specific sprint/project.
+        :param sprint_id: ID of the sprint
+        :return: List of Task objects
+        """
+        cursor = self.db.cursor(dictionary=True)
+        query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+            FROM Task
+            WHERE sprint_id = %s
+            ORDER BY due_date ASC
+        """
+        cursor.execute(query, (sprint_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        return [Task(**row) for row in rows]
+    
     def add_task(self, task: Task):
         cursor = self.db.cursor()
 
@@ -74,7 +92,6 @@ class TaskRepository:
         rows = cursor.fetchall()
         cursor.close()
         return [Task(**row) for row in rows]
-    
 
 
     # Fetch overdue tasks for a specific user
@@ -116,4 +133,29 @@ class TaskRepository:
         cursor.close()
         return [Task(**row) for row in rows]
 
+    def get_upcoming_tasks(self, user_id=None, limit=5):
+        """
+        Fetch the upcoming tasks ordered by the closest due date.
+        Optionally filter by assigned user.
+        """
+        cursor = self.db.cursor(dictionary=True)
+        base_query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+            FROM Task
+            WHERE due_date IS NOT NULL
+              AND due_date >= %s
+              AND status != 'DONE'
+        """
+        params = [date.today()]
 
+        if user_id:
+            base_query += " AND assigned_id = %s"
+            params.append(user_id)
+
+        base_query += " ORDER BY due_date ASC LIMIT %s"
+        params.append(limit)
+
+        cursor.execute(base_query, tuple(params))
+        rows = cursor.fetchall()
+        cursor.close()
+        return [Task(**row) for row in rows]
