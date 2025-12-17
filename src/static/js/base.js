@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Open modal when logout button is clicked
         logoutButton.addEventListener('click', () => {
             logoutModal.classList.remove('hidden');
-            logoutModal.style.display = 'block'; // Make visible
+            logoutModal.style.display = 'flex'; // Make visible
             
             // Close notification panel if open
             if (notificationPanel && notificationPanel.classList.contains('open')) {
@@ -105,7 +105,75 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const projectModal = document.getElementById('create-project-modal');
+    const closeProjectBtn = document.getElementById('close-project-modal');
+    const cancelProjectBtn = document.getElementById('cancel-project-btn');
+    const projectForm = document.getElementById('create-project-form');
+    const addNewBtn = document.getElementById('add-new-btn');
 
+    // Open Modal logic
+    if (addNewBtn && projectModal) {
+        addNewBtn.addEventListener('click', () => {
+            projectModal.classList.remove('hidden');
+            projectModal.style.display = 'flex';
+        });
+    }
+
+    // Close Modal Logic
+    function closeProjectModal() {
+        if (projectModal) {
+            projectModal.classList.add('hidden');
+            projectModal.style.display = 'none';
+            projectForm.reset();
+        }
+    }
+
+    if (closeProjectBtn) closeProjectBtn.addEventListener('click', closeProjectModal);
+    if (cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModal);
+    
+    // Close if clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === projectModal) closeProjectModal();
+    });
+
+
+    // Handle Form Submission
+    if (projectForm) {
+        projectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Gather Data
+            const formData = {
+                name: document.getElementById('proj-name').value,
+                description: document.getElementById('proj-desc').value,
+                start_date: document.getElementById('proj-start').value,
+                end_date: document.getElementById('proj-end').value,
+                budget: document.getElementById('proj-budget').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/projects/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Project Created Successfully!');
+                    closeProjectModal();
+                    // Optional: Refresh page or update a project list if one exists on the current page
+                    if (typeof loadProjects === "function") { loadProjects(); } 
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to connect to server');
+            }
+        });
+    }
     // --- 4. Global Action Handlers ---
     
     // Quick Add Button
@@ -126,6 +194,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (globalSearch) {
         globalSearch.addEventListener('input', () => {
             console.log(`Searching globally for: ${globalSearch.value}`);
+        });
+    }
+    // --- 5. Dark Mode Logic ---
+
+    // Select the toggle switch input (inside the .switch label)
+    const themeToggleCheckbox = document.querySelector('.switch .input');
+    
+    // 1. Check Local Storage on Load
+    // If the user previously selected 'dark', apply it immediately
+    const currentTheme = localStorage.getItem('theme');
+    
+    if (currentTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        if (themeToggleCheckbox) {
+            themeToggleCheckbox.checked = true; // Make sure the toggle looks "on"
+        }
+    }
+
+    // 2. Listen for Switch Changes
+    if (themeToggleCheckbox) {
+        themeToggleCheckbox.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                // User turned ON dark mode
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                console.log("Theme switched to Dark");
+            } else {
+                // User turned OFF dark mode (back to light)
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                console.log("Theme switched to Light");
+            }
         });
     }
 });

@@ -141,7 +141,50 @@
         </div>
     </div>
 
+<div id="create-project-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-rocket"></i> Create New Project</h3>
+            <button id="close-project-modal" class="icon-btn"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <form id="create-project-form">
+            <div class="form-group">
+                <label for="proj-name">Project Name <span class="required">*</span></label>
+                <input type="text" id="proj-name" name="name" placeholder="e.g. AI Sentinel v2" required>
+            </div>
 
+            <div class="form-group">
+                <label for="proj-desc">Description</label>
+                <textarea id="proj-desc" name="description" rows="3" placeholder="What is this project about?"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="proj-start">Start Date <span class="required">*</span></label>
+                    <input type="date" id="proj-start" name="start_date" required>
+                </div>
+                <div class="form-group half-width">
+                    <label for="proj-end">Target End Date</label>
+                    <input type="date" id="proj-end" name="end_date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="proj-budget">Budget Allocation ($)</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-dollar-sign"></i>
+                    <input type="number" id="proj-budget" name="budget" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="cancel-project-btn" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Create Project</button>
+            </div>
+        </form>
+    </div>
+</div>
     <!-- Global JavaScript -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     

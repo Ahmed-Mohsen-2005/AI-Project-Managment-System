@@ -13,10 +13,10 @@ class DatabaseConnection:
         if not hasattr(self, "connection") or self.connection is None:
             try:
                 self.connection = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="ali2005", 
-                database="AIPMS"
+                    host="localhost",
+                    user="root",
+                    password="AhmedMohsen2005", 
+                    database="AIPMS"
                 )
                 print("Connected to MySQL")
             except Error as e:
