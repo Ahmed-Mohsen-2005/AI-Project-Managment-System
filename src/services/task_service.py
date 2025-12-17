@@ -1,5 +1,6 @@
 from models import task
 from repositories import task_repository
+
 class TaskService:
     def __init__(self):
         self.task_repo = task_repository.TaskRepository()
@@ -15,6 +16,11 @@ class TaskService:
         if not task:
             raise ValueError(f"Task with ID {task_id} not found")
         return task
+
+    # Get tasks by sprint ID
+    def get_tasks_by_sprint(self, sprint_id: int):
+        """Get all tasks for a specific sprint/project"""
+        return self.task_repo.get_by_sprint(sprint_id)
 
     # Add new task
     def create_task(self, task: task.Task):
@@ -40,7 +46,6 @@ class TaskService:
     def get_user_recent_tasks(self, user_id: int, limit: int = 5):
         return self.task_repo.get_user_recent_tasks(user_id, limit)
 
-
     def get_user_overdue_tasks(self, user_id: int):
         return self.task_repo.get_user_overdue_tasks(user_id)
 
@@ -54,7 +59,8 @@ class TaskService:
         task.sprint_id = None
         return self.task_repo.add_task(task)
 
-
-
-
-    
+    def get_upcoming_tasks(self, user_id: int = None, limit: int = 5):
+        """
+        Get tasks ordered by nearest due date, optionally filtered by user.
+        """
+        return self.task_repo.get_upcoming_tasks(user_id=user_id, limit=limit)
