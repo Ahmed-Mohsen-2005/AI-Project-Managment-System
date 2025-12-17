@@ -12,6 +12,7 @@ class DatabaseConnection:
 
     def get_connection(self):
         if self.connection is None or not self.connection.is_connected():
+        
             try:
                 self.connection = mysql.connector.connect(
                     host="localhost",

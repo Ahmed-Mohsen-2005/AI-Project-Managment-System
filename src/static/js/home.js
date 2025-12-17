@@ -1,4 +1,4 @@
-// Home Page / Dashboard - Updated with Notes Integration
+// Home Page / Dashboard - Fixed Layout with Modal Popups
 const DASHBOARD_API_URL = '/api/v1/home/dashboard';
 const TASKS_API_URL = '/api/v1/tasks';
 const NOTES_API_URL = '/api/v1/notes';
@@ -19,24 +19,382 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', handleAddTask);
+        addTaskBtn.addEventListener('click', () => openAddTaskModal());
     }
 
-    // ------------------------------
-    // Fetch & load dashboard data
-    async function loadDashboardData() {
-        try {
-            const response = await fetch(DASHBOARD_API_URL, { method: 'GET', credentials: 'include' });
+    // ------------------------------------------------
+    // MODAL UTILITY FUNCTIONS
+    // ------------------------------------------------
 
-            if (response.status === 401) {
-                window.location.href = '/';
-                return;
+    function createModal(title, content) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
+        
+        modal.innerHTML = `
+            <div class="modal-header">
+                <h2 class="modal-title">${title}</h2>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${content}
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModal(overlay);
+            }
+        });
+        
+        // Close on X button click
+        const closeBtn = modal.querySelector('.modal-close');
+        closeBtn.addEventListener('click', () => closeModal(overlay));
+        
+        // Close on Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeModal(overlay);
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+        
+        return overlay;
+    }
+
+    function closeModal(overlay) {
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => {
+            overlay.remove();
+        }, 200);
+    }
+
+    // ------------------------------------------------
+    // ADD TASK MODAL
+    // ------------------------------------------------
+
+    function openAddTaskModal() {
+        const modalContent = `
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                        Task Title <span style="color: red;">*</span>
+                    </label>
+                    <input type="text" id="modal-task-title" placeholder="Enter task title" 
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Sprint ID <span style="color: red;">*</span>
+                        </label>
+                        <input type="number" id="modal-task-sprint" value="1" min="1"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Assigned User ID <span style="color: red;">*</span>
+                        </label>
+                        <input type="number" id="modal-task-assigned" value="1" min="1"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Status
+                        </label>
+                        <select id="modal-task-status" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            <option value="TODO">TODO</option>
+                            <option value="IN_PROGRESS">IN PROGRESS</option>
+                            <option value="DONE">DONE</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Priority
+                        </label>
+                        <select id="modal-task-priority" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            <option value="LOW">LOW</option>
+                            <option value="MEDIUM" selected>MEDIUM</option>
+                            <option value="HIGH">HIGH</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Estimate (hrs)
+                        </label>
+                        <input type="number" id="modal-task-estimate" placeholder="0" step="0.5" min="0"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                        Due Date
+                    </label>
+                    <input type="date" id="modal-task-due-date"
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                    <button id="modal-cancel-task" 
+                        style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        Cancel
+                    </button>
+                    <button id="modal-submit-task" 
+                        style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        Add Task
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        const modal = createModal('Add New Task', modalContent);
+        
+        // Focus on title input
+        setTimeout(() => {
+            document.getElementById('modal-task-title').focus();
+        }, 100);
+        
+        // Cancel button
+        document.getElementById('modal-cancel-task').addEventListener('click', () => {
+            closeModal(modal);
+        });
+        
+        // Submit button
+        document.getElementById('modal-submit-task').addEventListener('click', async () => {
+            await submitTaskFromModal(modal);
+        });
+    }
+
+    async function submitTaskFromModal(modal) {
+        const title = document.getElementById('modal-task-title').value.trim();
+        const sprintId = parseInt(document.getElementById('modal-task-sprint').value);
+        const assignedId = parseInt(document.getElementById('modal-task-assigned').value);
+        const status = document.getElementById('modal-task-status').value;
+        const priority = document.getElementById('modal-task-priority').value;
+        const estimate = document.getElementById('modal-task-estimate').value;
+        const dueDate = document.getElementById('modal-task-due-date').value;
+
+        // Validation
+        if (!title) {
+            alert('Task title is required');
+            document.getElementById('modal-task-title').focus();
+            return;
+        }
+
+        if (!sprintId || sprintId < 1) {
+            alert('Valid Sprint ID is required');
+            document.getElementById('modal-task-sprint').focus();
+            return;
+        }
+
+        if (!assignedId || assignedId < 1) {
+            alert('Valid Assigned User ID is required');
+            document.getElementById('modal-task-assigned').focus();
+            return;
+        }
+
+        const newTask = {
+            title: title,
+            sprint_id: sprintId,
+            assigned_id: assignedId,
+            status: status,
+            priority: priority,
+            estimate_hours: estimate ? parseFloat(estimate) : null,
+            due_date: dueDate || null,
+            created_by: assignedId
+        };
+
+        const submitBtn = document.getElementById('modal-submit-task');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+
+        try {
+            const response = await fetch(TASKS_API_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(newTask)
+            });
+
+            const responseText = await response.text();
+            const contentType = response.headers.get('content-type');
+            
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error(`Server error (${response.status}): Expected JSON response`);
             }
 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = JSON.parse(responseText);
 
-            const data = await response.json();
-            updateCalendarWidget(data.deadlines || []);
+            if (!response.ok) {
+                throw new Error(data.error || `Server error: ${response.status}`);
+            }
+
+            closeModal(modal);
+            await loadTodoList();
+            await loadUpcomingTasks(); // Refresh calendar widget
+            showNotification(`✓ Task "${title}" added successfully`, 'success');
+
+        } catch (err) {
+            console.error('Error adding task:', err);
+            alert(`Error adding task: ${err.message}`);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Task';
+        }
+    }
+
+    // ------------------------------------------------
+    // ADD NOTE MODAL
+    // ------------------------------------------------
+
+    function openAddNoteModal() {
+        const modalContent = `
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                        Note Content <span style="color: red;">*</span>
+                    </label>
+                    <textarea id="modal-note-content" placeholder="Write your note here..." 
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; min-height: 100px; resize: vertical; font-family: inherit; font-size: 14px;"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Entity Type
+                        </label>
+                        <select id="modal-note-entity-type" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            <option value="task">Task</option>
+                            <option value="project">Project</option>
+                            <option value="sprint">Sprint</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                            Entity ID <span style="color: red;">*</span>
+                        </label>
+                        <input type="number" id="modal-note-entity-id" value="1" min="1"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                    <button id="modal-cancel-note" 
+                        style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        Cancel
+                    </button>
+                    <button id="modal-submit-note" 
+                        style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        Save Note
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        const modal = createModal('Add New Note', modalContent);
+        
+        // Focus on textarea
+        setTimeout(() => {
+            document.getElementById('modal-note-content').focus();
+        }, 100);
+        
+        // Cancel button
+        document.getElementById('modal-cancel-note').addEventListener('click', () => {
+            closeModal(modal);
+        });
+        
+        // Submit button
+        document.getElementById('modal-submit-note').addEventListener('click', async () => {
+            await submitNoteFromModal(modal);
+        });
+    }
+
+    async function submitNoteFromModal(modal) {
+        const content = document.getElementById('modal-note-content').value.trim();
+        const entityType = document.getElementById('modal-note-entity-type').value;
+        const entityId = parseInt(document.getElementById('modal-note-entity-id').value);
+
+        // Validation
+        if (!content) {
+            alert('Note content is required');
+            document.getElementById('modal-note-content').focus();
+            return;
+        }
+
+        if (!entityId || entityId < 1) {
+            alert('Valid Entity ID is required');
+            document.getElementById('modal-note-entity-id').focus();
+            return;
+        }
+
+        const newNote = {
+            content: content,
+            entity_type: entityType,
+            entity_id: entityId,
+            created_by: 1  // Replace with actual user ID
+        };
+
+        const submitBtn = document.getElementById('modal-submit-note');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+
+        try {
+            const response = await fetch(NOTES_API_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(newNote)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create note');
+            }
+
+            closeModal(modal);
+            await loadRecentNotes();
+            showNotification('✓ Note saved successfully', 'success');
+
+        } catch (err) {
+            console.error('Error adding note:', err);
+            alert(`Error saving note: ${err.message}`);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Note';
+        }
+    }
+
+    // ------------------------------------------------
+    // FETCH & LOAD DASHBOARD DATA
+    // ------------------------------------------------
+
+    async function loadDashboardData() {
+        try {
+            // Load upcoming tasks for calendar widget
+            await loadUpcomingTasks();
             updateTimeTracker();
             updateTeamWidget();
         } catch (error) {
@@ -45,11 +403,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ------------------------------
-    // Load To-do list tasks from backend
+    async function loadUpcomingTasks() {
+        try {
+            console.log('[DEBUG] Fetching upcoming tasks...');
+            
+            // Fetch upcoming tasks from the task API
+            const response = await fetch(`${TASKS_API_URL}/upcoming?limit=5`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            console.log('[DEBUG] Response status:', response.status);
+
+            if (response.status === 401) {
+                window.location.href = '/';
+                return;
+            }
+
+            if (!response.ok) {
+                console.error('[ERROR] Response not OK:', response.status);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const tasks = await response.json();
+            console.log('[DEBUG] Received tasks:', tasks);
+            console.log('[DEBUG] Number of tasks:', tasks ? tasks.length : 0);
+            
+            updateCalendarWidget(tasks);
+        } catch (error) {
+            console.error('[ERROR] Error loading upcoming tasks:', error);
+            // Try to load all tasks as fallback
+            await loadAllTasksForCalendar();
+        }
+    }
+
+    async function loadAllTasksForCalendar() {
+        try {
+            console.log('[DEBUG] Fallback: Fetching all tasks...');
+            const response = await fetch(TASKS_API_URL, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const allTasks = await response.json();
+            console.log('[DEBUG] All tasks received:', allTasks);
+            
+            // Filter tasks with due dates that are not DONE
+            const upcomingTasks = allTasks
+                .filter(task => {
+                    const hasDueDate = task.due_date != null;
+                    const notDone = task.status !== 'DONE';
+                    const futureDate = task.due_date ? new Date(task.due_date) >= new Date() : false;
+                    console.log(`[DEBUG] Task ${task.task_id}: due_date=${task.due_date}, status=${task.status}, include=${hasDueDate && notDone && futureDate}`);
+                    return hasDueDate && notDone && futureDate;
+                })
+                .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+                .slice(0, 5);
+            
+            console.log('[DEBUG] Filtered upcoming tasks:', upcomingTasks);
+            updateCalendarWidget(upcomingTasks);
+        } catch (error) {
+            console.error('[ERROR] Error in fallback load:', error);
+            updateCalendarWidget([]);
+        }
+    }
+
+    // ------------------------------------------------
+    // LOAD TO-DO LIST
+    // ------------------------------------------------
+
     async function loadTodoList() {
         try {
-            // Replace 1 with actual logged-in user ID if you have auth
             const response = await fetch(`${TASKS_API_URL}/user/1/recent`);
             if (!response.ok) throw new Error('Failed to fetch tasks');
 
@@ -61,8 +489,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ------------------------------
-    // Load Recent Notes from Backend
+    function updateTodoList(tasks) {
+        const todoList = document.getElementById('todo-list');
+        todoList.innerHTML = '';
+
+        if (!tasks || tasks.length === 0) {
+            todoList.innerHTML = '<li class="empty-state">No tasks assigned</li>';
+            return;
+        }
+
+        // Limit to max 5 tasks to prevent overflow
+        tasks.slice(0, 5).forEach(task => {
+            const li = document.createElement('li');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `task-${task.task_id}`;
+            checkbox.checked = task.status === "DONE";
+
+            const taskText = document.createElement('span');
+            taskText.className = 'task-text';
+            taskText.textContent = task.title;
+            taskText.title = task.title; // Show full text on hover
+            if (task.status === "DONE") taskText.classList.add('completed');
+
+            checkbox.addEventListener('change', async (e) => {
+                const newStatus = e.target.checked ? "DONE" : "TODO";
+                taskText.classList.toggle('completed', e.target.checked);
+
+                try {
+                    const response = await fetch(`${TASKS_API_URL}/${task.task_id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to update task');
+                    }
+                } catch (err) {
+                    console.error('Failed to update task status', err);
+                    alert('Error updating task');
+                    e.target.checked = !e.target.checked;
+                    taskText.classList.toggle('completed', e.target.checked);
+                }
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(taskText);
+            todoList.appendChild(li);
+        });
+    }
+
+    // ------------------------------------------------
+    // LOAD RECENT NOTES
+    // ------------------------------------------------
+
     async function loadRecentNotes() {
         try {
             const response = await fetch(`${NOTES_API_URL}`, { 
@@ -80,8 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ------------------------------
-    // Update Notes Widget DOM with actual data
     function updateNotesWidget(notes) {
         const notesContent = document.getElementById('notes-content');
         notesContent.innerHTML = '';
@@ -99,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -108,7 +587,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         addNoteBtn.addEventListener('mouseenter', () => addNoteBtn.style.background = '#2980b9');
         addNoteBtn.addEventListener('mouseleave', () => addNoteBtn.style.background = '#3498db');
-        addNoteBtn.addEventListener('click', handleAddNote);
+        addNoteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent widget click
+            openAddNoteModal();
+        });
         notesContent.appendChild(addNoteBtn);
 
         // Display notes or empty state
@@ -126,16 +608,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Display recent notes (limit to 5)
+        // Display recent notes (limit to 5 to prevent overflow)
         const notesContainer = document.createElement('div');
         notesContainer.className = 'notes-list';
-        notesContainer.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        `;
 
         notes.slice(0, 5).forEach(note => {
             const noteItem = createNoteItem(note);
@@ -145,8 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
         notesContent.appendChild(notesContainer);
     }
 
-    // ------------------------------
-    // Create individual note item
     function createNoteItem(note) {
         const noteDiv = document.createElement('div');
         noteDiv.className = 'note-item';
@@ -160,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
             transition: all 0.2s;
         `;
 
-        // Note content
+        // Note content - truncate if too long
         const contentDiv = document.createElement('div');
         contentDiv.className = 'note-content';
         contentDiv.style.cssText = `
@@ -168,8 +641,14 @@ document.addEventListener('DOMContentLoaded', () => {
             color: #2c3e50;
             margin-bottom: 8px;
             word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         `;
         contentDiv.textContent = note.content;
+        contentDiv.title = note.content; // Show full text on hover
 
         // Note metadata
         const metaDiv = document.createElement('div');
@@ -212,13 +691,18 @@ document.addEventListener('DOMContentLoaded', () => {
             transition: opacity 0.2s;
         `;
 
-        const editBtn = createActionButton('fas fa-edit', '#3498db', () => handleEditNote(note));
-        const deleteBtn = createActionButton('fas fa-trash', '#e74c3c', () => handleDeleteNote(note.note_id));
+        const editBtn = createActionButton('fas fa-edit', '#3498db', (e) => {
+            e.stopPropagation();
+            handleEditNote(note);
+        });
+        const deleteBtn = createActionButton('fas fa-trash', '#e74c3c', (e) => {
+            e.stopPropagation();
+            handleDeleteNote(note.note_id);
+        });
 
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
 
-        // Show actions on hover
         noteDiv.addEventListener('mouseenter', () => {
             actionsDiv.style.opacity = '1';
             noteDiv.style.background = '#ecf0f1';
@@ -235,8 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return noteDiv;
     }
 
-    // ------------------------------
-    // Create action button helper
     function createActionButton(iconClass, color, onClick) {
         const btn = document.createElement('button');
         btn.innerHTML = `<i class="${iconClass}"></i>`;
@@ -258,179 +740,51 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.style.background = 'white';
             btn.style.color = color;
         });
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            onClick();
-        });
+        btn.addEventListener('click', onClick);
         return btn;
     }
 
-    // ------------------------------
-    // Handle Add Note
-    function handleAddNote() {
-        const notesContent = document.getElementById('notes-content');
+    // ------------------------------------------------
+    // EDIT & DELETE NOTE HANDLERS
+    // ------------------------------------------------
 
-        // Check if form already exists
-        if (document.querySelector('.note-form')) {
-            return;
-        }
-
-        // Create form
-        const formDiv = document.createElement('div');
-        formDiv.className = 'note-form';
-        formDiv.style.cssText = `
-            background: #fff;
-            border: 2px solid #3498db;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        `;
-
-        formDiv.innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <textarea id="note-content-input" placeholder="Write your note here..." 
-                    style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px; resize: vertical; font-family: inherit; font-size: 14px;"></textarea>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <select id="note-entity-type" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="task">Task</option>
-                        <option value="project">Project</option>
-                        <option value="sprint">Sprint</option>
-                    </select>
-                    
-                    <input type="number" id="note-entity-id" placeholder="Entity ID *" value="1" min="1"
-                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button id="cancel-note-btn" 
-                        style="padding: 8px 16px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Cancel
-                    </button>
-                    <button id="submit-note-btn" 
-                        style="padding: 8px 16px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Save Note
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Insert form at the top (after the add button)
-        const addBtn = notesContent.querySelector('.btn-add-note');
-        addBtn.after(formDiv);
-
-        // Focus on textarea
-        document.getElementById('note-content-input').focus();
-
-        // Handle cancel
-        document.getElementById('cancel-note-btn').addEventListener('click', () => {
-            formDiv.remove();
-        });
-
-        // Handle submit
-        document.getElementById('submit-note-btn').addEventListener('click', async () => {
-            const content = document.getElementById('note-content-input').value.trim();
-            const entityType = document.getElementById('note-entity-type').value;
-            const entityId = parseInt(document.getElementById('note-entity-id').value);
-
-            // Validation
-            if (!content) {
-                alert('Note content is required');
-                document.getElementById('note-content-input').focus();
-                return;
-            }
-
-            if (!entityId || entityId < 1) {
-                alert('Valid Entity ID is required');
-                document.getElementById('note-entity-id').focus();
-                return;
-            }
-
-            const newNote = {
-                content: content,
-                entity_type: entityType,
-                entity_id: entityId,
-                created_by: 1  // Replace with actual user ID
-            };
-
-            const submitBtn = document.getElementById('submit-note-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Saving...';
-
-            try {
-                const response = await fetch(NOTES_API_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(newNote)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to create note');
-                }
-
-                const data = await response.json();
-                
-                // Remove form and reload notes
-                formDiv.remove();
-                await loadRecentNotes();
-                
-                // Show success message
-                showNotification('✓ Note saved successfully', 'success');
-
-            } catch (err) {
-                console.error('Error adding note:', err);
-                alert(`Error saving note: ${err.message}`);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Save Note';
-            }
-        });
-    }
-
-    // ------------------------------
-    // Handle Edit Note
     function handleEditNote(note) {
-        const noteItem = document.querySelector(`[data-note-id="${note.note_id}"]`);
-        if (!noteItem) return;
-
-        // Save original content for cancel
-        const originalContent = note.content;
-
-        // Replace note content with textarea
-        noteItem.innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <textarea id="edit-note-content" 
-                    style="padding: 8px; border: 1px solid #3498db; border-radius: 4px; min-height: 60px; resize: vertical; font-family: inherit; font-size: 14px;">${note.content}</textarea>
+        const modalContent = `
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: var(--color-text-main);">
+                        Note Content <span style="color: red;">*</span>
+                    </label>
+                    <textarea id="modal-edit-content" 
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; min-height: 100px; resize: vertical; font-family: inherit; font-size: 14px;">${note.content}</textarea>
+                </div>
                 
-                <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button id="cancel-edit-btn" 
-                        style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                    <button id="modal-cancel-edit" 
+                        style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
                         Cancel
                     </button>
-                    <button id="save-edit-btn" 
-                        style="padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Save
+                    <button id="modal-submit-edit" 
+                        style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        Save Changes
                     </button>
                 </div>
             </div>
         `;
-
-        const textarea = document.getElementById('edit-note-content');
-        textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-
-        // Handle cancel
-        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-            loadRecentNotes();
+        
+        const modal = createModal('Edit Note', modalContent);
+        
+        const textarea = document.getElementById('modal-edit-content');
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        }, 100);
+        
+        document.getElementById('modal-cancel-edit').addEventListener('click', () => {
+            closeModal(modal);
         });
-
-        // Handle save
-        document.getElementById('save-edit-btn').addEventListener('click', async () => {
+        
+        document.getElementById('modal-submit-edit').addEventListener('click', async () => {
             const newContent = textarea.value.trim();
 
             if (!newContent) {
@@ -438,12 +792,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (newContent === originalContent) {
-                loadRecentNotes();
+            if (newContent === note.content) {
+                closeModal(modal);
                 return;
             }
 
-            const saveBtn = document.getElementById('save-edit-btn');
+            const saveBtn = document.getElementById('modal-submit-edit');
             saveBtn.disabled = true;
             saveBtn.textContent = 'Saving...';
 
@@ -463,6 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.error || 'Failed to update note');
                 }
 
+                closeModal(modal);
                 await loadRecentNotes();
                 showNotification('✓ Note updated successfully', 'success');
 
@@ -470,13 +825,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error updating note:', err);
                 alert(`Error updating note: ${err.message}`);
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Save';
+                saveBtn.textContent = 'Save Changes';
             }
         });
     }
 
-    // ------------------------------
-    // Handle Delete Note
     async function handleDeleteNote(noteId) {
         if (!confirm('Are you sure you want to delete this note?')) {
             return;
@@ -502,8 +855,173 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ------------------------------
-    // Show notification helper
+    // ------------------------------------------------
+    // OTHER WIDGETS
+    // ------------------------------------------------
+
+    function updateCalendarWidget(deadlines) {
+        console.log('[DEBUG] updateCalendarWidget called with:', deadlines);
+        
+        const deadlineDisplay = document.getElementById('next-deadline-display');
+        const deadlineList = document.getElementById('calendar-deadlines');
+
+        if (!deadlineDisplay) {
+            console.error('[ERROR] next-deadline-display element not found!');
+            return;
+        }
+
+        if (!deadlines || deadlines.length === 0) {
+            console.log('[DEBUG] No deadlines to display');
+            deadlineDisplay.textContent = 'No upcoming deadlines';
+            if (deadlineList) {
+                deadlineList.innerHTML = '<li class="deadline-item"><span class="deadline-title">No tasks scheduled</span></li>';
+            }
+            return;
+        }
+
+        console.log('[DEBUG] Displaying', deadlines.length, 'deadlines');
+        const nextDeadline = deadlines[0];
+        const formattedDate = formatDate(nextDeadline.due_date);
+        deadlineDisplay.textContent = `${formattedDate} • ${nextDeadline.title}`;
+        console.log('[DEBUG] Next deadline set to:', deadlineDisplay.textContent);
+
+        if (deadlineList) {
+            deadlineList.innerHTML = '';
+            // Limit to 4 items to prevent overflow
+            deadlines.slice(0, 4).forEach(task => {
+                console.log('[DEBUG] Adding task to list:', task.title);
+                const item = document.createElement('li');
+                item.className = 'deadline-item';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'deadline-title';
+                titleSpan.textContent = task.title;
+                titleSpan.title = task.title; // Show full text on hover
+
+                const metaSpan = document.createElement('span');
+                metaSpan.className = 'deadline-meta';
+                const statusText = task.status ? task.status.replace('_', ' ') : 'TODO';
+                metaSpan.textContent = `${formatDate(task.due_date)} · ${statusText}`;
+
+                item.appendChild(titleSpan);
+                item.appendChild(metaSpan);
+                deadlineList.appendChild(item);
+            });
+            console.log('[DEBUG] Calendar list updated with', deadlineList.children.length, 'items');
+        } else {
+            console.error('[ERROR] calendar-deadlines element not found!');
+        }
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return '-';
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) return dateValue;
+        return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    function updateTimeTracker() {
+        const timeTrackerContent = document.querySelector('.time-tracker-content');
+        if (!timeTrackerContent) return;
+        
+        // Sample data - replace with actual API data
+        const hoursWorked = 28;
+        const totalHours = 40;
+        const percentage = Math.round((hoursWorked / totalHours) * 100);
+        
+        timeTrackerContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; color: #7f8c8d; font-weight: 500;">This Week</span>
+                <span style="font-size: 12px; color: #2c3e50; font-weight: 600;">${hoursWorked}h / ${totalHours}h</span>
+            </div>
+            <div style="width: 100%; height: 18px; background: #ecf0f1; border-radius: 10px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <div style="height: 100%; background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%); border-radius: 10px; transition: width 0.5s ease; width: ${percentage}%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;">
+                    <span style="color: white; font-size: 10px; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">${percentage}%</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-around; gap: 8px; margin-top: 8px;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <span style="font-size: 16px; font-weight: 700; color: #3498db;">8.5</span>
+                    <span style="font-size: 9px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px;">Today</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <span style="font-size: 16px; font-weight: 700; color: #3498db;">${hoursWorked}</span>
+                    <span style="font-size: 9px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px;">Week</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <span style="font-size: 16px; font-weight: 700; color: #3498db;">112</span>
+                    <span style="font-size: 9px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px;">Month</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function updateTeamWidget() {
+        const teamMembers = document.getElementById('team-members');
+        if (!teamMembers) return;
+        
+        teamMembers.innerHTML = '';
+        
+        // Sample team members - replace with actual API data
+        const placeholderMembers = [
+            { name: 'Alice Cooper', initial: 'AC', color: '#3498db' },
+            { name: 'Bob Smith', initial: 'BS', color: '#e74c3c' },
+            { name: 'Carol White', initial: 'CW', color: '#2ecc71' },
+            { name: 'David Jones', initial: 'DJ', color: '#f39c12' },
+            { name: 'Emma Brown', initial: 'EB', color: '#9b59b6' },
+            { name: 'Frank Miller', initial: 'FM', color: '#1abc9c' },
+            { name: 'Grace Lee', initial: 'GL', color: '#e67e22' },
+            { name: 'Henry Davis', initial: 'HD', color: '#34495e' }
+        ];
+        
+        placeholderMembers.forEach(member => {
+            const memberDiv = document.createElement('div');
+            memberDiv.className = 'team-member';
+            memberDiv.title = member.name; // Tooltip on hover
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'team-member-avatar';
+            avatar.textContent = member.initial;
+            avatar.style.background = member.color;
+            
+            const name = document.createElement('span');
+            name.className = 'team-member-name';
+            name.textContent = member.name.split(' ')[0]; // First name only
+            
+            memberDiv.appendChild(avatar);
+            memberDiv.appendChild(name);
+            teamMembers.appendChild(memberDiv);
+        });
+    }
+
+    async function handleGenerateSummary() {
+        const promptText = updatesInput.value.trim();
+        if (!promptText) { 
+            alert('Please enter project updates to summarize.'); 
+            return; 
+        }
+        const summaryOutput = document.getElementById('summary-output');
+        summaryOutput.classList.remove('hidden');
+        summaryOutput.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating summary...</p>';
+        generateBtn.disabled = true;
+        try { 
+            await new Promise(r => setTimeout(r, 2000));
+            summaryOutput.innerHTML = `<p>Summary: ${promptText.substring(0,100)}... (Placeholder)</p>`;
+        } catch { 
+            summaryOutput.innerHTML = '<p style="color: #e74c3c;">Error generating summary.</p>'; 
+        } finally { 
+            generateBtn.disabled = false; 
+        }
+    }
+
+    function showPlaceholderData() {
+        updateCalendarWidget([{ due_date: '2024-12-20', title: 'Website design' }]);
+        updateTodoList([]);
+        updateNotesWidget([]);
+        updateTimeTracker();
+        updateTeamWidget();
+    }
+
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.style.cssText = `
@@ -527,316 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // ------------------------------
-    // Update To-do list DOM
-    function updateTodoList(tasks) {
-        const todoList = document.getElementById('todo-list');
-        todoList.innerHTML = '';
-
-        if (!tasks || tasks.length === 0) {
-            todoList.innerHTML = '<li class="empty-state">No tasks assigned</li>';
-            return;
-        }
-
-        tasks.slice(0, 5).forEach(task => {
-            const li = document.createElement('li');
-
-            // Checkbox for completion
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = `task-${task.task_id}`;
-            checkbox.checked = task.status === "DONE";
-
-            // Task text
-            const taskText = document.createElement('span');
-            taskText.className = 'task-text';
-            taskText.textContent = task.title;
-            if (task.status === "DONE") taskText.classList.add('completed');
-
-            // Update task status on checkbox toggle
-            checkbox.addEventListener('change', async (e) => {
-                const newStatus = e.target.checked ? "DONE" : "TODO";
-                taskText.classList.toggle('completed', e.target.checked);
-
-                try {
-                    const response = await fetch(`${TASKS_API_URL}/${task.task_id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: newStatus })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to update task');
-                    }
-                } catch (err) {
-                    console.error('Failed to update task status', err);
-                    alert('Error updating task');
-                    e.target.checked = !e.target.checked; // revert
-                    taskText.classList.toggle('completed', e.target.checked);
-                }
-            });
-
-            li.appendChild(checkbox);
-            li.appendChild(taskText);
-            todoList.appendChild(li);
-        });
-    }
-
-    // ------------------------------
-    // Add new task
-    function handleAddTask() {
-        const todoList = document.getElementById('todo-list');
-
-        if (document.querySelector('.task-form')) {
-            return;
-        }
-
-        const formLi = document.createElement('li');
-        formLi.className = 'task-form';
-        formLi.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;';
-
-        const formHTML = `
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <input type="text" id="task-title" placeholder="Task title *" required 
-                    style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <input type="number" id="task-sprint" placeholder="Sprint ID *" value="1" min="1"
-                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    
-                    <input type="number" id="task-assigned" placeholder="Assigned User ID *" value="1" min="1"
-                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                    <select id="task-status" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="TODO">TODO</option>
-                        <option value="IN_PROGRESS">IN PROGRESS</option>
-                        <option value="DONE">DONE</option>
-                    </select>
-                    
-                    <select id="task-priority" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="LOW">LOW</option>
-                        <option value="MEDIUM" selected>MEDIUM</option>
-                        <option value="HIGH">HIGH</option>
-                    </select>
-                    
-                    <input type="number" id="task-estimate" placeholder="Hours" step="0.5" min="0"
-                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-                
-                <input type="date" id="task-due-date"
-                    style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button id="cancel-task-btn" class="btn-cancel" 
-                        style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Cancel
-                    </button>
-                    <button id="submit-task-btn" class="btn-submit" 
-                        style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Add Task
-                    </button>
-                </div>
-            </div>
-        `;
-
-        formLi.innerHTML = formHTML;
-        todoList.insertBefore(formLi, todoList.firstChild);
-
-        document.getElementById('task-title').focus();
-
-        document.getElementById('cancel-task-btn').addEventListener('click', () => {
-            formLi.remove();
-        });
-
-        document.getElementById('submit-task-btn').addEventListener('click', async () => {
-            const title = document.getElementById('task-title').value.trim();
-            const sprintId = parseInt(document.getElementById('task-sprint').value);
-            const assignedId = parseInt(document.getElementById('task-assigned').value);
-            const status = document.getElementById('task-status').value;
-            const priority = document.getElementById('task-priority').value;
-            const estimate = document.getElementById('task-estimate').value;
-            const dueDate = document.getElementById('task-due-date').value;
-
-            if (!title) {
-                alert('Task title is required');
-                document.getElementById('task-title').focus();
-                return;
-            }
-
-            if (!sprintId || sprintId < 1) {
-                alert('Valid Sprint ID is required');
-                document.getElementById('task-sprint').focus();
-                return;
-            }
-
-            if (!assignedId || assignedId < 1) {
-                alert('Valid Assigned User ID is required');
-                document.getElementById('task-assigned').focus();
-                return;
-            }
-
-            const newTask = {
-                title: title,
-                sprint_id: sprintId,
-                assigned_id: assignedId,
-                status: status,
-                priority: priority,
-                estimate_hours: estimate ? parseFloat(estimate) : null,
-                due_date: dueDate || null,
-                created_by: assignedId
-            };
-
-            const submitBtn = document.getElementById('submit-task-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Adding...';
-
-            try {
-                const response = await fetch(TASKS_API_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(newTask)
-                });
-
-                const responseText = await response.text();
-                const contentType = response.headers.get('content-type');
-                
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error(`Server error (${response.status}): Expected JSON response`);
-                }
-
-                const data = JSON.parse(responseText);
-
-                if (!response.ok) {
-                    throw new Error(data.error || `Server error: ${response.status}`);
-                }
-
-                formLi.remove();
-                await loadTodoList();
-                showNotification(`✓ Task "${title}" added successfully`, 'success');
-
-            } catch (err) {
-                console.error('Error adding task:', err);
-                alert(`Error adding task: ${err.message}`);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Task';
-            }
-        });
-    }
-
-    // ------------------------------
-    // Other widgets
-    function updateCalendarWidget(deadlines) {
-        const deadlineDisplay = document.getElementById('next-deadline-display');
-        const deadlineList = document.getElementById('calendar-deadlines');
-
-        if (!deadlines || deadlines.length === 0) {
-            deadlineDisplay.textContent = 'No upcoming deadlines';
-            if (deadlineList) {
-                deadlineList.innerHTML = '<li class="deadline-item"><span class="deadline-title">No tasks scheduled</span></li>';
-            }
-            return;
-        }
-
-        const nextDeadline = deadlines[0];
-        const formattedDate = formatDate(nextDeadline.due_date);
-        deadlineDisplay.textContent = `${formattedDate} • ${nextDeadline.title}`;
-
-        if (deadlineList) {
-            deadlineList.innerHTML = '';
-            deadlines.slice(0, 4).forEach(task => {
-                const item = document.createElement('li');
-                item.className = 'deadline-item';
-
-                const titleSpan = document.createElement('span');
-                titleSpan.className = 'deadline-title';
-                titleSpan.textContent = task.title;
-
-                const metaSpan = document.createElement('span');
-                metaSpan.className = 'deadline-meta';
-                const statusText = task.status ? task.status.replace('_', ' ') : 'TODO';
-                metaSpan.textContent = `${formatDate(task.due_date)} · ${statusText}`;
-
-                item.appendChild(titleSpan);
-                item.appendChild(metaSpan);
-                deadlineList.appendChild(item);
-            });
-        }
-    }
-
-    function formatDate(dateValue) {
-        if (!dateValue) return '-';
-        const parsed = new Date(dateValue);
-        if (Number.isNaN(parsed.getTime())) return dateValue;
-        return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    }
-
-    function updateTimeTracker() {
-        const canvas = document.getElementById('time-tracker-chart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#3498db';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(10, 140);
-        ctx.lineTo(200, 40);
-        ctx.stroke();
-    }
-
-    function updateTeamWidget() {
-        const teamMembers = document.getElementById('team-members');
-        teamMembers.innerHTML = '';
-        const placeholderMembers = [
-            { name: 'Scielet Terieter', initial: 'ST' },
-            { name: 'Sronce Tlametet', initial: 'ST' }
-        ];
-        placeholderMembers.forEach(member => {
-            const memberDiv = document.createElement('div');
-            memberDiv.className = 'team-member';
-            const avatar = document.createElement('div');
-            avatar.className = 'team-member-avatar';
-            avatar.textContent = member.initial;
-            const name = document.createElement('span');
-            name.className = 'team-member-name';
-            name.textContent = member.name;
-            memberDiv.appendChild(avatar);
-            memberDiv.appendChild(name);
-            teamMembers.appendChild(memberDiv);
-        });
-    }
-
-    async function handleGenerateSummary() {
-        const promptText = updatesInput.value.trim();
-        if (!promptText) { alert('Please enter project updates to summarize.'); return; }
-        const summaryOutput = document.getElementById('summary-output');
-        summaryOutput.classList.remove('hidden');
-        summaryOutput.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating summary...</p>';
-        generateBtn.disabled = true;
-        try { 
-            await new Promise(r => setTimeout(r, 2000));
-            summaryOutput.innerHTML = `<p>Summary: ${promptText.substring(0,100)}... (Placeholder)</p>`;
-        } catch { 
-            summaryOutput.innerHTML = '<p style="color: #e74c3c;">Error generating summary.</p>'; 
-        } finally { 
-            generateBtn.disabled = false; 
-        }
-    }
-
-    function showPlaceholderData() {
-        updateCalendarWidget([{ due_date: '2024-12-20', title: 'Website design' }]);
-        updateTodoList([]);
-        updateNotesWidget([]);
-        updateTimeTracker();
-        updateTeamWidget();
-    }
-
-    // Add CSS animations for notifications
+    // Add CSS animations
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
@@ -857,6 +1066,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             to {
                 transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
                 opacity: 0;
             }
         }

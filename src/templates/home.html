@@ -72,30 +72,7 @@
 
         </div> <!-- end dashboard-grid -->
 
-        <!-- Tasks Table Section -->
-        <div class="tasks-section">
-            <h2>All Tasks</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Due</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                    <tr>
-                        <td>{{ task.title }}</td>
-                        <td>{{ task.status }}</td>
-                        <td>{{ task.priority }}</td>
-                        <td>{{ task.due_date if task.due_date else '-' }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
 
     </div> <!-- end dashboard-container -->
     {% endblock content %}

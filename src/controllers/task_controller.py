@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, jsonify, request
 from models.task import Task
 from services.task_service import TaskService
-
+from datetime import date
 task_bp = Blueprint("task", __name__, url_prefix="/api/v1/tasks")
 
 task_service = TaskService()
@@ -177,7 +177,7 @@ def get_backlog():
     return jsonify([t.to_dict() for t in tasks]), 200
 
 
-# --- Define the reserved ID for the Backlog ---
+
 BACKLOG_SPRINT_ID = 1 
 
 @task_bp.route("/backlog", methods=["POST"])
@@ -205,3 +205,32 @@ def add_backlog_item():
         # Added a check for required fields/errors to help debug further
         print(f"Error creating task: {e}") 
         return jsonify({"error": str(e)}), 500
+
+@task_bp.route("/upcoming", methods=["GET"])
+def get_upcoming_tasks(self, user_id=None, limit=5):
+    """
+    Fetch the upcoming tasks ordered by the closest due date.
+    Optionally filter by assigned user.
+    """
+    cursor = self.db.cursor(dictionary=True)
+    base_query = """
+        SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+        FROM Task
+        WHERE due_date IS NOT NULL
+          AND due_date >= %s
+          AND status != 'DONE'
+    """
+    params = [date.today()]
+
+    if user_id:
+        base_query += " AND assigned_id = %s"
+        params.append(user_id)
+
+    base_query += " ORDER BY due_date ASC LIMIT %s"
+    params.append(limit)
+
+    cursor.execute(base_query, params)
+    rows = cursor.fetchall()
+    cursor.close()
+
+    return [Task(**row) for row in rows]
