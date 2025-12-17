@@ -1,7 +1,9 @@
 import datetime
+
 class Project:
-    def __init__(self, project_id, name, description, start_date, end_date, budget):
-        self.project_id: int = project_id
+    # 1. Move project_id to the end and default to None
+    def __init__(self, name, description, start_date, end_date, budget, project_id=None):
+        self.project_id = project_id
         self.name: str = name
         self.description: str = description
         self.start_date: datetime.date = start_date

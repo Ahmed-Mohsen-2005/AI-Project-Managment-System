@@ -23,6 +23,13 @@ def get_task(task_id):
         abort(404)
 
 
+@task_bp.route("/sprint/<int:sprint_id>", methods=["GET"])
+def get_tasks_by_sprint(sprint_id):
+    """Get all tasks for a specific sprint/project"""
+    tasks = task_service.get_tasks_by_sprint(sprint_id)
+    return jsonify([t.to_dict() for t in tasks]), 200
+
+
 @task_bp.route("", methods=["POST"])
 @task_bp.route("/", methods=["POST"])
 def create_task():
@@ -162,3 +169,39 @@ def tasks_by_status(status):
 def task_page():
     tasks = task_service.get_all_tasks()
     return render_template("home.html", tasks=tasks)
+
+
+@task_bp.route("/backlog", methods=["GET"])
+def get_backlog():
+    tasks = task_service.get_backlog_tasks()
+    return jsonify([t.to_dict() for t in tasks]), 200
+
+
+# --- Define the reserved ID for the Backlog ---
+BACKLOG_SPRINT_ID = 1 
+
+@task_bp.route("/backlog", methods=["POST"])
+def add_backlog_item():
+    if not request.is_json:
+        return jsonify({"error": "JSON body required"}), 400
+
+    data = request.json
+
+    # --- CHANGE: Use the reserved ID instead of NULL/None ---
+    data["sprint_id"] = BACKLOG_SPRINT_ID
+    # ... (other defaults, which seem correct) ...
+    data.setdefault("status", "TODO")
+    data.setdefault("priority", "MEDIUM")
+    data.setdefault("estimate_hours", 0)
+    data.setdefault("assigned_id", None)
+    data.setdefault("created_by", 1)  # later from session
+
+    try:
+        task = Task(**data)
+        # Assuming task_service uses TaskRepository.add_task() which handles created_at/updated_at
+        task_id = task_service.create_backlog_task(task) 
+        return jsonify({"task_id": task_id}), 201
+    except Exception as e:
+        # Added a check for required fields/errors to help debug further
+        print(f"Error creating task: {e}") 
+        return jsonify({"error": str(e)}), 500

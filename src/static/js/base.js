@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Open modal when logout button is clicked
         logoutButton.addEventListener('click', () => {
             logoutModal.classList.remove('hidden');
-            logoutModal.style.display = 'block'; // Make visible
+            logoutModal.style.display = 'flex'; // Make visible
             
             // Close notification panel if open
             if (notificationPanel && notificationPanel.classList.contains('open')) {
@@ -137,6 +137,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (globalSearch) {
         globalSearch.addEventListener('input', () => {
             console.log(`Searching globally for: ${globalSearch.value}`);
+        });
+    }
+    // --- 5. Dark Mode Logic ---
+
+    // Select the toggle switch input (inside the .switch label)
+    const themeToggleCheckbox = document.querySelector('.switch .input');
+    
+    // 1. Check Local Storage on Load
+    // If the user previously selected 'dark', apply it immediately
+    const currentTheme = localStorage.getItem('theme');
+    
+    if (currentTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        if (themeToggleCheckbox) {
+            themeToggleCheckbox.checked = true; // Make sure the toggle looks "on"
+        }
+    }
+
+    // 2. Listen for Switch Changes
+    if (themeToggleCheckbox) {
+        themeToggleCheckbox.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                // User turned ON dark mode
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                console.log("Theme switched to Dark");
+            } else {
+                // User turned OFF dark mode (back to light)
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                console.log("Theme switched to Light");
+            }
         });
     }
 });

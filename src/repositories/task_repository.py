@@ -9,8 +9,15 @@ class TaskRepository:
     
     def get_all(self):
         cursor = self.db.cursor(dictionary=True)
-        cursor.execute("SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id FROM Task")
+        # Ensure all columns are fetched for the Task model
+        query = """
+        SELECT task_id, sprint_id, title, status, priority, estimate_hours, 
+               due_date, created_by, assigned_id
+        FROM Task
+        """
+        cursor.execute(query)
         rows = cursor.fetchall()
+        # NOTE: Task model's __init__ must handle string/enum conversion for status/priority
         return [Task(**row) for row in rows]
     
     def get_by_id(self, task_id):
@@ -18,6 +25,24 @@ class TaskRepository:
         cursor.execute("SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id FROM Task WHERE task_id=%s", (task_id,))
         row = cursor.fetchone()
         return Task(**row) if row else None
+    
+    def get_by_sprint(self, sprint_id):
+        """
+        Fetch all tasks for a specific sprint/project.
+        :param sprint_id: ID of the sprint
+        :return: List of Task objects
+        """
+        cursor = self.db.cursor(dictionary=True)
+        query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+            FROM Task
+            WHERE sprint_id = %s
+            ORDER BY due_date ASC
+        """
+        cursor.execute(query, (sprint_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        return [Task(**row) for row in rows]
     
     def add_task(self, task: Task):
         cursor = self.db.cursor()
@@ -74,7 +99,6 @@ class TaskRepository:
         rows = cursor.fetchall()
         cursor.close()
         return [Task(**row) for row in rows]
-    
 
 
     # Fetch overdue tasks for a specific user
@@ -116,4 +140,51 @@ class TaskRepository:
         cursor.close()
         return [Task(**row) for row in rows]
 
+    def get_upcoming_tasks(self, user_id=None, limit=5):
+        """
+        Fetch the upcoming tasks ordered by the closest due date.
+        Optionally filter by assigned user.
+        """
+        cursor = self.db.cursor(dictionary=True)
+        base_query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+            FROM Task
+            WHERE due_date IS NOT NULL
+              AND due_date >= %s
+              AND status != 'DONE'
+        """
+        params = [date.today()]
 
+        if user_id:
+            base_query += " AND assigned_id = %s"
+            params.append(user_id)
+
+    def get_backlog_tasks(self, project_id=None):
+        cursor = self.db.cursor(dictionary=True)
+
+        query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours,
+                   due_date, created_by, assigned_id
+            FROM Task
+            WHERE sprint_id IS NULL
+        """
+
+        params = ()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        cursor.close()
+
+        return [Task(**row) for row in rows]
+    def get_by_sprint_id(self, sprint_id):
+        """Fetches all tasks belonging to a specific sprint."""
+        cursor = self.db.cursor(dictionary=True)
+        query = """
+        SELECT task_id, sprint_id, title, status, priority, estimate_hours, 
+               due_date, created_by, assigned_id
+        FROM Task
+        WHERE sprint_id = %s
+        ORDER BY priority DESC, due_date ASC
+        """
+        cursor.execute(query, (sprint_id,))
+        rows = cursor.fetchall()
+        return [Task(**row) for row in rows]

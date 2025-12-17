@@ -8,7 +8,8 @@ class ProjectRepository:
 
     def get_all(self):
         cursor = self.db.cursor(dictionary=True)
-        cursor.execute("SELECT project_id, name, description, start_date, end_date, budget FROM Project")
+        query = "SELECT project_id, name FROM Project ORDER BY name ASC"
+        cursor.execute(query)
         rows = cursor.fetchall()
         return [Project(**row) for row in rows]
 
