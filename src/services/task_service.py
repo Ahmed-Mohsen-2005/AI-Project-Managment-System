@@ -1,7 +1,6 @@
 from models import task
 from repositories import task_repository
 
-<<<<<<< HEAD
 from repositories.task_repository import TaskRepository
 
 class TaskService:
@@ -10,8 +9,6 @@ class TaskService:
     def next_deadline(user_id):
         return TaskRepository.get_next_deadline(user_id)
 
-=======
->>>>>>> main
 class TaskService:
     def __init__(self):
         self.task_repo = task_repository.TaskRepository()
