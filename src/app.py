@@ -3,6 +3,7 @@ from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
 from controllers.task_controller import task_bp 
 from controllers.report_controller import report_bp
+from controllers.note_controller import note_bp 
 from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
@@ -26,6 +27,7 @@ app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(home_bp)
+app.register_blueprint(note_bp)  
 
 @app.route("/")
 def root():
