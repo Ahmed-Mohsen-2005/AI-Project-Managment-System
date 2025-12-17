@@ -12,6 +12,7 @@ from controllers.auth_controller import auth_bp
 from controllers.home_controller import home_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
+from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 from services.task_service import TaskService
 app = Flask(__name__)   
@@ -21,6 +22,7 @@ app.register_blueprint(user_bp)
 app.register_blueprint(sprint_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(report_bp)
+app.register_blueprint(view_bp)
 app.register_blueprint(project_bp)
 app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
