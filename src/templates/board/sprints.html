@@ -83,6 +83,37 @@
             </form>
         </div>
     </div>
+    <div id="edit-sprint-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-edit-modal">&times;</span>
+        
+        <h2 class="modal-title"><i class="fas fa-edit"></i> Edit Sprint</h2>
+        
+        <form id="edit-sprint-form">
+            <input type="hidden" id="edit-sprint-id">
+            
+            <div class="form-group">
+                <label for="edit-sprint-name">Sprint Name</label>
+                <input type="text" id="edit-sprint-name" required placeholder="Update sprint name...">
+            </div>
+            
+            <div class="form-row" style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="edit-sprint-start-date">Start Date</label>
+                    <input type="date" id="edit-sprint-start-date" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="edit-sprint-end-date">End Date</label>
+                    <input type="date" id="edit-sprint-end-date" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-styled full-width-btn" style="background: linear-gradient(145deg, #1273f3ff, #17c7b8ff);">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
 
 {% endblock content %}
 
