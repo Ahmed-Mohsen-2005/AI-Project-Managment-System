@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, render_template
 from repositories.repository_factory import RepositoryFactory
 from models.sprint import Sprint 
 
@@ -20,9 +20,6 @@ def list_all_sprints():
 @sprint_bp.route("/", methods=["POST"])
 def create_sprint():
     data = request.get_json()
-    
-    # ... checks ...
-
     try:
         # ERROR IS HERE: You are likely passing 'status=...' here
         new_sprint = Sprint(

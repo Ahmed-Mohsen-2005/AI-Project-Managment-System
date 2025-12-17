@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 src\data\db_session.py
 src\core\db_singleton.py
+=======
+src\core\db_singleton.py
+src\data\db_session.py
+>>>>>>> main

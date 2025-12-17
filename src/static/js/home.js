@@ -1,6 +1,7 @@
-// Home Page / Dashboard - Updated for AUTO_INCREMENT task_id
+// Home Page / Dashboard - Updated with Notes Integration
 const DASHBOARD_API_URL = '/api/v1/home/dashboard';
 const TASKS_API_URL = '/api/v1/tasks';
+const NOTES_API_URL = '/api/v1/notes';
 
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generate-summary-btn');
@@ -10,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize dashboard
     loadDashboardData();
     loadTodoList();
+    loadRecentNotes();
 
     // Event listeners
     if (generateBtn) {
@@ -35,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             updateCalendarWidget(data.deadlines || []);
-            updateNotesWidget();
             updateTimeTracker();
             updateTeamWidget();
         } catch (error) {
@@ -58,6 +59,472 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error loading tasks:', err);
             updateTodoList([]);
         }
+    }
+
+    // ------------------------------
+    // Load Recent Notes from Backend
+    async function loadRecentNotes() {
+        try {
+            const response = await fetch(`${NOTES_API_URL}`, { 
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch notes');
+
+            const notes = await response.json();
+            updateNotesWidget(notes);
+        } catch (err) {
+            console.error('Error loading notes:', err);
+            updateNotesWidget([]);
+        }
+    }
+
+    // ------------------------------
+    // Update Notes Widget DOM with actual data
+    function updateNotesWidget(notes) {
+        const notesContent = document.getElementById('notes-content');
+        notesContent.innerHTML = '';
+
+        // Add "Add Note" button
+        const addNoteBtn = document.createElement('button');
+        addNoteBtn.className = 'btn-add-note';
+        addNoteBtn.innerHTML = '<i class="fas fa-plus"></i> Add Note';
+        addNoteBtn.style.cssText = `
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        `;
+        addNoteBtn.addEventListener('mouseenter', () => addNoteBtn.style.background = '#2980b9');
+        addNoteBtn.addEventListener('mouseleave', () => addNoteBtn.style.background = '#3498db');
+        addNoteBtn.addEventListener('click', handleAddNote);
+        notesContent.appendChild(addNoteBtn);
+
+        // Display notes or empty state
+        if (!notes || notes.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'notes-empty-state';
+            emptyState.style.cssText = `
+                text-align: center;
+                padding: 40px 20px;
+                color: #95a5a6;
+                font-style: italic;
+            `;
+            emptyState.innerHTML = '<i class="fas fa-sticky-note" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>No notes yet';
+            notesContent.appendChild(emptyState);
+            return;
+        }
+
+        // Display recent notes (limit to 5)
+        const notesContainer = document.createElement('div');
+        notesContainer.className = 'notes-list';
+        notesContainer.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        `;
+
+        notes.slice(0, 5).forEach(note => {
+            const noteItem = createNoteItem(note);
+            notesContainer.appendChild(noteItem);
+        });
+
+        notesContent.appendChild(notesContainer);
+    }
+
+    // ------------------------------
+    // Create individual note item
+    function createNoteItem(note) {
+        const noteDiv = document.createElement('div');
+        noteDiv.className = 'note-item';
+        noteDiv.dataset.noteId = note.note_id;
+        noteDiv.style.cssText = `
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 12px;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.2s;
+        `;
+
+        // Note content
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'note-content';
+        contentDiv.style.cssText = `
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        `;
+        contentDiv.textContent = note.content;
+
+        // Note metadata
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'note-meta';
+        metaDiv.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        `;
+
+        const entityInfo = document.createElement('span');
+        entityInfo.textContent = `${note.entity_type} #${note.entity_id}`;
+        
+        const dateInfo = document.createElement('span');
+        if (note.created_at) {
+            const date = new Date(note.created_at);
+            dateInfo.textContent = date.toLocaleDateString(undefined, { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        metaDiv.appendChild(entityInfo);
+        metaDiv.appendChild(dateInfo);
+
+        // Action buttons
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'note-actions';
+        actionsDiv.style.cssText = `
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        `;
+
+        const editBtn = createActionButton('fas fa-edit', '#3498db', () => handleEditNote(note));
+        const deleteBtn = createActionButton('fas fa-trash', '#e74c3c', () => handleDeleteNote(note.note_id));
+
+        actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(deleteBtn);
+
+        // Show actions on hover
+        noteDiv.addEventListener('mouseenter', () => {
+            actionsDiv.style.opacity = '1';
+            noteDiv.style.background = '#ecf0f1';
+        });
+        noteDiv.addEventListener('mouseleave', () => {
+            actionsDiv.style.opacity = '0';
+            noteDiv.style.background = '#f8f9fa';
+        });
+
+        noteDiv.appendChild(contentDiv);
+        noteDiv.appendChild(metaDiv);
+        noteDiv.appendChild(actionsDiv);
+
+        return noteDiv;
+    }
+
+    // ------------------------------
+    // Create action button helper
+    function createActionButton(iconClass, color, onClick) {
+        const btn = document.createElement('button');
+        btn.innerHTML = `<i class="${iconClass}"></i>`;
+        btn.style.cssText = `
+            background: white;
+            border: 1px solid ${color};
+            color: ${color};
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        `;
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = color;
+            btn.style.color = 'white';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'white';
+            btn.style.color = color;
+        });
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onClick();
+        });
+        return btn;
+    }
+
+    // ------------------------------
+    // Handle Add Note
+    function handleAddNote() {
+        const notesContent = document.getElementById('notes-content');
+
+        // Check if form already exists
+        if (document.querySelector('.note-form')) {
+            return;
+        }
+
+        // Create form
+        const formDiv = document.createElement('div');
+        formDiv.className = 'note-form';
+        formDiv.style.cssText = `
+            background: #fff;
+            border: 2px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        `;
+
+        formDiv.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <textarea id="note-content-input" placeholder="Write your note here..." 
+                    style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px; resize: vertical; font-family: inherit; font-size: 14px;"></textarea>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="note-entity-type" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="task">Task</option>
+                        <option value="project">Project</option>
+                        <option value="sprint">Sprint</option>
+                    </select>
+                    
+                    <input type="number" id="note-entity-id" placeholder="Entity ID *" value="1" min="1"
+                        style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button id="cancel-note-btn" 
+                        style="padding: 8px 16px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button id="submit-note-btn" 
+                        style="padding: 8px 16px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Save Note
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Insert form at the top (after the add button)
+        const addBtn = notesContent.querySelector('.btn-add-note');
+        addBtn.after(formDiv);
+
+        // Focus on textarea
+        document.getElementById('note-content-input').focus();
+
+        // Handle cancel
+        document.getElementById('cancel-note-btn').addEventListener('click', () => {
+            formDiv.remove();
+        });
+
+        // Handle submit
+        document.getElementById('submit-note-btn').addEventListener('click', async () => {
+            const content = document.getElementById('note-content-input').value.trim();
+            const entityType = document.getElementById('note-entity-type').value;
+            const entityId = parseInt(document.getElementById('note-entity-id').value);
+
+            // Validation
+            if (!content) {
+                alert('Note content is required');
+                document.getElementById('note-content-input').focus();
+                return;
+            }
+
+            if (!entityId || entityId < 1) {
+                alert('Valid Entity ID is required');
+                document.getElementById('note-entity-id').focus();
+                return;
+            }
+
+            const newNote = {
+                content: content,
+                entity_type: entityType,
+                entity_id: entityId,
+                created_by: 1  // Replace with actual user ID
+            };
+
+            const submitBtn = document.getElementById('submit-note-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            try {
+                const response = await fetch(NOTES_API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(newNote)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create note');
+                }
+
+                const data = await response.json();
+                
+                // Remove form and reload notes
+                formDiv.remove();
+                await loadRecentNotes();
+                
+                // Show success message
+                showNotification('✓ Note saved successfully', 'success');
+
+            } catch (err) {
+                console.error('Error adding note:', err);
+                alert(`Error saving note: ${err.message}`);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Note';
+            }
+        });
+    }
+
+    // ------------------------------
+    // Handle Edit Note
+    function handleEditNote(note) {
+        const noteItem = document.querySelector(`[data-note-id="${note.note_id}"]`);
+        if (!noteItem) return;
+
+        // Save original content for cancel
+        const originalContent = note.content;
+
+        // Replace note content with textarea
+        noteItem.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <textarea id="edit-note-content" 
+                    style="padding: 8px; border: 1px solid #3498db; border-radius: 4px; min-height: 60px; resize: vertical; font-family: inherit; font-size: 14px;">${note.content}</textarea>
+                
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button id="cancel-edit-btn" 
+                        style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        Cancel
+                    </button>
+                    <button id="save-edit-btn" 
+                        style="padding: 6px 12px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        Save
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const textarea = document.getElementById('edit-note-content');
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+        // Handle cancel
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            loadRecentNotes();
+        });
+
+        // Handle save
+        document.getElementById('save-edit-btn').addEventListener('click', async () => {
+            const newContent = textarea.value.trim();
+
+            if (!newContent) {
+                alert('Note content cannot be empty');
+                return;
+            }
+
+            if (newContent === originalContent) {
+                loadRecentNotes();
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-edit-btn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const response = await fetch(`${NOTES_API_URL}/${note.note_id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ content: newContent })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update note');
+                }
+
+                await loadRecentNotes();
+                showNotification('✓ Note updated successfully', 'success');
+
+            } catch (err) {
+                console.error('Error updating note:', err);
+                alert(`Error updating note: ${err.message}`);
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
+            }
+        });
+    }
+
+    // ------------------------------
+    // Handle Delete Note
+    async function handleDeleteNote(noteId) {
+        if (!confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${NOTES_API_URL}/${noteId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete note');
+            }
+
+            await loadRecentNotes();
+            showNotification('✓ Note deleted successfully', 'success');
+
+        } catch (err) {
+            console.error('Error deleting note:', err);
+            alert(`Error deleting note: ${err.message}`);
+        }
+    }
+
+    // ------------------------------
+    // Show notification helper
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 
     // ------------------------------
@@ -116,21 +583,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ------------------------------
-    // Add new task - UPDATED: Removed task_id from payload
+    // Add new task
     function handleAddTask() {
         const todoList = document.getElementById('todo-list');
 
-        // Check if form already exists
         if (document.querySelector('.task-form')) {
             return;
         }
 
-        // Create form container
         const formLi = document.createElement('li');
         formLi.className = 'task-form';
         formLi.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;';
 
-        // Create form layout
         const formHTML = `
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <input type="text" id="task-title" placeholder="Task title *" required 
@@ -180,15 +644,12 @@ document.addEventListener('DOMContentLoaded', () => {
         formLi.innerHTML = formHTML;
         todoList.insertBefore(formLi, todoList.firstChild);
 
-        // Focus on title input
         document.getElementById('task-title').focus();
 
-        // Handle cancel
         document.getElementById('cancel-task-btn').addEventListener('click', () => {
             formLi.remove();
         });
 
-        // Handle submit
         document.getElementById('submit-task-btn').addEventListener('click', async () => {
             const title = document.getElementById('task-title').value.trim();
             const sprintId = parseInt(document.getElementById('task-sprint').value);
@@ -198,7 +659,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const estimate = document.getElementById('task-estimate').value;
             const dueDate = document.getElementById('task-due-date').value;
 
-            // Validation
             if (!title) {
                 alert('Task title is required');
                 document.getElementById('task-title').focus();
@@ -217,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // UPDATED: No task_id field - database will auto-generate it
             const newTask = {
                 title: title,
                 sprint_id: sprintId,
@@ -229,15 +688,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 created_by: assignedId
             };
 
-            // Disable submit button
             const submitBtn = document.getElementById('submit-task-btn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Adding...';
 
             try {
-                console.log('Sending POST to:', TASKS_API_URL);
-                console.log('Task data:', JSON.stringify(newTask, null, 2));
-                
                 const response = await fetch(TASKS_API_URL, {
                     method: 'POST',
                     headers: { 
@@ -248,36 +703,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(newTask)
                 });
 
-                console.log('Response status:', response.status);
-
-                // Get response text first
                 const responseText = await response.text();
-                console.log('Response body:', responseText.substring(0, 300));
-
-                // Check content type
                 const contentType = response.headers.get('content-type');
+                
                 if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error(`Server error (${response.status}): Expected JSON response but got ${contentType || 'unknown type'}. Check Flask server logs.`);
+                    throw new Error(`Server error (${response.status}): Expected JSON response`);
                 }
 
-                // Parse JSON
                 const data = JSON.parse(responseText);
 
                 if (!response.ok) {
-                    const errMsg = data && data.error ? data.error : `Server error: ${response.status}`;
-                    throw new Error(errMsg);
+                    throw new Error(data.error || `Server error: ${response.status}`);
                 }
 
-                // Success - remove form and reload tasks
                 formLi.remove();
                 await loadTodoList();
-                
-                // Show success message briefly
-                const successMsg = document.createElement('div');
-                successMsg.textContent = `✓ Task "${title}" added successfully (ID: ${data.task_id})`;
-                successMsg.style.cssText = 'background: #28a745; color: white; padding: 10px; border-radius: 4px; margin-bottom: 10px; text-align: center;';
-                todoList.insertBefore(successMsg, todoList.firstChild);
-                setTimeout(() => successMsg.remove(), 3000);
+                showNotification(`✓ Task "${title}" added successfully`, 'success');
 
             } catch (err) {
                 console.error('Error adding task:', err);
@@ -291,21 +732,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------
     // Other widgets
     function updateCalendarWidget(deadlines) {
+<<<<<<< HEAD
     if (deadlines && deadlines.length > 0) {
         const nextDeadline = deadlines[0];
         deadlineDisplay.textContent =
             `${nextDeadline.date} - ${nextDeadline.description}`;
         } 
+=======
+        const deadlineDisplay = document.getElementById('next-deadline-display');
+        const deadlineList = document.getElementById('calendar-deadlines');
+
+        if (!deadlines || deadlines.length === 0) {
+            deadlineDisplay.textContent = 'No upcoming deadlines';
+            if (deadlineList) {
+                deadlineList.innerHTML = '<li class="deadline-item"><span class="deadline-title">No tasks scheduled</span></li>';
+            }
+            return;
+        }
+
+        const nextDeadline = deadlines[0];
+        const formattedDate = formatDate(nextDeadline.due_date);
+        deadlineDisplay.textContent = `${formattedDate} • ${nextDeadline.title}`;
+
+        if (deadlineList) {
+            deadlineList.innerHTML = '';
+            deadlines.slice(0, 4).forEach(task => {
+                const item = document.createElement('li');
+                item.className = 'deadline-item';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'deadline-title';
+                titleSpan.textContent = task.title;
+
+                const metaSpan = document.createElement('span');
+                metaSpan.className = 'deadline-meta';
+                const statusText = task.status ? task.status.replace('_', ' ') : 'TODO';
+                metaSpan.textContent = `${formatDate(task.due_date)} · ${statusText}`;
+
+                item.appendChild(titleSpan);
+                item.appendChild(metaSpan);
+                deadlineList.appendChild(item);
+            });
+        }
+>>>>>>> main
     }
 
-    function updateNotesWidget() {
-        const notesContent = document.getElementById('notes-content');
-        notesContent.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'note-placeholder';
-            notesContent.appendChild(bar);
-        }
+    function formatDate(dateValue) {
+        if (!dateValue) return '-';
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) return dateValue;
+        return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
 
     function updateTimeTracker() {
@@ -361,10 +837,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showPlaceholderData() {
-        updateCalendarWidget([{ date: 'Dec 20', description: 'Website design' }]);
+        updateCalendarWidget([{ due_date: '2024-12-20', title: 'Website design' }]);
         updateTodoList([]);
-        updateNotesWidget();
+        updateNotesWidget([]);
         updateTimeTracker();
         updateTeamWidget();
     }
+
+    // Add CSS animations for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 });
