@@ -23,6 +23,13 @@ def get_task(task_id):
         abort(404)
 
 
+@task_bp.route("/sprint/<int:sprint_id>", methods=["GET"])
+def get_tasks_by_sprint(sprint_id):
+    """Get all tasks for a specific sprint/project"""
+    tasks = task_service.get_tasks_by_sprint(sprint_id)
+    return jsonify([t.to_dict() for t in tasks]), 200
+
+
 @task_bp.route("", methods=["POST"])
 @task_bp.route("/", methods=["POST"])
 def create_task():

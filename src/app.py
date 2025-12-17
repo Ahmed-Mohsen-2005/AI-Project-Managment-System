@@ -8,10 +8,12 @@ from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
+from controllers.home_controller import home_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
+from services.task_service import TaskService
 app = Flask(__name__)   
 db = get_db() 
 print("Project Sentinel Application and SQL Server connection pool initialized.")
@@ -25,13 +27,16 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(home_bp)
 
 @app.route("/")
 def root():
     return render_template("index.html")
 @app.route("/home")
 def home():
-    return render_template("home.html")
+    task_service = TaskService()
+    tasks = task_service.get_all_tasks()
+    return render_template("home.html", tasks=tasks)
 @app.route("/repositories")
 def repositories():
     return render_template("repositories.html")
