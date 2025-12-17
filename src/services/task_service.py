@@ -51,3 +51,9 @@ class TaskService:
 
     def get_tasks_by_status(self, status: str):
         return self.task_repo.get_tasks_by_status(status)
+
+    def get_upcoming_tasks(self, user_id: int = None, limit: int = 5):
+        """
+        Get tasks ordered by nearest due date, optionally filtered by user.
+        """
+        return self.task_repo.get_upcoming_tasks(user_id=user_id, limit=limit)

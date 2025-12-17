@@ -132,3 +132,30 @@ class TaskRepository:
         rows = cursor.fetchall()
         cursor.close()
         return [Task(**row) for row in rows]
+
+    def get_upcoming_tasks(self, user_id=None, limit=5):
+        """
+        Fetch the upcoming tasks ordered by the closest due date.
+        Optionally filter by assigned user.
+        """
+        cursor = self.db.cursor(dictionary=True)
+        base_query = """
+            SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
+            FROM Task
+            WHERE due_date IS NOT NULL
+              AND due_date >= %s
+              AND status != 'DONE'
+        """
+        params = [date.today()]
+
+        if user_id:
+            base_query += " AND assigned_id = %s"
+            params.append(user_id)
+
+        base_query += " ORDER BY due_date ASC LIMIT %s"
+        params.append(limit)
+
+        cursor.execute(base_query, tuple(params))
+        rows = cursor.fetchall()
+        cursor.close()
+        return [Task(**row) for row in rows]

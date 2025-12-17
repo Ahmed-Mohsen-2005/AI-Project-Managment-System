@@ -292,12 +292,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // Other widgets
     function updateCalendarWidget(deadlines) {
         const deadlineDisplay = document.getElementById('next-deadline-display');
-        if (deadlines && deadlines.length > 0) {
-            const nextDeadline = deadlines[0];
-            deadlineDisplay.textContent = `${nextDeadline.date} - ${nextDeadline.description}`;
-        } else {
+        const deadlineList = document.getElementById('calendar-deadlines');
+
+        if (!deadlines || deadlines.length === 0) {
             deadlineDisplay.textContent = 'No upcoming deadlines';
+            if (deadlineList) {
+                deadlineList.innerHTML = '<li class="deadline-item"><span class="deadline-title">No tasks scheduled</span></li>';
+            }
+            return;
         }
+
+        const nextDeadline = deadlines[0];
+        const formattedDate = formatDate(nextDeadline.due_date);
+        deadlineDisplay.textContent = `${formattedDate} • ${nextDeadline.title}`;
+
+        if (deadlineList) {
+            deadlineList.innerHTML = '';
+            deadlines.slice(0, 4).forEach(task => {
+                const item = document.createElement('li');
+                item.className = 'deadline-item';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'deadline-title';
+                titleSpan.textContent = task.title;
+
+                const metaSpan = document.createElement('span');
+                metaSpan.className = 'deadline-meta';
+                const statusText = task.status ? task.status.replace('_', ' ') : 'TODO';
+                metaSpan.textContent = `${formatDate(task.due_date)} · ${statusText}`;
+
+                item.appendChild(titleSpan);
+                item.appendChild(metaSpan);
+                deadlineList.appendChild(item);
+            });
+        }
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return '-';
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) return dateValue;
+        return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
 
     function updateNotesWidget() {
@@ -363,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showPlaceholderData() {
-        updateCalendarWidget([{ date: 'Dec 20', description: 'Website design' }]);
+        updateCalendarWidget([{ due_date: '2024-12-20', title: 'Website design' }]);
         updateTodoList([]);
         updateNotesWidget();
         updateTimeTracker();
