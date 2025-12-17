@@ -46,6 +46,13 @@ class TaskService:
 
     def get_tasks_by_status(self, status: str):
         return self.task_repo.get_tasks_by_status(status)
+    
+    def get_backlog_tasks(self):
+        return self.task_repo.get_backlog_tasks()
+
+    def create_backlog_task(self, task: task.Task):
+        task.sprint_id = None
+        return self.task_repo.add_task(task)
 
 
 
