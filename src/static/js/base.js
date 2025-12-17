@@ -101,12 +101,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Final action: Confirm logout
         confirmLogoutBtn.addEventListener('click', () => {
             console.log("[LOGOUT] User confirmed logout. Executing session termination...");
-            window.location.href = '/'; 
+            // Clear user session from localStorage
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
         });
     }
 
+    // --- 4. Update Header Avatar with User Info ---
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const headerAvatar = document.querySelector('.user-profile-link .profile-avatar');
 
-    // --- 4. Global Action Handlers ---
+    if (currentUser && currentUser.name && headerAvatar) {
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        headerAvatar.src = `https://placehold.co/36x36/3498db/FFFFFF?text=${initials}`;
+        headerAvatar.alt = currentUser.name;
+    }
+
+    // --- 5. Global Action Handlers ---
     
     // Quick Add Button
     document.getElementById('add-new-btn').addEventListener('click', () => {

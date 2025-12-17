@@ -1,18 +1,20 @@
 from flask import Flask
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
-from controllers.task_controller import task_bp 
+from controllers.task_controller import task_bp
 from controllers.report_controller import report_bp
 from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
+from controllers.profile_controller import profile_bp
+from controllers.dashboard_controller import dashboard_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from flask import Blueprint, render_template
-app = Flask(__name__)   
-db = get_db() 
+app = Flask(__name__)
+db = get_db()
 print("Project Sentinel Application and SQL Server connection pool initialized.")
 app.register_blueprint(user_bp)
 app.register_blueprint(sprint_bp)
@@ -23,6 +25,8 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(dashboard_bp)
 
 @app.route("/")
 def root():

@@ -9,3 +9,13 @@ class Project:
         self.budget: float = budget
         self.sprints: list = []
         self.reports: list = []
+
+    def to_dict(self):
+        return {
+            "project_id": self.project_id,
+            "name": self.name,
+            "description": self.description,
+            "start_date": str(self.start_date) if self.start_date else None,
+            "end_date": str(self.end_date) if self.end_date else None,
+            "budget": float(self.budget) if self.budget else 0
+        }
