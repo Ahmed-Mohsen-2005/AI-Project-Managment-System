@@ -10,6 +10,7 @@ from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
+from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 app = Flask(__name__)   
 db = get_db() 
@@ -18,6 +19,7 @@ app.register_blueprint(user_bp)
 app.register_blueprint(sprint_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(report_bp)
+app.register_blueprint(view_bp)
 app.register_blueprint(project_bp)
 app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)

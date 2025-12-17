@@ -752,3 +752,137 @@ body {
 .input:checked + .slider:before {
   transform: translateX(30px);
 }
+
+
+/* =========================================
+   4. Form Styling
+   ========================================= */
+#create-project-form {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-main, #2c3e50);
+}
+
+.required {
+    color: #e74c3c;
+    margin-left: 3px;
+}
+
+/* Inputs & Textareas */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, #dcdfe6);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #333;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary, #3498db);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical; /* Allow resizing height only */
+    min-height: 80px;
+}
+
+/* =========================================
+   5. Layout Helpers (Rows & Columns)
+   ========================================= */
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.half-width {
+    flex: 1; /* Each takes 50% width */
+}
+
+/* =========================================
+   6. Special Input Wrappers (Icons)
+   ========================================= */
+.input-icon-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #95a5a6;
+    pointer-events: none; /* Let clicks pass through to input */
+}
+
+.input-icon-wrapper input {
+    padding-left: 32px !important; /* Make room for the icon */
+}
+
+/* =========================================
+   7. Footer & Buttons
+   ========================================= */
+.modal-footer {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border, #e0e6ed);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Secondary Button (Cancel) */
+.btn-secondary {
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.btn-secondary:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+/* Primary Button (Create) */
+.btn-primary {
+    background-color: var(--color-primary, #3498db);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark, #2980b9);
+    transform: translateY(-1px); /* Subtle lift */
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+}

@@ -7,6 +7,10 @@
 {% endblock extra_css %}
 
 {% block content %}
+    <div style="background: #f0f0f0; padding: 10px;">
+        <p>Debug Projects Count: {{ projects|length }}</p>
+        <p>First Project: {{ projects[0] if projects else 'None' }}</p>
+    </div>
     <div class="sprints-container">
         
         <!-- Sprints Header and Controls -->
@@ -17,9 +21,11 @@
                 <div class="control-group">
                     <label for="project-filter">Project:</label>
                     <select id="project-filter" class="filter-select">
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
                         <option value="all">View All Projects</option>
+                        
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -70,8 +76,11 @@
                 <div class="form-group">
                     <label for="sprint-project">Associate Project</label>
                     <select id="sprint-project" required>
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
+                        <option value="" disabled selected>Select a project...</option>
+                        
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
