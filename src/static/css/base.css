@@ -46,6 +46,7 @@ body {
     color: var(--color-text-main);
     background-color: var(--color-background-main);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 1. Main Layout (CSS Grid) */
@@ -63,7 +64,54 @@ body {
 #app-container.sidebar-collapsed {
     grid-template-columns: var(--sidebar-collapsed-width) 1fr;
 }
+/* =========================================
+   8. Dark Mode Theme Overrides
+   ========================================= */
 
+/* When the body has data-theme="dark", override these variables */
+body[data-theme="dark"] {
+    /* Backgrounds: Turn white/gray into dark slate/black */
+    --color-background-main: #0f172a;  /* Very dark blue/slate */
+    --color-background-card: #1e293b;  /* Slightly lighter for cards */
+    --color-border: #334155;           /* Darker borders */
+    
+    /* Text: Turn dark text into light text */
+    --color-text-main: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+
+    /* Inputs (Search, Forms) */
+    --input-bg: #1e293b; 
+    --input-border: #475569;
+}
+
+/* Specific Fixes for Dark Mode Elements */
+body[data-theme="dark"] .card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for depth in dark mode */
+}
+
+body[data-theme="dark"] #global-search,
+body[data-theme="dark"] .form-group input,
+body[data-theme="dark"] .form-group textarea {
+    background-color: var(--color-background-card);
+    color: var(--color-text-main);
+    border-color: var(--color-border);
+}
+
+body[data-theme="dark"] .modal-content {
+    background-color: var(--color-background-card);
+    border: 1px solid var(--color-border);
+}
+
+body[data-theme="dark"] .sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Invert the Sidebar/Header shadows or borders if necessary */
+body[data-theme="dark"] #top-header {
+    background-color: var(--color-background-card);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: none; /* Borders look cleaner than shadows in dark mode */
+}
 /* 2. Sidebar Styling */
 #sidebar {
     grid-row: 1 / 3;
