@@ -38,6 +38,24 @@
     margin: 0;
     padding: 0;
 }
+.logo-section {
+    display: flex;         /* Lays items out horizontally */
+    align-items: center;    /* Centers items vertically */
+    gap: 12px;             /* Space between the image and the text */
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 35px;          /* Match the size of your text */
+    width: auto;
+}
+
+.logo-text {
+    font-size: 1.5rem;     /* Makes the text prominent */
+    font-weight: bold;
+    color: #f3eeee;           /* Change to fit your theme */
+    letter-spacing: 1px;
+}
 
 body {
     font-family: var(--font-family);

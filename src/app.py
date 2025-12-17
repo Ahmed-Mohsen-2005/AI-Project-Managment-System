@@ -15,6 +15,7 @@ from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 from services.task_service import TaskService
+from repositories.repository_factory import RepositoryFactory
 app = Flask(__name__)   
 db = get_db() 
 print("Project Sentinel Application and SQL Server connection pool initialized.")
@@ -30,6 +31,7 @@ app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(home_bp)
 app.register_blueprint(note_bp)  
+# In your main controller or app.py where the page is served
 
 @app.route("/")
 def root():
@@ -45,19 +47,26 @@ def repositories():
 
 @app.route("/boards/board")
 def board():
-    return render_template("board/board.html")
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()
+    return render_template("board/board.html", projects=all_projects)
 
 @app.route("/boards/dashboard")
 def dashboard():
-    return render_template("board/dashboard.html")
-
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()
+    return render_template("board/dashboard.html", projects=all_projects)
 @app.route("/boards/sprints")
 def sprints():
-    return render_template("board/sprints.html")
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()    
+    return render_template("board/sprints.html", projects=all_projects)
 
 @app.route("/boards/backlog")
 def backlog():
-    return render_template("board/backlog.html")
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()
+    return render_template("board/backlog.html", projects=all_projects)
 
 @app.route("/chats")
 def chats():

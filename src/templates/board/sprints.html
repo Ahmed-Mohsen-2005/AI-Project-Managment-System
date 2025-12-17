@@ -18,7 +18,6 @@
                     <label for="project-filter">Project:</label>
                     <select id="project-filter" class="filter-select">
                         <option value="all">View All Projects</option>
-                        
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
                         {% endfor %}

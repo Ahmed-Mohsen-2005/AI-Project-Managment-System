@@ -6,12 +6,10 @@ sprint_bp = Blueprint("sprint", __name__, url_prefix="/api/v1/sprints")
 
 @sprint_bp.route("/", methods=["GET"])
 def list_all_sprints():
-    # Optional: Filter by project_id if passed in URL (e.g., ?project_id=1)
-    project_id = request.args.get('project_id')
+    project_id = request.args.get('project_id') # Retrieves the ?project_id=X from URL
     repo = RepositoryFactory.get_repository("sprint")
 
-    if project_id:
-        # Assuming you added get_by_project_id to the repo as suggested previously
+    if project_id and project_id != 'all':
         sprints = repo.get_by_project_id(project_id)
     else:
         sprints = repo.get_all()
