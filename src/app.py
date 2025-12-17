@@ -16,7 +16,7 @@ from controllers.view_controller import view_bp
 from flask import Blueprint, render_template
 from services.task_service import TaskService
 app = Flask(__name__)   
-db = get_db() 
+
 print("Project Sentinel Application and SQL Server connection pool initialized.")
 app.register_blueprint(user_bp)
 app.register_blueprint(sprint_bp)
