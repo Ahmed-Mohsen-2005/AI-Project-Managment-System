@@ -4,53 +4,6 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/board/backlog.css') }}">
-    <style>
-        /* Enhanced Modal Styles */
-        .modal-content {
-            max-width: 650px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        .form-group textarea {
-            min-height: 80px;
-            resize: vertical;
-            font-family: inherit;
-        }
-        
-        .form-hint {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-        
-        .required {
-            color: #ef4444;
-            margin-left: 2px;
-        }
-        
-        .sprint-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            background: #e0e7ff;
-            color: #4338ca;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-left: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 {% endblock extra_css %}
 
 {% block content %}
@@ -58,30 +11,29 @@
         
         <!-- Backlog Header and Controls -->
         <header class="backlog-header">
-            <h1 class="page-title"><i class="fas fa-clipboard-list"></i> Project Backlog & Prioritization</h1>
+            <h1 class="page-title"><i class="fas fa-clipboard-list"></i> {{ t.backlog_prioritization }}</h1>
             <div class="backlog-controls">
                 
                 <!-- Filter Controls -->
                 <div class="control-group">
-                    <label for="project-filter">Project:</label>
+                    <label for="project-filter">{{ t.project }}:</label>
                     <select id="project-filter" class="filter-select">
-                        <option value="all">View All Projects</option>
-                        {% for project in projects %}
-                            <option value="{{ project.project_id }}">{{ project.name }}</option>
-                        {% endfor %}
+                        <option value="1">{{ t.core_backend_initiative }}</option>
+                        <option value="2">{{ t.frontend_ui_revamp }}</option>
+                        <option value="all">{{ t.all_projects }}</option>
                     </select>
                 </div>
                 
                 <div class="control-group">
-                    <label for="sort-by">Sort By:</label>
+                    <label for="sort-by">{{ t.sort_by }}</label>
                     <select id="sort-by" class="filter-select">
-                        <option value="ai_score">AI Priority Score (Desc)</option>
-                        <option value="priority">Manual Priority (Desc)</option>
-                        <option value="creation_date">Creation Date (Asc)</option>
+                        <option value="ai_score">{{ t.ai_priority_score }}</option>
+                        <option value="priority">{{ t.manual_priority }}</option>
+                        <option value="creation_date">{{ t.creation_date }}</option>
                     </select>
                 </div>
 
-                <button id="quick-add-item-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> Add Backlog Item</button>
+                <button id="quick-add-item-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> {{ t.add_backlog_item }}</button>
             </div>
         </header>
 
@@ -89,141 +41,57 @@
         <section class="backlog-list-area card">
             
             <div class="backlog-list-header">
-                <span class="col-id">ID</span>
-                <span class="col-title">Title & Status</span>
-                <span class="col-priority">Priority</span>
-                <span class="col-assignee">Assignee</span>
-                <span class="col-score">AI Score</span>
-                <span class="col-actions">Actions</span>
+                <span class="col-id">{{ t.backlog_id }}</span>
+                <span class="col-title">{{ t.backlog_title }}</span>
+                <span class="col-priority">{{ t.backlog_priority }}</span>
+                <span class="col-assignee">{{ t.backlog_assignee }}</span>
+                <span class="col-score">{{ t.ai_score }}</span>
+                <span class="col-actions">{{ t.actions }}</span>
             </div>
 
             <ul id="backlog-item-list" class="sortable-list">
                 <!-- Backlog items will be loaded here by JavaScript -->
-                <li class="loading-message">Loading backlog items...</li>
+                <li class="loading-message">{{ t.loading_backlog }}</li>
             </ul>
 
         </section>
         
         <!-- Drag Target Area (Simulated Sprint Planning Target) -->
-        <div id="sprint-planning-target" class="card drop-target-area" data-sprint-id="2">
-            <i class="fas fa-layer-group"></i> Drag Items Here to Plan Next Sprint
+        <div id="sprint-planning-target" class="card drop-target-area">
+            <i class="fas fa-layer-group"></i> {{ t.plan_sprint }}
         </div>
 
     </div>
     
-    <!-- Enhanced Quick Add Backlog Item MODAL with ALL Task Fields + Sprint Selection -->
+    <!-- Quick Add Backlog Item MODAL (Reusing the design from board.html) -->
     <div id="quick-add-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Create Backlog Item</h2>
+            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> {{ t.create_backlog_item }}</h2>
             <form id="quick-add-form">
-                
-                <!-- Title (Required) -->
                 <div class="form-group">
-                    <label for="item-title-input">
-                        Item Title (Epic/Feature/Bug)
-                        <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="item-title-input" 
-                        name="title"
-                        required 
-                        placeholder="e.g., Implement new AI recommendation service"
-                    >
+                    <label for="item-title-input">{{ t.item_title }} ({{ t.epic }}/{{ t.feature }}/{{ t.bug }})</label>
+                    <input type="text" id="item-title-input" required placeholder="{{ t.task_title_placeholder }}">
                 </div>
-
-                <!-- Sprint Selection (NEW!) -->
                 <div class="form-group">
-                    <label for="item-sprint">
-                        Sprint Assignment
-                        <span class="required">*</span>
-                    </label>
-                    <select id="item-sprint" name="sprint_id" required>
-                        <option value="">Loading sprints...</option>
+                    <label for="item-type">{{ t.type }}</label>
+                    <select id="item-type" required>
+                        <option value="Feature">{{ t.feature }}</option>
+                        <option value="Epic">{{ t.epic }}</option>
+                        <option value="Bug">{{ t.bug }}</option>
+                        <option value="TechDebt">{{ t.tech_debt }}</option>
                     </select>
-                    <div class="form-hint">Select which sprint this task belongs to</div>
                 </div>
-
-                <!-- Status & Priority Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-status">Status</label>
-                        <select id="item-status" name="status">
-                            <option value="TODO">TODO</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="DONE">Done</option>
-                            <option value="BLOCKED">Blocked</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="item-priority">Manual Priority</label>
-                        <select id="item-priority" name="priority">
-                            <option value="HIGH">P1 - High</option>
-                            <option value="MEDIUM" selected>P2 - Medium</option>
-                            <option value="LOW">P3 - Low</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Estimate Hours & Due Date Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-estimate">Estimate (Hours)</label>
-                        <input 
-                            type="number" 
-                            id="item-estimate" 
-                            name="estimate_hours"
-                            min="0"
-                            step="0.5"
-                            placeholder="e.g., 8"
-                        >
-                        <div class="form-hint">Leave empty if not estimated yet</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="item-due-date">Due Date</label>
-                        <input 
-                            type="date" 
-                            id="item-due-date" 
-                            name="due_date"
-                        >
-                        <div class="form-hint">Optional target date</div>
-                    </div>
-                </div>
-
-                <!-- Assignee -->
                 <div class="form-group">
-                    <label for="item-assignee">Assignee</label>
-                    <select id="item-assignee" name="assigned_id">
-                        <option value="">Unassigned</option>
-                        <option value="1">User 1</option>
-                        <option value="2">User 2</option>
-                        <option value="3">User 3</option>
-                        <option value="4">User 4</option>
-                        <option value="5">User 5</option>
-                        <option value="6">User 6</option>
-                        <option value="8">User 8</option>
-                        <option value="16">User 16</option>
+                    <label for="item-priority">{{ t.manual_priority }}</label>
+                    <select id="item-priority" required>
+                        <option value="P2">P2 - {{ t.standard }}</option>
+                        <option value="P1">P1 - {{ t.critical }}</option>
+                        <option value="P3">P3 - {{ t.low }}</option>
                     </select>
-                    <div class="form-hint">Can be assigned later during sprint planning</div>
-                </div>
-
-                <!-- Description (Optional) -->
-                <div class="form-group">
-                    <label for="item-description">Description (Optional)</label>
-                    <textarea 
-                        id="item-description" 
-                        name="description"
-                        placeholder="Add detailed description, acceptance criteria, or notes..."
-                    ></textarea>
-                    <div class="form-hint">Additional context for the task</div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-styled full-width-btn">
-                    <i class="fas fa-save"></i> Add to Backlog
-                </button>
+                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-save"></i> {{ t.add_to_backlog }}</button>
             </form>
         </div>
     </div>

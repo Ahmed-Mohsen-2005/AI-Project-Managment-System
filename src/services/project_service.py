@@ -1,5 +1,5 @@
-from src.models import project
-from src.repositories import project_repository
+from models import project
+from repositories import project_repository
 from typing import Tuple, Optional
 
 class ProjectService:
