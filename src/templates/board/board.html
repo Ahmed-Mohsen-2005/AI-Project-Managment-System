@@ -18,10 +18,10 @@
                 <div class="control-group">
                     <label for="project-filter">{{ t.project }}:</label>
                     <select id="project-filter" class="filter-select">
-                        <option value="1">{{ t.core_backend_initiative }} ({{ t.current }})</option>
-                        <option value="2">{{ t.frontend_ui_revamp }}</option>
-                        <option value="3">{{ t.ai_model_optimization }}</option>
-                        <option value="all">{{ t.view_all_projects }}</option>
+                        <option value="all">View All Projects</option>
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
