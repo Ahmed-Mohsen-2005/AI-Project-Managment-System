@@ -11,18 +11,20 @@
         
         <!-- Dashboard Header (Includes Project Selector) -->
         <header class="dashboard-header">
-            <h1 class="page-title"><i class="fas fa-chart-bar"></i> Project Analytics</h1>
+            <h1 class="page-title"><i class="fas fa-chart-bar"></i> {{ t.project_analytics }}</h1>
             <div class="header-controls">
                 <!-- Project Selector Dropdown -->
                 <div class="control-group">
-                    <label for="project-selector">Viewing Project:</label>
-                    <select id="project-selector" class="filter-select">
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
-                        <option value="3">AI Model Optimization</option>
+                    <label for="project-selector">{{ t.viewing_project }}:</label>
+                    <select id="project-filter" class="filter-select">
+                        <option value="all">{{ t.view_all_projects }}</option>
+                        
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
-                <span class="status-badge status-active" id="project-status">ACTIVE</span>
+                <span class="status-badge status-active" id="project-status">{{ t.active_status }}</span>
             </div>
         </header>
 
@@ -30,19 +32,19 @@
         <div class="card summary-bar-grid">
             <div class="metric-box">
                 <p class="metric-value" id="current-velocity">--</p>
-                <p class="metric-label">Avg. Velocity (Last 3 Sprints)</p>
+                <p class="metric-label">{{ t.avg_velocity_3 }}</p>
             </div>
             <div class="metric-box">
                 <p class="metric-value" id="risk-index">--</p>
-                <p class="metric-label">AI Risk Index (FR-203)</p>
+                <p class="metric-label">{{ t.ai_risk_index }}</p>
             </div>
             <div class="metric-box">
                 <p class="metric-value" id="tasks-remaining">--</p>
-                <p class="metric-label">Tasks Remaining (In Backlog)</p>
+                <p class="metric-label">{{ t.tasks_remaining }}</p>
             </div>
             <div class="metric-box">
                 <p class="metric-value" id="budget-forecast">--</p>
-                <p class="metric-label">Budget Forecast (FR-403)</p>
+                <p class="metric-label">{{ t.budget_forecast }}</p>
             </div>
         </div>
         
@@ -51,7 +53,7 @@
             
             <!-- Widget 1: Burndown Chart (Key Performance Indicator) -->
             <div class="card chart-widget full-span">
-                <h2 class="widget-title"><i class="fas fa-chart-area"></i> Sprint Burndown (Active Sprint)</h2>
+                <h2 class="widget-title"><i class="fas fa-chart-area"></i> {{ t.sprint_burndown }}</h2>
                 <div id="burndown-chart" class="chart-placeholder">
                     <img src="https://placehold.co/700x250/2c3e50/ffffff?text=Burndown+Chart+Placeholder" alt="Burndown Chart">
                 </div>
@@ -59,37 +61,37 @@
 
             <!-- Widget 2: AI Recommended Actions (FR-301) -->
             <div class="card ai-action-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-robot"></i> AI Recommended Actions</h2>
+                <h2 class="widget-title"><i class="fas fa-robot"></i> {{ t.ai_recommended_actions }}</h2>
                 <ul id="ai-recommendations" class="recommendation-list scrollable-list">
                     <!-- Recommendations loaded by JS -->
                 </ul>
-                <a href="#" class="view-link" id="run-simulation-btn">Run Resource Simulation (FR-507) &rarr;</a>
+                <a href="#" class="view-link" id="run-simulation-btn">{{ t.run_simulation }} &rarr;</a>
             </div>
 
             <!-- Widget 3: Unassigned Critical Tasks -->
             <div class="card unassigned-tasks-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-exclamation-circle"></i> Unassigned P1/P2 Tasks</h2>
+                <h2 class="widget-title"><i class="fas fa-exclamation-circle"></i> {{ t.unassigned_critical }}</h2>
                 <ul id="critical-tasks" class="task-list scrollable-list">
                     <!-- Tasks loaded by JS -->
                 </ul>
-                <button class="btn btn-primary btn-sm full-width-btn"><i class="fas fa-users-cog"></i> Assign Tasks</button>
+                <button class="btn btn-primary btn-sm full-width-btn"><i class="fas fa-users-cog"></i> {{ t.assign_tasks }}</button>
             </div>
             
             <!-- Widget 4: Team Stress Index (FR-503) -->
             <div class="card stress-index-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-heartbeat"></i> Team Stress Index (FR-503)</h2>
+                <h2 class="widget-title"><i class="fas fa-heartbeat"></i> {{ t.team_stress_index }}</h2>
                 <p class="stress-value text-medium" id="stress-index">--</p>
-                <p class="stress-detail" id="stress-detail">Awaiting analysis...</p>
-                <a href="/chats" class="view-link">View Communication Sentiment &rarr;</a>
+                <p class="stress-detail" id="stress-detail">{{ t.awaiting_analysis }}</p>
+                <a href="/chats" class="view-link">{{ t.view_communication_sentiment }} &rarr;</a>
             </div>
             
             <!-- Widget 5: Recent Commits/Activity (Integration Traceability) -->
             <div class="card activity-widget full-span">
-                <h2 class="widget-title"><i class="fas fa-history"></i> Recent Project Activity</h2>
+                <h2 class="widget-title"><i class="fas fa-history"></i> {{ t.recent_project_activity }}</h2>
                 <ul id="recent-activity" class="activity-list scrollable-list">
                     <!-- Activities loaded by JS -->
                 </ul>
-                <a href="/repositories" class="view-link">View Full Traceability Log &rarr;</a>
+                <a href="/repositories" class="view-link">{{ t.view_full_traceability_log }} &rarr;</a>
             </div>
 
         </div>

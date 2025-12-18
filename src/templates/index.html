@@ -6,15 +6,23 @@
 
 {% block content %}
 <div class="auth-container">
+        <!-- Language Selector at Top Right -->
+        <div style="position: absolute; top: 20px; right: 20px;">
+            <select id="login-language-select" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 14px;">
+                <option value="en" {% if current_lang == 'en' %}selected{% endif %}>English</option>
+                <option value="ar" {% if current_lang == 'ar' %}selected{% endif %}>العربية</option>
+            </select>
+        </div>
+        
         <div class="logo">
-            <h1><i class="fas fa-robot"></i> AIPMS</h1>
-            <p> AI Project Management System</p>
+            <h1><i class="fas fa-robot"></i> {{ t.aipms }}</h1>
+            <p>{{ t.ai_project_management }}</p>
         </div>
         
         <!-- Toggle Switch -->
         <div class="toggle-switch">
-            <button id="login-toggle" class="toggle-btn active" data-form="login">Log In</button>
-            <button id="signup-toggle" class="toggle-btn" data-form="signup">Sign Up</button>
+            <button id="login-toggle" class="toggle-btn active" data-form="login">{{ t.log_in }}</button>
+            <button id="signup-toggle" class="toggle-btn" data-form="signup">{{ t.sign_up }}</button>
         </div>
         
         <div id="auth-error" class="error-message hidden"></div>
@@ -23,23 +31,23 @@
         <form id="login-form" class="auth-form active">
             <div class="form-group">
                 <i class="fas fa-user"></i>
-                <input type="text" id="login-username" placeholder="Username or Email" required>
+                <input type="text" id="login-username" placeholder="{{ t.username_or_email }}" required>
             </div>
             <div class="form-group">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="login-password" placeholder="Password" required>
+                <input type="password" id="login-password" placeholder="{{ t.password }}" required>
             </div>
             
             <div class="form-group flex-justify" style="display:flex; justify-content: space-between; font-size: 13px;">
                 <label>
-                    <input type="checkbox"> Remember Me
+                    <input type="checkbox"> {{ t.remember_me }}
                 </label>
-                <a href="#" class="text-primary">Forgot Password?</a>
+                <a href="#" class="text-primary">{{ t.forgot_password }}</a>
             </div>
             
-            <button type="submit" class="btn-submit">Secure Log In</button>
+            <button type="submit" class="btn-submit">{{ t.secure_login }}</button>
             
-            <div class="divider">or</div>
+            <div class="divider">{{ t.or }}</div>
             
             <!-- OAuth Options -->
             <div class="oauth-buttons">
@@ -56,20 +64,20 @@
         <form id="signup-form" class="auth-form">
             <div class="form-group">
                 <i class="fas fa-envelope"></i>
-                <input type="email" id="signup-email" placeholder="Email Address" required>
+                <input type="email" id="signup-email" placeholder="{{ t.email_address }}" required>
             </div>
             <div class="form-group">
                 <i class="fas fa-user-circle"></i>
-                <input type="text" id="signup-username" placeholder="Full Name" required>
+                <input type="text" id="signup-username" placeholder="{{ t.full_name }}" required>
             </div>
             <div class="form-group">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="signup-password" placeholder="Create Password (Min 8 chars)" required>
+                <input type="password" id="signup-password" placeholder="{{ t.password }} ({{ t.min_8_chars }})" required>
             </div>
-            <button type="submit" class="btn-submit">Create AIPMS Account</button>
+            <button type="submit" class="btn-submit">{{ t.create_account }}</button>
             
             <p class="text-center" style="margin-top: 15px;">
-                By signing up, you agree to the <a href="#" class="text-primary">Terms of Service</a>.
+                {{ t.agree_terms }} <a href="#" class="text-primary">{{ t.terms_of_service }}</a>.
             </p>
         </form>
     </div>

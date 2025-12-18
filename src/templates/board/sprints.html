@@ -11,21 +11,19 @@
         
         <!-- Sprints Header and Controls -->
         <header class="sprints-header">
-            <h1 class="page-title"><i class="fas fa-layer-group"></i> Project Sprints Overview</h1>
+            <h1 class="page-title"><i class="fas fa-layer-group"></i> {{ t.project_sprints }}</h1>
             <div class="sprints-controls">
                 
                 <div class="control-group">
-                    <label for="project-filter">Project:</label>
-                    <select id="project-filter" class="filter-select">
-                        <option value="all">View All Projects</option>
-                        
+                    <label for="project-filter">{{ t.project }}:</label>
+                    <select id="project-filter" class="filter-select">                        
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <button id="create-new-sprint-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> New Sprint</button>
+                <button id="create-new-sprint-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> {{ t.new_sprint }}</button>
             </div>
         </header>
 
@@ -34,17 +32,17 @@
             
             <!-- List Header -->
             <div class="sprint-list-header">
-                <span class="col-status">Status</span>
-                <span class="col-title">Sprint Name & Duration</span>
-                <span class="col-velocity">Velocity</span>
-                <span class="col-forecast">AI Forecast</span>
-                <span class="col-tasks">Completed Tasks</span>
-                <span class="col-actions">Actions</span>
+                <span class="col-status">{{ t.sprint_status }}</span>
+                <span class="col-title">{{ t.sprint_name }} & {{ t.duration }}</span>
+                <span class="col-velocity">{{ t.velocity }}</span>
+                <span class="col-forecast">{{ t.ai_forecast }}</span>
+                <span class="col-tasks">{{ t.completed_tasks }}</span>
+                <span class="col-actions">{{ t.actions }}</span>
             </div>
 
             <ul id="sprint-item-list" class="timeline-list">
                 <!-- Sprints will be loaded here by JavaScript -->
-                <li class="loading-message">Loading sprints...</li>
+                <li class="loading-message">{{ t.loading_sprints }}</li>
             </ul>
 
         </section>
@@ -55,24 +53,24 @@
     <div id="create-sprint-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Define New Sprint</h2>
+            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> {{ t.define_new_sprint }}</h2>
             <form id="create-sprint-form">
                 <div class="form-group">
-                    <label for="sprint-name-input">Sprint Name</label>
-                    <input type="text" id="sprint-name-input" required placeholder="e.g., Sprint 5 - Alpha Testing">
+                    <label for="sprint-name-input">{{ t.sprint_name_input }}</label>
+                    <input type="text" id="sprint-name-input" required placeholder="e.g., {{ t.sprint }} 5 - {{ t.alpha_testing }}">
                 </div>
                 <div class="form-group">
-                    <label for="sprint-start-date">Start Date</label>
+                    <label for="sprint-start-date">{{ t.start_date }}</label>
                     <input type="date" id="sprint-start-date" required>
                 </div>
                 <div class="form-group">
-                    <label for="sprint-end-date">End Date</label>
+                    <label for="sprint-end-date">{{ t.end_date }}</label>
                     <input type="date" id="sprint-end-date" required>
                 </div>
                 <div class="form-group">
-                    <label for="sprint-project">Associate Project</label>
+                    <label for="sprint-project">{{ t.associate_project }}</label>
                     <select id="sprint-project" required>
-                        <option value="" disabled selected>Select a project...</option>
+                        <option value="" disabled selected>{{ t.select_project }}</option>
                         
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
@@ -80,10 +78,41 @@
                     </select>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-save"></i> Create Sprint</button>
+                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-save"></i> {{ t.create_sprint }}</button>
             </form>
         </div>
     </div>
+    <div id="edit-sprint-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-edit-modal">&times;</span>
+        
+        <h2 class="modal-title"><i class="fas fa-edit"></i> Edit Sprint</h2>
+        
+        <form id="edit-sprint-form">
+            <input type="hidden" id="edit-sprint-id">
+            
+            <div class="form-group">
+                <label for="edit-sprint-name">Sprint Name</label>
+                <input type="text" id="edit-sprint-name" required placeholder="Update sprint name...">
+            </div>
+            
+            <div class="form-row" style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="edit-sprint-start-date">Start Date</label>
+                    <input type="date" id="edit-sprint-start-date" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="edit-sprint-end-date">End Date</label>
+                    <input type="date" id="edit-sprint-end-date" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-styled full-width-btn" style="background: linear-gradient(145deg, #1273f3ff, #17c7b8ff);">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+</div>
 
 {% endblock content %}
 

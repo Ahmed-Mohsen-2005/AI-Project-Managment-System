@@ -596,6 +596,11 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Error deleting note: ${err.message}`);
         }
     }
+    if (deadlines && deadlines.length > 0) {
+        const nextDeadline = deadlines[0];
+        deadlineDisplay.textContent =
+            `${nextDeadline.date} - ${nextDeadline.description}`;
+        } 
 
     function updateCalendarWidget(deadlines) {
         const dd = document.getElementById('next-deadline-display');
