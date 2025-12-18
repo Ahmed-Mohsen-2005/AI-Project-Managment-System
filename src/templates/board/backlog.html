@@ -45,6 +45,46 @@
             margin-left: 8px;
         }
         
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        #doc-output {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        #doc-output pre {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f4f6;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -82,7 +122,29 @@
                 </div>
 
                 <button id="quick-add-item-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> Add Backlog Item</button>
+                <button id="generate-docs-btn" class="btn btn-secondary btn-styled"><i class="fas fa-file-alt"></i> Generate Sprint Docs</button>
             </div>
+            <!-- Sprint Documentation Modal -->
+            <div id="doc-sprint-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn" onclick="closeDocModal()">&times;</span>
+                    <h2><i class="fas fa-file-alt"></i> Generate Sprint Documentation</h2>
+
+                    <form id="doc-sprint-form">
+                        <div class="form-group">
+                            <label for="doc-sprint-select">Select Sprint</label>
+                            <select id="doc-sprint-select" required>
+                                <option value="">Loading sprints...</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary full-width-btn">
+                            Generate Documentation
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </header>
 
         <!-- Backlog List Area -->
@@ -108,10 +170,16 @@
         <div id="sprint-planning-target" class="card drop-target-area" data-sprint-id="2">
             <i class="fas fa-layer-group"></i> Drag Items Here to Plan Next Sprint
         </div>
+        
+        <!-- Documentation Output Area -->
+        <div id="doc-output" style="display: none;">
+            <h3><i class="fas fa-file-alt"></i> Generated Sprint Documentation</h3>
+            <div id="doc-content"></div>
+        </div>
 
     </div>
     
-    <!-- Enhanced Quick Add Backlog Item MODAL with ALL Task Fields + Sprint Selection -->
+    <!-- Sprint Selection Modal for Documentation -->
     <div id="quick-add-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>

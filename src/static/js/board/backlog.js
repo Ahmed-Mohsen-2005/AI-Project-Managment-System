@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TASK_API_URL = '/api/v1/tasks';
     const SPRINT_API_URL = '/api/v1/sprints';
     const USER_API_URL = '/api/v1/users';
+    const DOCUMENTATION_API_URL = '/api/v1/documentation';
     const BACKLOG_SPRINT_ID = 1; 
 
     // --- DOM Elements ---
@@ -21,13 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const sprintTarget = document.getElementById('sprint-planning-target');
     const sprintSelect = document.getElementById('item-sprint');
     const assigneeSelect = document.getElementById('item-assignee');
-
+    const generateDocsBtn = document.getElementById('generate-docs-btn');
+    const docModal = document.getElementById('doc-sprint-modal');
+    const docSprintSelect = document.getElementById('doc-sprint-select');
+    const docSprintForm = document.getElementById('doc-sprint-form');
+    const docOutput = document.getElementById('doc-output');
+    const docContent = document.getElementById('doc-content');
     
     // --- INITIALIZATION ---
     loadBacklogItems();
     loadSprints(); // Load sprints for the dropdown
     loadUsers(); // Load users for the assignee dropdown
-
+    
     // --- EVENT LISTENERS ---
     if (projectFilter) projectFilter.addEventListener('change', loadBacklogItems);
     if (sortBySelect) sortBySelect.addEventListener('change', loadBacklogItems);
@@ -39,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     if (quickAddForm) quickAddForm.addEventListener('submit', handleQuickAddSubmit);
+
+    // --- DOCUMENTATION EVENT LISTENERS ---
+    if (generateDocsBtn) generateDocsBtn.addEventListener('click', openDocModal);
+    if (docSprintForm) docSprintForm.addEventListener('submit', handleDocGeneration);
 
     // --- DRAG TARGET LISTENERS ---
     if (sprintTarget) {
@@ -55,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const titleInput = document.getElementById('item-title-input');
         if (titleInput) titleInput.focus();
     }
-
     
     function closeQuickAddModal() { 
         modal.style.display = 'none'; 
@@ -112,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sprintSelect.innerHTML = '<option value="1">Product Backlog (Failed to load other sprints)</option>';
         }
     }
+
     // --- USER LOADING LOGIC ---
     async function loadUsers() {
         if (!assigneeSelect) return;
@@ -158,12 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UTILITIES ---
     
     function mapDbPriorityToUi(dbPriority) {
-        if (!dbPriority) return 'MEDIUM';
+        if (!dbPriority) return 'P2';
         switch (dbPriority.toUpperCase()) {
-            case 'HIGH': return 'HIGH';
-            case 'MEDIUM': return 'MEDIUM';
-            case 'LOW': return 'LOW';
-            default: return 'MEDIUM';
+            case 'HIGH': return 'P1';
+            case 'MEDIUM': return 'P2';
+            case 'LOW': return 'P3';
+            default: return 'P2';
         }
     }
     
@@ -397,4 +407,189 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Failed to move task: ${error.message}`);
         }
     }
+
+    // --- DOCUMENTATION GENERATION LOGIC ---
+    
+    function openDocModal() {
+        docModal.style.display = 'block';
+        loadSprintsForDoc();
+    }
+    
+    window.closeDocModal = function() {
+        docModal.style.display = 'none';
+        docSprintForm.reset();
+    };
+    
+    async function loadSprintsForDoc() {
+        if (!docSprintSelect) return;
+        
+        try {
+            const response = await fetch(SPRINT_API_URL);
+            if (!response.ok) throw new Error('Failed to fetch sprints');
+            
+            const sprints = await response.json();
+            docSprintSelect.innerHTML = '';
+            
+            // Add only non-backlog sprints
+            sprints.forEach(sprint => {
+                if (sprint.sprint_id === BACKLOG_SPRINT_ID) return;
+                
+                const option = document.createElement('option');
+                option.value = sprint.sprint_id;
+                let displayName = sprint.name;
+                if (sprint.start_date && sprint.end_date) {
+                    const startDate = new Date(sprint.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const endDate = new Date(sprint.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    displayName += ` (${startDate} - ${endDate})`;
+                }
+                option.textContent = displayName;
+                docSprintSelect.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('[ERROR] Failed to load sprints for documentation:', error);
+            docSprintSelect.innerHTML = '<option value="">Failed to load sprints</option>';
+        }
+    }
+    
+    async function handleDocGeneration(e) {
+        e.preventDefault();
+        
+        const sprintId = docSprintSelect.value;
+        if (!sprintId) {
+            alert('Please select a sprint');
+            return;
+        }
+        
+        closeDocModal();
+        showLoadingDoc();
+        
+        try {
+            // Step 1: Fetch sprint documentation data
+            const response = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}`);
+            if (!response.ok) throw new Error('Failed to fetch sprint data');
+            
+            const docData = await response.json();
+            
+            // Step 2: Generate AI summary using Claude
+            const aiSummary = await generateAISummary(docData);
+            
+            // Step 3: Display the documentation
+            displayDocumentation(docData, aiSummary);
+            
+        } catch (error) {
+            console.error('[ERROR] Documentation generation failed:', error);
+            docContent.innerHTML = `<p style="color: #ef4444;">Error: ${error.message}</p>`;
+        }
+    }
+    
+    function showLoadingDoc() {
+        docOutput.style.display = 'block';
+        docContent.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div class="loading-spinner" style="width: 40px; height: 40px; border-width: 4px;"></div>
+                <p style="margin-top: 20px; color: #6b7280;">Generating documentation with AI...</p>
+            </div>
+        `;
+        docOutput.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    async function generateAISummary(docData) {
+        const response = await fetch(
+            `/api/v1/documentation/sprint/${docData.sprint_info.sprint_id}/ai-summary`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt: docData.ai_summary_prompt
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("AI summary request failed");
+        }
+
+        const data = await response.json();
+        return data.summary;
+    }
+
+    
+    function displayDocumentation(docData, aiSummary) {
+        const { sprint_info, metrics, tasks } = docData;
+        
+        const html = `
+            <div style="margin-bottom: 20px;">
+                <button onclick="downloadDocumentation()" class="btn btn-primary" style="float: right;">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <h3>${sprint_info.name}</h3>
+                <p style="color: #6b7280;">
+                    ${sprint_info.start_date ? new Date(sprint_info.start_date).toLocaleDateString() : 'N/A'} - 
+                    ${sprint_info.end_date ? new Date(sprint_info.end_date).toLocaleDateString() : 'N/A'}
+                </p>
+            </div>
+            
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h4>📊 Sprint Metrics</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #3b82f6;">${metrics.completed_tasks}/${metrics.total_tasks}</div>
+                        <div style="color: #6b7280; font-size: 14px;">Tasks Completed</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #10b981;">${metrics.completion_rate}%</div>
+                        <div style="color: #6b7280; font-size: 14px;">Completion Rate</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #8b5cf6;">${metrics.completed_hours}h</div>
+                        <div style="color: #6b7280; font-size: 14px;">Hours Delivered</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #f59e0b;">${metrics.blocked_tasks}</div>
+                        <div style="color: #6b7280; font-size: 14px;">Blocked Tasks</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h4>🤖 AI-Generated Summary</h4>
+                <div style="margin-top: 15px; line-height: 1.6; white-space: pre-wrap;">${aiSummary}</div>
+            </div>
+            
+            <div>
+                <h4>✅ Completed Tasks (${tasks.completed.length})</h4>
+                <ul style="list-style: none; padding: 0;">
+                    ${tasks.completed.map(t => `
+                        <li style="padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                            <strong>#${t.task_id}</strong> - ${t.title}
+                            <span style="color: #6b7280; font-size: 12px; margin-left: 10px;">
+                                ${t.estimate_hours ? t.estimate_hours + 'h' : ''} | Priority: ${t.priority}
+                            </span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            ${tasks.blocked.length > 0 ? `
+                <div style="margin-top: 20px;">
+                    <h4>🚫 Blocked Tasks (${tasks.blocked.length})</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        ${tasks.blocked.map(t => `
+                            <li style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #ef4444;">
+                                <strong>#${t.task_id}</strong> - ${t.title}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+        
+        docContent.innerHTML = html;
+        docOutput.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    window.downloadDocumentation = function() {
+        alert('PDF download feature coming soon! For now, you can copy the documentation text.');
+    };
 });

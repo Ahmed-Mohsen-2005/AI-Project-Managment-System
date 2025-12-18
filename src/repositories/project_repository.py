@@ -7,6 +7,13 @@ class ProjectRepository:
         self.db = DatabaseConnection().get_connection() 
 
     def get_all(self):
+        try:
+        # Check if connection is alive; if not, attempt to reconnect
+            if not self.db.is_connected():
+                self.db.reconnect(attempts=3, delay=1)
+        except Exception:
+        # If the ping itself fails (the IndexError you saw), force reconnect
+            self.db.reconnect(attempts=3, delay=1)
         cursor = self.db.cursor(dictionary=True)
         query = "SELECT project_id, name FROM Project ORDER BY name ASC"
         cursor.execute(query)

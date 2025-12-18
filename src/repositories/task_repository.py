@@ -8,6 +8,13 @@ class TaskRepository:
 
     
     def get_all(self):
+        try:
+        # Check if connection is alive; if not, attempt to reconnect
+            if not self.db.is_connected():
+                self.db.reconnect(attempts=3, delay=1)
+        except Exception:
+        # If the ping itself fails (the IndexError you saw), force reconnect
+            self.db.reconnect(attempts=3, delay=1)
         cursor = self.db.cursor(dictionary=True)
         # Ensure all columns are fetched for the Task model
         query = """
