@@ -4,6 +4,7 @@ from datetime import date, datetime
 class Status(Enum):
     TODO = "TODO"
     IN_PROGRESS = "IN_PROGRESS"
+    IN_REVIEW = "IN_REVIEW"
     DONE = "DONE"
 
 class Priority(Enum):

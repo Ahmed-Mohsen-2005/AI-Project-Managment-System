@@ -1,105 +1,105 @@
-{% extends "base.html" %}
+    {% extends "base.html" %}
 
-{% block title %}Dashboard - AIPMS{% endblock title %}
+    {% block title %}Dashboard - AIPMS{% endblock title %}
 
-{% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-{% endblock extra_css %}
+    {% block extra_css %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    {% endblock extra_css %}
 
-{% block content %}
-<div class="dashboard-container">
-    <!-- 2x3 Grid Layout -->
-    <div class="dashboard-grid">
-        
-        <!-- Top-Left: Calendar Widget -->
-        <div class="card widget calendar-widget">
-            <h2 class="widget-title">Calendar</h2>
-            <div class="calendar-content">
-                <div class="next-deadline">
-                    <p class="deadline-label">Next Deadline</p>
-                    <p class="deadline-info" id="next-deadline-display">Loading...</p>
+    {% block content %}
+    <div class="dashboard-container">
+        <!-- 2x3 Grid Layout -->
+        <div class="dashboard-grid">
+            
+            <!-- Top-Left: Calendar Widget -->
+            <div class="card widget calendar-widget">
+                <h2 class="widget-title">Calendar</h2>
+                <div class="calendar-content">
+                    <div class="next-deadline">
+                        <p class="deadline-label">Next Deadline</p>
+                        <p class="deadline-info" id="next-deadline-display">Loading...</p>
+                    </div>
+                    <ul id="calendar-deadlines" class="deadline-list">
+                        <!-- Upcoming deadlines populated by JS -->
+                    </ul>
                 </div>
-                <ul id="calendar-deadlines" class="deadline-list">
-                    <!-- Upcoming deadlines populated by JS -->
+            </div>
+
+            <!-- Top-Right: To-do List Widget -->
+            <div class="card widget todo-widget">
+                <h2 class="widget-title">To-do List</h2>
+                <ul id="todo-list" class="todo-list">
+                    <!-- Tasks loaded by JS -->
                 </ul>
+                <button id="add-task-btn" class="btn-add-task">
+                    <i class="fas fa-plus"></i> Add Task
+                </button>
             </div>
-        </div>
 
-        <!-- Top-Right: To-do List Widget -->
-        <div class="card widget todo-widget">
-            <h2 class="widget-title">To-do List</h2>
-            <ul id="todo-list" class="todo-list">
-                <!-- Tasks loaded by JS -->
-            </ul>
-            <button id="add-task-btn" class="btn-add-task">
-                <i class="fas fa-plus"></i> Add Task
-            </button>
-        </div>
-
-        <!-- Middle-Left: Notes Widget -->
-        <div class="card widget notes-widget">
-            <h2 class="widget-title">Notes</h2>
-            <div class="notes-content" id="notes-content">
-                <!-- Notes loaded by JS -->
+            <!-- Middle-Left: Notes Widget -->
+            <div class="card widget notes-widget">
+                <h2 class="widget-title">Notes</h2>
+                <div class="notes-content" id="notes-content">
+                    <!-- Notes loaded by JS -->
+                </div>
             </div>
-        </div>
 
-        <!-- Middle-Right: Team Tracker Widget -->
-        <div class="card widget team-tracker-widget">
-            <h2 class="widget-title">Team Tracker</h2>
-            <textarea id="project-updates-input" placeholder="Summarize project updates..." class="updates-input"></textarea>
-            <button id="generate-summary-btn" class="btn btn-primary">
-                <i class="fas fa-magic"></i> Generate Summary
-            </button>
-            <div id="summary-output" class="summary-output hidden"></div>
-        </div>
-
-        <!-- Bottom-Left: Time Tracker Widget -->
-        <div class="card widget time-tracker-widget">
-            <h2 class="widget-title">Time Tracker</h2>
-            <div class="time-tracker-content">
-                <canvas id="time-tracker-chart"></canvas>
+            <!-- Middle-Right: Team Tracker Widget -->
+            <div class="card widget team-tracker-widget">
+                <h2 class="widget-title">Team Tracker</h2>
+                <textarea id="project-updates-input" placeholder="Summarize project updates..." class="updates-input"></textarea>
+                <button id="generate-summary-btn" class="btn btn-primary">
+                    <i class="fas fa-magic"></i> Generate Summary
+                </button>
+                <div id="summary-output" class="summary-output hidden"></div>
             </div>
-        </div>
 
-        <!-- Bottom-Right: Team Widget -->
-        <div class="card widget team-widget">
-            <h2 class="widget-title">Team</h2>
-            <div class="team-members" id="team-members">
-                <!-- Team members loaded by JS -->
+            <!-- Bottom-Left: Time Tracker Widget -->
+            <div class="card widget time-tracker-widget">
+                <h2 class="widget-title">Time Tracker</h2>
+                <div class="time-tracker-content">
+                    <canvas id="time-tracker-chart"></canvas>
+                </div>
             </div>
+
+            <!-- Bottom-Right: Team Widget -->
+            <div class="card widget team-widget">
+                <h2 class="widget-title">Team</h2>
+                <div class="team-members" id="team-members">
+                    <!-- Team members loaded by JS -->
+                </div>
+            </div>
+
+        </div> <!-- end dashboard-grid -->
+
+        <!-- Tasks Table Section -->
+        <div class="tasks-section">
+            <h2>All Tasks</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Due</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.priority }}</td>
+                        <td>{{ task.due_date if task.due_date else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-    </div> <!-- end dashboard-grid -->
+    </div> <!-- end dashboard-container -->
+    {% endblock content %}
 
-    <!-- Tasks Table Section -->
-    <div class="tasks-section">
-        <h2>All Tasks</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Due</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks %}
-                <tr>
-                    <td>{{ task.title }}</td>
-                    <td>{{ task.status }}</td>
-                    <td>{{ task.priority }}</td>
-                    <td>{{ task.due_date if task.due_date else '-' }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-</div> <!-- end dashboard-container -->
-{% endblock content %}
-
-{% block extra_js %}
-    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
-{% endblock extra_js %}
+    {% block extra_js %}
+        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    {% endblock extra_js %}

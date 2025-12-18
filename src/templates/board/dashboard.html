@@ -16,10 +16,11 @@
                 <!-- Project Selector Dropdown -->
                 <div class="control-group">
                     <label for="project-selector">Viewing Project:</label>
-                    <select id="project-selector" class="filter-select">
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
-                        <option value="3">AI Model Optimization</option>
+                    <select id="project-filter" class="filter-select">
+                        <option value="all">View All Projects</option>
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <span class="status-badge status-active" id="project-status">ACTIVE</span>
