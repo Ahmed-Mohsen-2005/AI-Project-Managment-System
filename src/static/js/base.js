@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const boardsParent = document.getElementById('nav-boards-parent');
     const boardsToggle = document.getElementById('boards-toggle');
     const globalSearch = document.getElementById('global-search');
+    const languageSelect = document.getElementById('header-language-select');
     
     // Notification Panel Elements
     const notificationBtn = document.getElementById('notification-btn');
@@ -16,6 +17,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutModal = document.getElementById('logout-modal');
     const confirmLogoutBtn = document.getElementById('confirm-logout');
     const cancelLogoutBtn = document.getElementById('cancel-logout');
+    
+    // --- 0. LANGUAGE SWITCHER (Global) ---
+    if (languageSelect) {
+        languageSelect.addEventListener('change', handleLanguageChange);
+    }
+    
+    function handleLanguageChange(e) {
+        const selectedLanguage = e.target.value;
+        console.log(`[LANGUAGE] Changing language to: ${selectedLanguage}`);
+        
+        // Send language preference to server
+        fetch('/api/v1/settings/language', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ language: selectedLanguage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`[LANGUAGE] Language changed to ${selectedLanguage}`);
+                // Reload page to apply translations
+                window.location.reload();
+            } else {
+                console.error('[LANGUAGE] Error changing language:', data.error);
+                alert('Failed to change language: ' + data.error);
+                // Reset select to previous value on error
+                e.target.value = e.target.defaultValue;
+            }
+        })
+        .catch(error => {
+            console.error('[LANGUAGE] Error:', error);
+            alert('Error changing language');
+            // Reset select to previous value on error
+            e.target.value = e.target.defaultValue;
+        });
+    }
     
     // --- 1. Navigation & Toggle Logic ---
     

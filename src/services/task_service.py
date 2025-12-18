@@ -1,6 +1,14 @@
 from models import task
 from repositories import task_repository
 
+from repositories.task_repository import TaskRepository
+
+class TaskService:
+
+    @staticmethod
+    def next_deadline(user_id):
+        return TaskRepository.get_next_deadline(user_id)
+
 class TaskService:
     def __init__(self):
         self.task_repo = task_repository.TaskRepository()
