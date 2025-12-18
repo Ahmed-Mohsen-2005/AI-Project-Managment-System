@@ -732,13 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------
     // Other widgets
     function updateCalendarWidget(deadlines) {
-<<<<<<< HEAD
-    if (deadlines && deadlines.length > 0) {
-        const nextDeadline = deadlines[0];
-        deadlineDisplay.textContent =
-            `${nextDeadline.date} - ${nextDeadline.description}`;
-        } 
-=======
         const deadlineDisplay = document.getElementById('next-deadline-display');
         const deadlineList = document.getElementById('calendar-deadlines');
 
@@ -774,7 +767,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 deadlineList.appendChild(item);
             });
         }
->>>>>>> main
     }
 
     function formatDate(dateValue) {

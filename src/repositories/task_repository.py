@@ -1,7 +1,6 @@
 from models.task import Task
 from core.db_singleton import DatabaseConnection
 from datetime import date
-from models.task import Task
 
 class TaskRepository:
     def __init__(self):
@@ -147,16 +146,6 @@ class TaskRepository:
         rows = cursor.fetchall()
         cursor.close()
         return [Task(**row) for row in rows]
-    
-    @staticmethod
-    def get_next_deadline(user_id):
-        return (
-            Task.query
-            .filter(Task.assigned_to == user_id)
-            .filter(Task.due_date != None)
-            .order_by(Task.due_date.asc())
-            .first()
-        )
 
     def get_upcoming_tasks(self, user_id=None, limit=5):
         """

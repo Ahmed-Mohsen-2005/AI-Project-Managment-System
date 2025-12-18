@@ -98,8 +98,8 @@ body[data-theme="dark"] {
     --color-text-secondary: #94a3b8;
 
     /* Inputs (Search, Forms) */
-    --input-bg: #fefeff; 
-    --input-border: #fcfcfc;
+    --input-bg: #1e293b; 
+    --input-border: #475569;
 }
 
 /* Specific Fixes for Dark Mode Elements */
@@ -582,38 +582,6 @@ body[data-theme="dark"] #top-header {
 .btn-danger-style:hover {
     background-color: var(--color-danger-dark);
 }
-
-
-/* RTL Support for Arabic */
-[dir="rtl"] {
-    direction: rtl;
-    text-align: right;
-}
-
-[dir="rtl"] .settings-tabs {
-    border-right: none;
-    border-left: 2px solid #e0e0e0;
-}
-
-[dir="rtl"] .settings-grid {
-    direction: rtl;
-}
-
-[dir="rtl"] .setting-group label {
-    text-align: right;
-}
-
-[dir="rtl"] .integration-info {
-    flex-direction: row-reverse;
-}
-
-[dir="rtl"] .tab-item i {
-    margin-right: 0;
-    margin-left: 10px;
-}
-
-
-
 
 @keyframes modalSlideIn {
     from { opacity: 0; transform: translate(-50%, -40%); }
