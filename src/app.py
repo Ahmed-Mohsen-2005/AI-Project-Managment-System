@@ -112,8 +112,9 @@ def chats():
 
 @app.route("/reports")
 def reports():
-    return render_template("reports.html")
-
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()    
+    return render_template("reports.html", projects=all_projects)
 @app.route("/settings")
 def settings():
     return render_template("settings.html")
