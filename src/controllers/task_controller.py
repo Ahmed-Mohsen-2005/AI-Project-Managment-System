@@ -207,27 +207,20 @@ def add_backlog_item():
         return jsonify({"error": str(e)}), 500
 
 @task_bp.route("/upcoming", methods=["GET"])
-def get_upcoming_tasks(self, user_id=None, limit=5):
+def get_upcoming_tasks():
     """
     Fetch the upcoming tasks ordered by the closest due date.
     Optionally filter by assigned user.
     """
-    cursor = self.db.cursor(dictionary=True)
-    base_query = """
-        SELECT task_id, sprint_id, title, status, priority, estimate_hours, due_date, created_by, assigned_id
-        FROM Task
-        WHERE due_date IS NOT NULL
-          AND due_date >= %s
-          AND status != 'DONE'
-    """
-    params = [date.today()]
-
-    if user_id:
-        base_query += " AND assigned_id = %s"
-        params.append(user_id)
-
-    base_query += " ORDER BY due_date ASC LIMIT %s"
-    params.append(limit)
+    user_id = request.args.get('user_id', type=int)
+    limit = request.args.get('limit', default=5, type=int)
+    
+    try:
+        tasks = task_service.get_upcoming_tasks(user_id=user_id, limit=limit)
+        return jsonify([t.to_dict() for t in tasks]), 200
+    except Exception as e:
+        print(f"[ERROR] Error in get_upcoming_tasks: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
     cursor.execute(base_query, params)
     rows = cursor.fetchall()
