@@ -37,3 +37,22 @@ class UserRepository:
         self.db.commit()
         user.user_id = cursor.lastrowid 
         return user
+
+    def update(self, user: Userr) -> Userr:
+        cursor = self.db.cursor()
+        sql = """
+            UPDATE userr 
+            SET name=%s, email=%s, password_hash=%s, role=%s
+            WHERE user_id=%s
+        """
+        values = (user.name, user.email, user.password_hash, user.role, user.user_id)
+        cursor.execute(sql, values)
+        self.db.commit()
+        return user
+
+    def delete(self, user_id: int) -> bool:
+        cursor = self.db.cursor()
+        sql = "DELETE FROM userr WHERE user_id=%s"
+        cursor.execute(sql, (user_id,))
+        self.db.commit()
+        return cursor.rowcount > 0

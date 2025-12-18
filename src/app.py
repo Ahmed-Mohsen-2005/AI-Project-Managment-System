@@ -116,11 +116,43 @@ def reports():
 
 @app.route("/settings")
 def settings():
-    return render_template("settings.html")
+    # Get current user ID from localStorage data attribute or default to 2
+    user_id = session.get('user_id')
+    
+    # Try to get from localStorage via request (fallback to 2 - Bob Smith)
+    if not user_id:
+        user_id = request.args.get('user_id', 2, type=int)
+    
+    user_repo = RepositoryFactory.get_repository("user")
+    current_user = user_repo.get_by_id(user_id)
+    
+    if current_user:
+        user_email = current_user.email
+    else:
+        user_email = "user@aipms.com"
+    
+    return render_template("settings.html", current_user_email=user_email, user_id=user_id)
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    # Get current user ID from localStorage data attribute or default to 2
+    user_id = session.get('user_id')
+    
+    # Try to get from localStorage via request (fallback to 2 - Bob Smith)
+    if not user_id:
+        user_id = request.args.get('user_id', 2, type=int)
+    
+    user_repo = RepositoryFactory.get_repository("user")
+    current_user = user_repo.get_by_id(user_id)
+    
+    if current_user:
+        user_email = current_user.email
+        user_name = current_user.name
+    else:
+        user_email = "user@aipms.com"
+        user_name = "User"
+    
+    return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
 
 if __name__ == "__main__":
     app.run(debug=True)

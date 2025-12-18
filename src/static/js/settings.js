@@ -5,11 +5,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabPanes = document.querySelectorAll('.settings-content .tab-pane');
     const rbacUserSelect = document.getElementById('manage-user-select');
     const rbacSaveBtn = document.getElementById('save-rbac-btn');
+    const updateProfileBtn = document.getElementById('update-profile-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
     const languageSelect = document.getElementById('language-select');
     
     // --- INITIALIZATION ---
     loadCurrentUserProfile();
+    
+    // Store user_id in localStorage for delete functionality
+    const userIdElement = document.querySelector('.settings-container[data-user-id]');
+    if (userIdElement) {
+        const userId = userIdElement.getAttribute('data-user-id');
+        localStorage.setItem('user_id', userId);
+        console.log('[INIT] Stored user_id:', userId);
+    }
     
     // --- EVENT LISTENERS ---
     tabButtons.forEach(button => {
@@ -18,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     rbacUserSelect.addEventListener('change', loadUserPermissionsForEditing);
     rbacSaveBtn.addEventListener('click', saveRBACPermissions);
+    updateProfileBtn.addEventListener('click', redirectToProfile);
     deleteAccountBtn.addEventListener('click', confirmAccountDeletion);
     languageSelect.addEventListener('change', handleLanguageChange);
 
@@ -99,11 +109,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 4. INTEGRATION & DELETE LOGIC ---
+    function redirectToProfile() {
+        // Redirect to profile page
+        window.location.href = '/profile';
+    }
+
     function confirmAccountDeletion() {
         // Replace with custom modal confirmation UI (as required by rules)
         if (confirm("WARNING: Are you sure you want to permanently delete your account? This action is irreversible.")) {
             console.log("[ACCOUNT] Deleting account...");
+            
+            // Get user_id from page data or localStorage
+            const userId = document.querySelector('[data-user-id]')?.getAttribute('data-user-id') || 
+                          localStorage.getItem('user_id');
+            
+            if (!userId) {
+                alert('Error: User ID not found. Please try logging in again.');
+                return;
+            }
+            
             // API call to /api/v1/users/delete
+            fetch('/api/v1/users/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: parseInt(userId) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("[ACCOUNT] Account deleted successfully");
+                    alert('Your account has been deleted successfully.');
+                    // Redirect to signup page after deletion
+                    window.location.href = '/';
+                } else {
+                    console.error('[ACCOUNT] Error:', data.error);
+                    alert('Failed to delete account: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('[ACCOUNT] Error deleting account:', error);
+                alert('Error deleting account: ' + error.message);
+            });
         }
     }
     
