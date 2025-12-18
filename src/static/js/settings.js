@@ -52,16 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 2. GENERAL PROFILE LOADING ---
     function loadCurrentUserProfile() {
-        // --- SIMULATION of API GET /api/v1/users/profile/{user_id} ---
+        // Read actual user email from template (already rendered by Flask)
+        const userEmail = document.getElementById('user-email').textContent;
+        const userRole = document.getElementById('current-role')?.textContent || "Project Manager";
         
-        const mockProfile = {
-            email: "jana.ahmed@aipms.com",
-            role: "Project Manager",
-            permissions: ["manage_budget", "create_project", "view_reports"]
-        };
-        
-        document.getElementById('user-email').textContent = mockProfile.email;
-        // This simulates loading initial profile data
+        // Log the loaded profile data for debugging
+        console.log('[PROFILE] Loaded user email:', userEmail);
+        console.log('[PROFILE] Loaded user role:', userRole);
+        // Profile data is already displayed in the template, no need to overwrite
     }
 
     // --- 3. RBAC MANAGEMENT (FR-201, Admin Sequence Diagram) ---

@@ -116,41 +116,47 @@ def reports():
 
 @app.route("/settings")
 def settings():
-    # Get current user ID from localStorage data attribute or default to 2
-    user_id = session.get('user_id')
-    
-    # Try to get from localStorage via request (fallback to 2 - Bob Smith)
-    if not user_id:
-        user_id = request.args.get('user_id', 2, type=int)
-    
-    user_repo = RepositoryFactory.get_repository("user")
-    current_user = user_repo.get_by_id(user_id)
+    # Get current user from session (set by before_request hook)
+    if not hasattr(g, 'current_user') or g.current_user is None:
+        print("[SETTINGS] No user logged in, using default user_id=2")
+        user_repo = RepositoryFactory.get_repository("user")
+        current_user = user_repo.get_by_id(2)  # Fallback for testing
+        user_id = 2
+    else:
+        current_user = g.current_user
+        user_id = g.current_user_id
     
     if current_user:
         user_email = current_user.email
+        user_role = current_user.role
+        print(f"[SETTINGS] User ID: {user_id}, Name: {current_user.name}, Email: {user_email}, Role: {user_role}")
     else:
         user_email = "user@aipms.com"
+        user_role = "User"
+        print(f"[SETTINGS] User ID {user_id} not found!")
     
-    return render_template("settings.html", current_user_email=user_email, user_id=user_id)
+    return render_template("settings.html", current_user_email=user_email, current_user_role=user_role, user_id=user_id)
 
 @app.route("/profile")
 def profile():
-    # Get current user ID from localStorage data attribute or default to 2
-    user_id = session.get('user_id')
-    
-    # Try to get from localStorage via request (fallback to 2 - Bob Smith)
-    if not user_id:
-        user_id = request.args.get('user_id', 2, type=int)
-    
-    user_repo = RepositoryFactory.get_repository("user")
-    current_user = user_repo.get_by_id(user_id)
+    # Get current user from session (set by before_request hook)
+    if not hasattr(g, 'current_user') or g.current_user is None:
+        print("[PROFILE] No user logged in, using default user_id=2")
+        user_repo = RepositoryFactory.get_repository("user")
+        current_user = user_repo.get_by_id(2)  # Fallback for testing
+        user_id = 2
+    else:
+        current_user = g.current_user
+        user_id = g.current_user_id
     
     if current_user:
         user_email = current_user.email
         user_name = current_user.name
+        print(f"[PROFILE] User ID: {user_id}, Name: {user_name}, Email: {user_email}")
     else:
         user_email = "user@aipms.com"
         user_name = "User"
+        print(f"[PROFILE] User ID {user_id} not found!")
     
     return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
 
