@@ -10,7 +10,22 @@ class UserRepository:
         cursor = self.db.cursor(dictionary=True)
         cursor.execute("SELECT user_id, name, email, role FROM userr")
         rows = cursor.fetchall()
-        return [Userr(**row, password="") for row in rows] 
+        
+        # Create Userr objects without password for get_all
+        users = []
+        for row in rows:
+            # Add a dummy password since Userr requires it
+            user = Userr(
+                user_id=row['user_id'],
+                name=row['name'],
+                email=row['email'],
+                role=row['role'],
+                password="",  # Empty password for listing
+                is_hashed=True  # Treat empty string as already hashed
+            )
+            users.append(user)
+        
+        return users 
 
     def get_by_id(self, user_id: int) -> Userr | None:
         cursor = self.db.cursor(dictionary=True)
@@ -37,3 +52,17 @@ class UserRepository:
         self.db.commit()
         user.user_id = cursor.lastrowid 
         return user
+    
+
+
+    def update(self, user: Userr):
+        """Update an existing user"""
+        cursor = self.db.cursor()
+        query = """
+        UPDATE userr 
+        SET name = %s, email = %s, role = %s 
+        WHERE user_id = %s
+        """
+        cursor.execute(query, (user.name, user.email, user.role, user.user_id))
+        self.db.commit()
+        return cursor.rowcount
