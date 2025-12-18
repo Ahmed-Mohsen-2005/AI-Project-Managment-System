@@ -1,6 +1,6 @@
 import json
 from core.db_singleton import DatabaseConnection
-from models.user import Userr 
+from models.user import Userr
 
 class UserRepository:
     def __init__(self):

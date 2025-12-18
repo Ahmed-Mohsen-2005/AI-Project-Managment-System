@@ -5,55 +5,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const addSkillBtn = document.getElementById('add-skill-btn');
     const editProfileBtn = document.getElementById('edit-profile-btn');
 
-    // MOCK DATA: Simulating data from Resource & Auth Service
-    const MOCK_USER_DATA = {
-        name: "Jana Al-Najjar",
-        role: "Project Manager",
-        email: "jana.ahmed@aipms.com",
-        stats: {
-            velocity: '100%', rejectionRate: '5%', riskExposure: '22%', tasksCompleted: 85
-        },
-        skills: [
-            { name: "Project Management", level: 3 },
-            { name: "SQL Server", level: 2 },
-            { name: "Python (Flask)", level: 3 },
-            { name: "CI/CD", level: 1 }
-        ],
-        activityLog: [
-            "Updated RBAC permissions for Bob S. (Admin action)",
-            "Closed Sprint 4 (Frontend UI Revamp)",
-            "Completed Task WI-405 (S3 Fix)",
-            "Reviewed and approved new documentation."
-        ]
-    };
+    // API Configuration
+    const API_BASE_URL = '/api/v1/profile';
+
+    // Get current user from localStorage
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+    if (!currentUser || !currentUser.user_id) {
+        console.error('No user logged in. Redirecting to login page.');
+        window.location.href = '/';
+        return;
+    }
+
+    const userId = currentUser.user_id;
 
     // --- INITIALIZATION ---
-    loadProfileData(MOCK_USER_DATA);
-    
+    loadProfileData();
+
     // --- EVENT LISTENERS ---
     addSkillBtn.addEventListener('click', handleAddSkill);
     editProfileBtn.addEventListener('click', handleEditProfile);
 
     // --- 1. DATA LOADING ---
-    function loadProfileData(data) {
-        // Load Header Info
-        document.getElementById('user-name').textContent = data.name;
-        document.getElementById('user-role').textContent = data.role;
-        document.getElementById('user-email').textContent = data.email;
+    async function loadProfileData() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}`);
 
-        // Load Stats
-        document.getElementById('user-velocity').textContent = data.stats.velocity;
-        document.getElementById('task-rejection').textContent = data.stats.rejectionRate;
-        document.getElementById('risk-exposure').textContent = data.stats.riskExposure;
-        document.getElementById('tasks-completed').textContent = data.stats.tasksCompleted;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        // Render Skills
-        renderSkills(data.skills);
-        
-        // Render Activity Log
-        renderActivityLog(data.activityLog);
+            const data = await response.json();
+
+            // Load Header Info
+            document.getElementById('user-name').textContent = data.user.name;
+            document.getElementById('user-role').textContent = data.user.role;
+            document.getElementById('user-email').textContent = data.user.email;
+
+            // Update avatar with user initials
+            const avatarImg = document.querySelector('.profile-avatar-large');
+            if (avatarImg && data.user.name) {
+                const initials = data.user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                avatarImg.src = `https://placehold.co/80x80/4a90e2/ffffff?text=${initials}`;
+            }
+
+            // Load Stats
+            document.getElementById('user-velocity').textContent = data.stats.velocity;
+            document.getElementById('task-rejection').textContent = data.stats.rejectionRate;
+            document.getElementById('risk-exposure').textContent = data.stats.riskExposure;
+            document.getElementById('tasks-completed').textContent = data.stats.tasksCompleted;
+
+            // Render Skills
+            renderSkills(data.skills);
+
+            // Render Activity Log
+            renderActivityLog(data.activityLog);
+
+        } catch (error) {
+            console.error('Error loading profile data:', error);
+            // If API fails, show basic info from localStorage
+            document.getElementById('user-name').textContent = currentUser.name || 'User';
+            document.getElementById('user-role').textContent = currentUser.role || 'Standard';
+            document.getElementById('user-email').textContent = currentUser.email || '';
+        }
     }
-    
+
     // --- 2. SKILL RENDERING & MANAGEMENT (FR-301) ---
     function getLevelText(level) {
         if (level == 3) return 'Expert';
@@ -63,15 +79,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSkills(skills) {
         skillsList.innerHTML = '';
+
+        if (!skills || skills.length === 0) {
+            skillsList.innerHTML = '<span class="no-skills">No skills added yet. Add your first skill below!</span>';
+            return;
+        }
+
         skills.forEach(skill => {
             const tag = document.createElement('span');
             tag.className = 'skill-tag';
-            tag.innerHTML = `${skill.name} <span class="skill-level-indicator">(${getLevelText(skill.level)})</span>`;
+            tag.dataset.skillId = skill.skill_id;
+            tag.innerHTML = `
+                ${skill.name}
+                <span class="skill-level-indicator">(${getLevelText(skill.level)})</span>
+                <button class="skill-remove-btn" title="Remove skill">&times;</button>
+            `;
+
+            // Add remove functionality
+            const removeBtn = tag.querySelector('.skill-remove-btn');
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleRemoveSkill(skill.skill_id, skill.name);
+            });
+
             skillsList.appendChild(tag);
         });
     }
 
-    function handleAddSkill() {
+    async function handleAddSkill() {
         const skillName = newSkillInput.value.trim();
         const skillLevel = parseInt(skillLevelSelect.value);
 
@@ -80,32 +115,111 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- API ACTION: Update Skill (PUT to /api/v1/users/{id}/skills) ---
-        
-        console.log(`[SKILL MGMT] Adding skill: ${skillName} at level ${skillLevel}`);
-        
-        // --- Simulation ---
-        MOCK_USER_DATA.skills.push({ name: skillName, level: skillLevel });
-        renderSkills(MOCK_USER_DATA.skills);
-        newSkillInput.value = '';
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}/skills`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: skillName,
+                    level: skillLevel
+                })
+            });
 
-        alert(`Skill '${skillName}' added. This data is used by AI Resource Allocation (FR-301).`);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(`[SKILL MGMT] Skill added: ${skillName}`);
+
+                // Reload skills
+                await loadSkills();
+                newSkillInput.value = '';
+
+                // Reload activity log
+                await loadActivityLog();
+            } else {
+                const err = await response.json();
+                alert('Error adding skill: ' + (err.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            alert('Failed to connect to server.');
+        }
+    }
+
+    async function handleRemoveSkill(skillId, skillName) {
+        if (!confirm(`Are you sure you want to remove "${skillName}"?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}/skills/${skillId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                console.log(`[SKILL MGMT] Skill removed: ${skillName}`);
+
+                // Reload skills
+                await loadSkills();
+
+                // Reload activity log
+                await loadActivityLog();
+            } else {
+                const err = await response.json();
+                alert('Error removing skill: ' + (err.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            alert('Failed to connect to server.');
+        }
+    }
+
+    async function loadSkills() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}/skills`);
+            if (response.ok) {
+                const skills = await response.json();
+                renderSkills(skills);
+            }
+        } catch (error) {
+            console.error('Error loading skills:', error);
+        }
     }
 
     // --- 3. ACTIVITY LOG RENDERING ---
     function renderActivityLog(logs) {
         const logList = document.getElementById('activity-log');
         logList.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+            logList.innerHTML = '<li class="no-activity">No recent activity.</li>';
+            return;
+        }
+
         logs.forEach(log => {
             const item = document.createElement('li');
-            item.innerHTML = `${log} <span class="activity-log-time">${new Date().toLocaleTimeString()}</span>`;
+            const timestamp = new Date(log.timestamp).toLocaleString();
+            item.innerHTML = `${log.action} <span class="activity-log-time">${timestamp}</span>`;
             logList.appendChild(item);
         });
     }
 
+    async function loadActivityLog() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}/activities?limit=10`);
+            if (response.ok) {
+                const activities = await response.json();
+                renderActivityLog(activities);
+            }
+        } catch (error) {
+            console.error('Error loading activity log:', error);
+        }
+    }
+
     // --- 4. PROFILE ACTIONS ---
     function handleEditProfile() {
-        alert("Simulating redirect to the general settings tab for profile editing.");
-        // window.location.href = '/settings?tab=general';
+        // Redirect to settings page for profile editing
+        window.location.href = '/settings?tab=general';
     }
 });

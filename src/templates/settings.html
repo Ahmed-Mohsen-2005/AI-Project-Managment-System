@@ -7,7 +7,7 @@
 {% endblock extra_css %}
 
 {% block content %}
-    <div class="settings-container card">
+    <div class="settings-container card" data-user-id="{{ user_id or 2 }}">
         <h1 class="page-title"><i class="fas fa-cog"></i> {{ t.settings_title }}</h1>
 
         <div class="settings-grid">
@@ -43,7 +43,10 @@
                     <section class="setting-section">
                         <h3>{{ t.account_actions }}</h3>
                         <div class="setting-group">
-                            <p>{{ t.current_email }}: <span id="user-email">jana.ahmed@aipms.com</span></p>
+                            <p>{{ t.current_email }}: <span id="user-email">{{ current_user_email }}</span></p>
+                        </div>
+                        <div class="setting-group">
+                            <p>{{ t.current_role }}: <span id="current-role">{{ current_user_role }}</span></p>
                         </div>
                         <div class="setting-group">
                             <button id="update-profile-btn" class="btn btn-primary">{{ t.update_profile }}</button>
