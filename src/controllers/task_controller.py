@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, jsonify, request
 from models.task import Task
 from services.task_service import TaskService
-
+from datetime import date
 task_bp = Blueprint("task", __name__, url_prefix="/api/v1/tasks")
 
 task_service = TaskService()
@@ -177,7 +177,7 @@ def get_backlog():
     return jsonify([t.to_dict() for t in tasks]), 200
 
 
-# --- Define the reserved ID for the Backlog ---
+
 BACKLOG_SPRINT_ID = 1 
 
 @task_bp.route("/backlog", methods=["POST"])
@@ -205,3 +205,25 @@ def add_backlog_item():
         # Added a check for required fields/errors to help debug further
         print(f"Error creating task: {e}") 
         return jsonify({"error": str(e)}), 500
+
+@task_bp.route("/upcoming", methods=["GET"])
+def get_upcoming_tasks():
+    """
+    Fetch the upcoming tasks ordered by the closest due date.
+    Optionally filter by assigned user.
+    """
+    user_id = request.args.get('user_id', type=int)
+    limit = request.args.get('limit', default=5, type=int)
+    
+    try:
+        tasks = task_service.get_upcoming_tasks(user_id=user_id, limit=limit)
+        return jsonify([t.to_dict() for t in tasks]), 200
+    except Exception as e:
+        print(f"[ERROR] Error in get_upcoming_tasks: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+    cursor.execute(base_query, params)
+    rows = cursor.fetchall()
+    cursor.close()
+
+    return [Task(**row) for row in rows]

@@ -1,6 +1,7 @@
 from core.db_singleton import DatabaseConnection
 from models.note import Note
 
+
 class NoteRepository:
     def __init__(self):
         # Store the manager instance
