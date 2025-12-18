@@ -1,5 +1,6 @@
 from models.project import Project
 from core.db_singleton import DatabaseConnection
+from datetime import date
 
 class ProjectRepository:
     def __init__(self):

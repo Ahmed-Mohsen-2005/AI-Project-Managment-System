@@ -57,9 +57,20 @@
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
-    background-color: var(--status-active);
     color: white;
-    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.status-badge.status-active {
+    background-color: var(--status-active);
+}
+
+.status-badge.status-completed {
+    background-color: var(--status-success);
+}
+
+.status-badge.status-planning {
+    background-color: var(--status-warning);
 }
 
 /* ---------------------------------------------------- */
@@ -128,6 +139,37 @@
 .chart-widget.full-span {
     grid-column: 1 / -1; /* Burndown chart spans full width */
     min-height: 400px;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--color-text-secondary);
+    text-align: center;
+    padding: var(--spacing-lg);
+}
+
+.chart-no-data i {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+}
+
+.chart-no-data p {
+    max-width: 300px;
+}
+
+.activity-widget.full-span {
+    grid-column: 1 / -1; /* Activity widget spans full width */
 }
 
 /* Specific Grid Placements */
@@ -322,4 +364,274 @@ body[data-theme="dark"] .recommendation-list li {
 /* Ensure chart containers have a dark background if they aren't transparent */
 body[data-theme="dark"] .chart-widget {
     background-color: var(--color-background-card);
+}
+
+/* =========================================================
+   7. MODAL STYLES
+   ========================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-container {
+    background-color: var(--color-background-card);
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text-main);
+}
+
+.modal-header h3 i {
+    margin-right: 10px;
+    color: var(--status-active);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--status-danger);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    color: var(--color-text-main);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--status-active);
+    outline: none;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--status-active);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: var(--color-border);
+    color: var(--color-text-main);
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.full-width-btn {
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+/* =========================================================
+   8. TASK LIST STYLES
+   ========================================================= */
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+}
+
+.task-list li:last-child {
+    border-bottom: none;
+}
+
+.task-owner {
+    font-size: 12px;
+    color: var(--status-warning);
+    font-weight: 500;
+}
+
+.task-priority-P1 {
+    color: var(--status-danger);
+    font-weight: 600;
+}
+
+.task-priority-P2 {
+    color: var(--status-warning);
+    font-weight: 500;
+}
+
+/* Recommendation List Risk Colors */
+.recommendation-list li.status-danger {
+    border-left: 3px solid var(--status-danger);
+    padding-left: 12px;
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.recommendation-list li.status-warning {
+    border-left: 3px solid var(--status-warning);
+    padding-left: 12px;
+    background: rgba(243, 156, 18, 0.05);
+}
+
+.recommendation-list li.status-active {
+    border-left: 3px solid var(--status-success);
+    padding-left: 12px;
+    background: rgba(46, 204, 113, 0.05);
+}
+
+.recommendation-list li.status-danger:before {
+    color: var(--status-danger);
+}
+
+.recommendation-list li.status-warning:before {
+    color: var(--status-warning);
+}
+
+.recommendation-list li.status-active:before {
+    color: var(--status-success);
+}
+
+/* Text color for low stress */
+.text-low {
+    color: var(--status-success);
+}
+
+/* =========================================================
+   9. ACTIVITY LIST STYLES
+   ========================================================= */
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-list li {
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.activity-list li:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+}
+
+.activity-detail {
+    font-size: 14px;
+    color: var(--color-text-main);
+    margin: 4px 0 0 0;
+}
+
+/* Dark mode modal adjustments */
+body[data-theme="dark"] .modal-container {
+    background-color: var(--color-background-card);
+}
+
+body[data-theme="dark"] .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body[data-theme="dark"] .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+}
+
+body[data-theme="dark"] .btn-secondary:hover {
+    background-color: #475569;
 }
