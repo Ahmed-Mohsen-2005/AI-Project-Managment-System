@@ -16,10 +16,12 @@
                 <!-- Project Selector Dropdown -->
                 <div class="control-group">
                     <label for="project-selector">{{ t.viewing_project }}:</label>
-                    <select id="project-selector" class="filter-select">
-                        <option value="1">{{ t.core_backend_initiative }}</option>
-                        <option value="2">{{ t.frontend_ui_revamp }}</option>
-                        <option value="3">{{ t.ai_model_optimization }}</option>
+                    <select id="project-filter" class="filter-select">
+                        <option value="all">{{ t.view_all_projects }}</option>
+                        
+                        {% for project in projects %}
+                            <option value="{{ project.project_id }}">{{ project.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <span class="status-badge status-active" id="project-status">{{ t.active_status }}</span>
