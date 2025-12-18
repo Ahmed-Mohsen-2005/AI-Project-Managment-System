@@ -43,7 +43,16 @@
     gap: var(--spacing-md);
     align-items: center;
 }
-
+.ai-suggestion-badge {
+    background-color: rgba(155, 89, 182, 0.1); /* Purple for AI */
+    color: #8e44ad;
+    border: 1px dashed #8e44ad;
+    padding: 5px;
+    font-size: 11px;
+    border-radius: 4px;
+    margin-top: 10px;
+    display: block;
+}
 .filter-select {
     padding: 8px 12px;
     border: 1px solid var(--color-border);

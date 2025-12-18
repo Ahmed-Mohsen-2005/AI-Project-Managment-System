@@ -34,6 +34,7 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
+
 app.register_blueprint(note_bp)  
 # In your main controller or app.py where the page is served
 
@@ -112,8 +113,9 @@ def chats():
 
 @app.route("/reports")
 def reports():
-    return render_template("reports.html")
-
+    project_repo = RepositoryFactory.get_repository("project")    
+    all_projects = project_repo.get_all()    
+    return render_template("reports.html", projects=all_projects)
 @app.route("/settings")
 def settings():
     # Get current user from session (set by before_request hook)
@@ -161,4 +163,4 @@ def profile():
     return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

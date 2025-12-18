@@ -16,9 +16,7 @@
                 
                 <div class="control-group">
                     <label for="project-filter">{{ t.project }}:</label>
-                    <select id="project-filter" class="filter-select">
-                        <option value="all">{{ t.view_all_projects }}</option>
-                        
+                    <select id="project-filter" class="filter-select">                        
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
                         {% endfor %}
