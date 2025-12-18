@@ -177,7 +177,7 @@ class TaskRepository:
             SELECT task_id, sprint_id, title, status, priority, estimate_hours,
                    due_date, created_by, assigned_id
             FROM Task
-            WHERE sprint_id IS NULL
+            ORDER BY task_id DESC
         """
 
         params = ()
