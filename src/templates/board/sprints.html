@@ -15,9 +15,8 @@
             <div class="sprints-controls">
                 
                 <div class="control-group">
-                    <label for="project-filter">Project:</label>
-                    <select id="project-filter" class="filter-select">
-                        <option value="all">View All Projects</option>
+                    <label for="project-filter">{{ t.project }}:</label>
+                    <select id="project-filter" class="filter-select">                        
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
                         {% endfor %}

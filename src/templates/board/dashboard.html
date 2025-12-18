@@ -15,9 +15,10 @@
             <div class="header-controls">
                 <!-- Project Selector Dropdown -->
                 <div class="control-group">
-                    <label for="project-selector">Viewing Project:</label>
+                    <label for="project-selector">{{ t.viewing_project }}:</label>
                     <select id="project-filter" class="filter-select">
-                        <option value="all">View All Projects</option>
+                        <option value="all">{{ t.view_all_projects }}</option>
+                        
                         {% for project in projects %}
                             <option value="{{ project.project_id }}">{{ project.name }}</option>
                         {% endfor %}
