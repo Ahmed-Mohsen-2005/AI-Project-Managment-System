@@ -20,7 +20,6 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY  # Add this line - needed for session to work!
 
 from repositories.repository_factory import RepositoryFactory
-app = Flask(__name__)   
 db = get_db() 
 print("Project Sentinel Application and SQL Server connection pool initialized.")
 
@@ -35,7 +34,6 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
-app.register_blueprint(note_bp)
 app.register_blueprint(note_bp)  
 # In your main controller or app.py where the page is served
 
