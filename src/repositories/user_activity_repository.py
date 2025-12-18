@@ -3,7 +3,11 @@ from models.user_activity import UserActivity
 
 class UserActivityRepository:
     def __init__(self):
-        self.db = DatabaseConnection().get_connection()
+        self._db_instance = DatabaseConnection()
+
+    @property
+    def db(self):
+        return self._db_instance.get_connection()
 
     def get_by_user_id(self, user_id, limit=10):
         cursor = self.db.cursor(dictionary=True)

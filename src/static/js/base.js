@@ -118,11 +118,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 5. Global Action Handlers ---
-    
-    // Quick Add Button
-    document.getElementById('add-new-btn').addEventListener('click', () => {
-        console.log("Global 'Add New' clicked. Opening universal creation modal...");
-    });
+
+    // Project Creation Modal Elements
+    const addNewBtn = document.getElementById('add-new-btn');
+    const projectModal = document.getElementById('create-project-modal');
+    const closeProjectModalBtn = document.getElementById('close-project-modal');
+    const cancelProjectBtn = document.getElementById('cancel-project-btn');
+    const createProjectForm = document.getElementById('create-project-form');
+
+    // Open Project Modal
+    if (addNewBtn && projectModal) {
+        addNewBtn.addEventListener('click', () => {
+            projectModal.classList.remove('hidden');
+            projectModal.style.display = 'flex';
+            // Set default start date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('proj-start').value = today;
+        });
+    }
+
+    // Close Project Modal
+    if (closeProjectModalBtn && projectModal) {
+        closeProjectModalBtn.addEventListener('click', () => {
+            projectModal.classList.add('hidden');
+            projectModal.style.display = 'none';
+        });
+    }
+
+    if (cancelProjectBtn && projectModal) {
+        cancelProjectBtn.addEventListener('click', () => {
+            projectModal.classList.add('hidden');
+            projectModal.style.display = 'none';
+        });
+    }
+
+    // Close on outside click
+    if (projectModal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === projectModal) {
+                projectModal.classList.add('hidden');
+                projectModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle Project Form Submission
+    if (createProjectForm) {
+        createProjectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('proj-name').value,
+                description: document.getElementById('proj-desc').value,
+                start_date: document.getElementById('proj-start').value,
+                end_date: document.getElementById('proj-end').value || null,
+                budget: parseFloat(document.getElementById('proj-budget').value) || 0
+            };
+
+            try {
+                const response = await fetch('/api/v1/projects/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Project created successfully!');
+                    projectModal.classList.add('hidden');
+                    projectModal.style.display = 'none';
+                    createProjectForm.reset();
+
+                    // Reload page to show new project in selector
+                    if (window.location.pathname.includes('/boards/dashboard')) {
+                        window.location.reload();
+                    }
+                } else {
+                    alert(result.error || 'Failed to create project');
+                }
+            } catch (error) {
+                console.error('Error creating project:', error);
+                alert('Failed to create project. Please try again.');
+            }
+        });
+    }
 
     // Global Search Utility (Ctrl+K)
     document.addEventListener('keydown', (e) => {

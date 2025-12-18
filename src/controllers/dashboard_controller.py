@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from repositories.repository_factory import RepositoryFactory
+from datetime import date, timedelta
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/api/v1/dashboard")
 
@@ -146,3 +147,124 @@ def calculate_stress_index(stats):
         detail = "Team workload is manageable."
 
     return {"value": round(stress, 2), "detail": detail}
+
+
+@dashboard_bp.route("/users", methods=["GET"])
+def get_all_users():
+    """Get all users for task assignment."""
+    repo = RepositoryFactory.get_repository("user")
+    users = repo.get_all()
+    return jsonify([{"user_id": u.user_id, "name": u.name, "email": u.email} for u in users]), 200
+
+
+@dashboard_bp.route("/task/<int:task_id>/assign", methods=["PUT"])
+def assign_task(task_id):
+    """Assign a task to a user."""
+    data = request.get_json()
+    user_id = data.get("user_id")
+
+    if user_id is None:
+        return jsonify({"error": "user_id is required"}), 400
+
+    task_repo = RepositoryFactory.get_repository("task")
+    task = task_repo.get_by_id(task_id)
+
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    task.assigned_id = user_id
+    task_repo.update_task(task)
+
+    return jsonify({"message": "Task assigned successfully", "task_id": task_id, "assigned_id": user_id}), 200
+
+
+@dashboard_bp.route("/project/<int:project_id>/burndown", methods=["GET"])
+def get_burndown_data(project_id):
+    """Get burndown chart data for the active sprint of a project."""
+    sprint_repo = RepositoryFactory.get_repository("sprint")
+    task_repo = RepositoryFactory.get_repository("task")
+
+    # Get sprints for the project
+    sprints = sprint_repo.get_by_project_id(project_id)
+
+    if not sprints:
+        return jsonify({"labels": [], "ideal": [], "actual": [], "sprintName": "No Sprint"}), 200
+
+    # Get the most recent sprint (active sprint)
+    active_sprint = sprints[0]
+
+    # Get tasks for the sprint
+    tasks = task_repo.get_by_sprint_id(active_sprint.sprint_id)
+
+    # Calculate burndown data
+    total_tasks = len(tasks)
+    if total_tasks == 0:
+        return jsonify({
+            "labels": [],
+            "ideal": [],
+            "actual": [],
+            "sprintName": active_sprint.name
+        }), 200
+
+    # Calculate sprint duration
+    start_date = active_sprint.start_date
+    end_date = active_sprint.end_date
+
+    if not start_date or not end_date:
+        return jsonify({
+            "labels": ["Day 1"],
+            "ideal": [total_tasks],
+            "actual": [total_tasks],
+            "sprintName": active_sprint.name
+        }), 200
+
+    # Generate burndown data
+    days = (end_date - start_date).days + 1
+    labels = []
+    ideal = []
+    actual = []
+
+    # Calculate ideal burndown (linear)
+    daily_burn = total_tasks / days if days > 0 else 0
+
+    # Count completed tasks up to each day
+    today = date.today()
+    completed_tasks = sum(1 for t in tasks if t.status and t.status.value == 'DONE')
+
+    for i in range(days):
+        current_day = start_date + timedelta(days=i)
+        labels.append(f"Day {i + 1}")
+        ideal.append(round(total_tasks - (daily_burn * (i + 1)), 1))
+
+        # For actual data, show remaining tasks
+        if current_day <= today:
+            # Simplified: Show current remaining for past/present days
+            remaining = total_tasks - completed_tasks
+            actual.append(remaining)
+        else:
+            # Future days have no actual data yet
+            actual.append(None)
+
+    return jsonify({
+        "labels": labels,
+        "ideal": ideal,
+        "actual": actual,
+        "sprintName": active_sprint.name,
+        "totalTasks": total_tasks,
+        "completedTasks": completed_tasks
+    }), 200
+
+
+@dashboard_bp.route("/project/<int:project_id>/sprints", methods=["GET"])
+def get_project_sprints(project_id):
+    """Get all sprints for a project."""
+    sprint_repo = RepositoryFactory.get_repository("sprint")
+    sprints = sprint_repo.get_by_project_id(project_id)
+
+    return jsonify([{
+        "sprint_id": s.sprint_id,
+        "name": s.name,
+        "start_date": s.start_date.isoformat() if s.start_date else None,
+        "end_date": s.end_date.isoformat() if s.end_date else None,
+        "velocity": s.velocity
+    } for s in sprints]), 200
