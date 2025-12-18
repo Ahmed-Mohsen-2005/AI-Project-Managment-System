@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const BACKLOG_API_URL = '/api/v1/tasks/backlog';
     const TASK_API_URL = '/api/v1/tasks';
     const SPRINT_API_URL = '/api/v1/sprints';
+    const USER_API_URL = '/api/v1/users';
     const BACKLOG_SPRINT_ID = 1; 
 
     // --- DOM Elements ---
@@ -19,11 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortBySelect = document.getElementById('sort-by');
     const sprintTarget = document.getElementById('sprint-planning-target');
     const sprintSelect = document.getElementById('item-sprint');
+    const assigneeSelect = document.getElementById('item-assignee');
+
     
     // --- INITIALIZATION ---
     loadBacklogItems();
     loadSprints(); // Load sprints for the dropdown
-    
+    loadUsers(); // Load users for the assignee dropdown
+
     // --- EVENT LISTENERS ---
     if (projectFilter) projectFilter.addEventListener('change', loadBacklogItems);
     if (sortBySelect) sortBySelect.addEventListener('change', loadBacklogItems);
@@ -47,9 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function openQuickAddModal() { 
         modal.style.display = 'block'; 
         loadSprints(); // Refresh sprints when opening modal
+        loadUsers(); // Refresh users when opening modal
         const titleInput = document.getElementById('item-title-input');
         if (titleInput) titleInput.focus();
     }
+
     
     function closeQuickAddModal() { 
         modal.style.display = 'none'; 
@@ -106,16 +112,58 @@ document.addEventListener('DOMContentLoaded', () => {
             sprintSelect.innerHTML = '<option value="1">Product Backlog (Failed to load other sprints)</option>';
         }
     }
+    // --- USER LOADING LOGIC ---
+    async function loadUsers() {
+        if (!assigneeSelect) return;
+        
+        try {
+            const response = await fetch(USER_API_URL);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
+            
+            const users = await response.json();
+            
+            // Clear existing options
+            assigneeSelect.innerHTML = '';
+            
+            // Add "Unassigned" as default option
+            const unassignedOption = document.createElement('option');
+            unassignedOption.value = '';
+            unassignedOption.textContent = 'Unassigned';
+            unassignedOption.selected = true;
+            assigneeSelect.appendChild(unassignedOption);
+            
+            // Add user options
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.user_id;
+                
+                // Use name from the User table
+                const displayName = user.name || `User ${user.user_id}`;
+                option.textContent = displayName;
+                
+                assigneeSelect.appendChild(option);
+            });
+            
+            console.log(`[SUCCESS] Loaded ${users.length} users`);
+            
+        } catch (error) {
+            console.error('[ERROR] Failed to load users:', error);
+            assigneeSelect.innerHTML = '<option value="">Unassigned (Failed to load users)</option>';
+        }
+    }
 
     // --- UTILITIES ---
     
     function mapDbPriorityToUi(dbPriority) {
-        if (!dbPriority) return 'P2';
+        if (!dbPriority) return 'MEDIUM';
         switch (dbPriority.toUpperCase()) {
-            case 'HIGH': return 'P1';
-            case 'MEDIUM': return 'P2';
-            case 'LOW': return 'P3';
-            default: return 'P2';
+            case 'HIGH': return 'HIGH';
+            case 'MEDIUM': return 'MEDIUM';
+            case 'LOW': return 'LOW';
+            default: return 'MEDIUM';
         }
     }
     
