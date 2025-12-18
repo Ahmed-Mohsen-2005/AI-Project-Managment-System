@@ -1,28 +1,29 @@
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import pooling, Error
 
 class DatabaseConnection:
     _instance = None
+    _pool = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(DatabaseConnection, cls).__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        if not hasattr(self, "connection") or self.connection is None:
             try:
-                self.connection = mysql.connector.connect(
+                # Initialize the pool once
+                cls._pool = pooling.MySQLConnectionPool(
+                    pool_name="mypool",
+                    pool_size=5,  # Adjust based on your needs
+                    pool_reset_session=True,
                     host="localhost",
                     user="root",
-                    password="AhmedMohsen2005", 
+                    password="AhmedMohsen2005",
                     database="AIPMS"
                 )
-                print("Connected to MySQL")
+                print("Connection pool initialized")
             except Error as e:
-                print("ERROR connecting to MySQL:", e)
-                self.connection = None
+                print(f"Error creating connection pool: {e}")
+        return cls._instance
 
-    # Fix indentation: make this a method of the class
     def get_connection(self):
-        return self.connection
+        """Returns a connection from the pool."""
+        return self._pool.get_connection()
