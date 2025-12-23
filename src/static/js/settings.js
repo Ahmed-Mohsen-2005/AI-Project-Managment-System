@@ -111,44 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function confirmAccountDeletion() {
-        // Replace with custom modal confirmation UI (as required by rules)
-        if (confirm("WARNING: Are you sure you want to permanently delete your account? This action is irreversible.")) {
-            console.log("[ACCOUNT] Deleting account...");
-            
-            // Get user_id from page data or localStorage
-            const userId = document.querySelector('[data-user-id]')?.getAttribute('data-user-id') || 
-                          localStorage.getItem('user_id');
-            
-            if (!userId) {
-                alert('Error: User ID not found. Please try logging in again.');
-                return;
-            }
-            
-            // API call to /api/v1/users/delete
-            fetch('/api/v1/users/delete', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: parseInt(userId) })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("[ACCOUNT] Account deleted successfully");
-                    alert('Your account has been deleted successfully.');
-                    // Redirect to signup page after deletion
-                    window.location.href = '/';
-                } else {
-                    console.error('[ACCOUNT] Error:', data.error);
-                    alert('Failed to delete account: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('[ACCOUNT] Error deleting account:', error);
-                alert('Error deleting account: ' + error.message);
-            });
-        }
+        // Redirect to profile page (same as update profile button)
+        window.location.href = '/profile';
     }
     
     document.querySelectorAll('.disconnect-btn').forEach(btn => {
