@@ -3,206 +3,159 @@
 {% block title %}{{ t.admin_panel }} - AIPMS{% endblock title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='src\static\css\admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 {% endblock extra_css %}
 
 {% block content %}
     <div class="admin-container">
-        <h1 class="page-title"><i class="fas fa-shield-alt"></i> {{ t.admin_panel }}</h1>
-
-        <!-- Search Bar -->
-        <div style="margin-bottom: 20px;">
-            <div class="search-bar-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="header-content">
+                <h1 class="page-title"><i class="fas fa-shield-alt"></i> {{ t.admin_panel }}</h1>
+                <p class="page-subtitle">Manage users, roles, and system settings</p>
             </div>
+            <button id="logout-btn" class="btn btn-secondary">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
 
-        <div class="admin-grid">
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="users">
+                <i class="fas fa-users"></i> Users Management
+            </button>
+            <button class="admin-tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i> Settings
+            </button>
+            <button class="admin-tab-btn" data-tab="audit">
+                <i class="fas fa-history"></i> Audit Log
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="admin-content">
             
-            <!-- Admin Navigation Tabs -->
-            <aside class="admin-tabs">
-                <button class="admin-tab-item active" data-tab="roles">
-                    <i class="fas fa-users"></i> {{ t.roles_management }}
-                </button>
-                <button class="admin-tab-item" data-tab="permissions">
-                    <i class="fas fa-lock"></i> {{ t.permissions_management }}
-                </button>
-                <button class="admin-tab-item" data-tab="access-control">
-                    <i class="fas fa-eye"></i> {{ t.access_control }}
-                </button>
-                <button class="admin-tab-item" data-tab="user-roles">
-                    <i class="fas fa-user-tag"></i> {{ t.user_roles }}
-                </button>
-                <button class="admin-tab-item" data-tab="audit-log">
-                    <i class="fas fa-history"></i> {{ t.audit_log }}
-                </button>
-            </aside>
+            <!-- Users Management Tab -->
+            <div class="admin-tab-pane active" id="tab-users">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> All Users</h2>
+                    <button id="add-user-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
 
-            <!-- Admin Content -->
-            <main class="admin-content">
+                <!-- Search and Filter -->
+                <div class="table-controls">
+                    <input type="search" id="user-search" placeholder="Search users by name or email..." class="search-input">
+                    <select id="role-filter" class="filter-select">
+                        <option value="">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="user">User</option>
+                        <option value="guest">Guest</option>
+                    </select>
+                </div>
+
+                <!-- Users Table -->
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr class="loading-row">
+                                <td colspan="5"><i class="fas fa-spinner fa-spin"></i> Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="admin-tab-pane" id="tab-settings">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> System Settings</h2>
+                </div>
+                <div class="settings-container">
+                    <p>Settings coming soon...</p>
+                </div>
+            </div>
+
+            <!-- Audit Log Tab -->
+            <div class="admin-tab-pane" id="tab-audit">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Audit Log</h2>
+                </div>
+                <div class="audit-container">
+                    <p>Audit log coming soon...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id">
                 
-                <!-- 1. Roles Management Tab -->
-                <div class="admin-pane active" id="pane-roles">
-                    <h2 class="pane-title">{{ t.roles_management }}</h2>
-                    
-                    <section class="admin-section">
-                        <div class="section-header">
-                            <h3>{{ t.available_roles }}</h3>
-                            <button id="add-role-btn" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> {{ t.add_role }}
-                            </button>
-                        </div>
-                        
-                        <div id="roles-list" class="roles-list">
-                            <p class="loading-text">{{ t.loading }}...</p>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- 2. Permissions Management Tab -->
-                <div class="admin-pane" id="pane-permissions">
-                    <h2 class="pane-title">{{ t.permissions_management }}</h2>
-                    
-                    <section class="admin-section">
-                        <div class="section-header">
-                            <h3>{{ t.system_permissions }}</h3>
-                            <button id="add-permission-btn" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> {{ t.add_permission }}
-                            </button>
-                        </div>
-                        
-                        <div id="permissions-list" class="permissions-list">
-                            <p class="loading-text">{{ t.loading }}...</p>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- 3. Access Control Tab -->
-                <div class="admin-pane" id="pane-access-control">
-                    <h2 class="pane-title">{{ t.access_control }}</h2>
-                    
-                    <section class="admin-section">
-                        <h3>{{ t.data_access_restrictions }}</h3>
-                        <p class="section-description">{{ t.manage_what_data_each_role_can_access }}</p>
-                        
-                        <div class="access-matrix">
-                            <div class="matrix-header">
-                                <div class="header-cell role-col">{{ t.role }}</div>
-                                <div class="header-cell">{{ t.sprint_boards }}</div>
-                                <div class="header-cell">{{ t.reports }}</div>
-                                <div class="header-cell">{{ t.user_profiles }}</div>
-                                <div class="header-cell">{{ t.budget_data }}</div>
-                                <div class="header-cell">{{ t.integrations }}</div>
-                            </div>
-                            
-                            <div id="access-matrix-body" class="matrix-body">
-                                <p class="loading-text">{{ t.loading }}...</p>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- 4. User Roles Tab -->
-                <div class="admin-pane" id="pane-user-roles">
-                    <h2 class="pane-title">{{ t.user_roles }}</h2>
-                    
-                    <section class="admin-section">
-                        <h3>{{ t.assign_roles_to_users }}</h3>
-                        
-                        <div class="user-roles-controls">
-                            <input type="search" id="user-search" placeholder="{{ t.search_users }}" class="search-input">
-                            <select id="role-filter" class="filter-select">
-                                <option value="">{{ t.all_roles }}</option>
-                            </select>
-                        </div>
-                        
-                        <div id="user-roles-list" class="user-roles-list">
-                            <p class="loading-text">{{ t.loading }}...</p>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- 5. Audit Log Tab -->
-                <div class="admin-pane" id="pane-audit-log">
-                    <h2 class="pane-title">{{ t.audit_log }}</h2>
-                    
-                    <section class="admin-section">
-                        <h3>{{ t.admin_activity_log }}</h3>
-                        
-                        <div class="audit-filters">
-                            <input type="date" id="audit-date-from" class="filter-input" placeholder="{{ t.from_date }}">
-                            <input type="date" id="audit-date-to" class="filter-input" placeholder="{{ t.to_date }}">
-                            <select id="audit-action-filter" class="filter-select">
-                                <option value="">{{ t.all_actions }}</option>
-                                <option value="role_created">{{ t.role_created }}</option>
-                                <option value="role_modified">{{ t.role_modified }}</option>
-                                <option value="role_deleted">{{ t.role_deleted }}</option>
-                                <option value="permission_assigned">{{ t.permission_assigned }}</option>
-                                <option value="user_role_changed">{{ t.user_role_changed }}</option>
-                            </select>
-                        </div>
-                        
-                        <div id="audit-log-list" class="audit-log-list">
-                            <p class="loading-text">{{ t.loading }}...</p>
-                        </div>
-                    </section>
-                </div>
-
-            </main>
-        </div>
-    </div>
-
-    <!-- Add/Edit Role Modal -->
-    <div id="role-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="role-modal-title">{{ t.add_role }}</h2>
-                <button class="modal-close">&times;</button>
-            </div>
-            <form id="role-form" class="admin-form">
                 <div class="form-group">
-                    <label for="role-name">{{ t.role_name }} <span class="required">*</span></label>
-                    <input type="text" id="role-name" required placeholder="{{ t.enter_role_name }}">
+                    <label for="edit-user-name">Name</label>
+                    <input type="text" id="edit-user-name" class="form-input" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="role-description">{{ t.description }}</label>
-                    <textarea id="role-description" placeholder="{{ t.enter_description }}" rows="4"></textarea>
+                    <label for="edit-user-email">Email</label>
+                    <input type="email" id="edit-user-email" class="form-input" required>
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">{{ t.save }}</button>
-                    <button type="button" class="btn btn-secondary modal-close-btn">{{ t.cancel }}</button>
+
+                <div class="form-group">
+                    <label for="edit-user-role">Role</label>
+                    <select id="edit-user-role" class="form-input" required>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="user">User</option>
+                        <option value="guest">Guest</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-user-type">Type</label>
+                    <input type="text" id="edit-user-type" class="form-input">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Add/Edit Permission Modal -->
-    <div id="permission-modal" class="modal">
-        <div class="modal-content">
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-delete-modal" class="modal">
+        <div class="modal-content modal-small">
             <div class="modal-header">
-                <h2 id="permission-modal-title">{{ t.add_permission }}</h2>
+                <h3>Confirm Delete</h3>
                 <button class="modal-close">&times;</button>
             </div>
-            <form id="permission-form" class="admin-form">
-                <div class="form-group">
-                    <label for="permission-name">{{ t.permission_name }} <span class="required">*</span></label>
-                    <input type="text" id="permission-name" required placeholder="{{ t.enter_permission_name }}">
-                </div>
-                <div class="form-group">
-                    <label for="permission-description">{{ t.description }}</label>
-                    <textarea id="permission-description" placeholder="{{ t.enter_description }}" rows="4"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">{{ t.save }}</button>
-                    <button type="button" class="btn btn-secondary modal-close-btn">{{ t.cancel }}</button>
-                </div>
-            </form>
+            <p id="delete-confirm-text">Are you sure you want to delete this user?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel">Cancel</button>
+                <button id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+            </div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 {% endblock content %}
-
-{% block extra_js %}
-    <script src="{{ url_for('static', filename='src\static\js\admin.js') }}"></script>
-{% endblock extra_js %}
