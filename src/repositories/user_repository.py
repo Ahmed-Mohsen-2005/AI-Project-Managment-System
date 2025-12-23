@@ -10,7 +10,7 @@ class UserRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT user_id, name, email, type, role FROM userr")
+            cursor.execute("SELECT user_id, name, email, role FROM userr")
             rows = cursor.fetchall()
             
             users = []
@@ -21,7 +21,7 @@ class UserRepository:
                     email=row['email'],
                     role=row['role'],
                     password="", 
-                    type=row['type'], 
+                    type="standard",  # Default type since not in DB
                     is_hashed=True  
                 )
                 users.append(user)

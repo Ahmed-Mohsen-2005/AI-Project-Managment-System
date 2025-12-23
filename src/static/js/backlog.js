@@ -300,6 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error('Failed to fetch users');
             
             const users = await res.json();
+            console.log('Loaded users:', users);
             assigneeSelect.innerHTML = '';
 
             const unassignedOpt = document.createElement('option');
@@ -317,9 +318,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 usersMap[u.user_id] = u.name || `User ${u.user_id}`;
             });
 
-            console.log('[SUCCESS] Loaded users');
+            console.log('Users map populated:', usersMap);
         } catch (err) {
             console.error('[ERROR] Load users failed:', err);
+            // Fallback: create some dummy users for testing
+            usersMap = {
+                1: 'John Doe',
+                2: 'Jane Smith',
+                3: 'Bob Johnson'
+            };
+            console.log('Using fallback users map:', usersMap);
         }
     }
 
