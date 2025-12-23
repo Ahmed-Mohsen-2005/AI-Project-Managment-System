@@ -113,9 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function openAddTaskModal() {
         // Show loading state
-        const loadingModal = createModal('Add New Task', '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3498db;"></i><p style="margin-top: 15px; color: #7f8c8d;">Loading data...</p></div>');
+        const loadingModal = createModal(
+            'Add New Task',
+            '<div style="text-align: center; padding: 40px;">' +
+            '<i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #3498db;"></i>' +
+            '<p style="margin-top: 15px; color: #7f8c8d;">Loading data...</p></div>'
+        );
         
-        // Fetch sprints and users data
         let sprints = [];
         let users = [];
         
@@ -140,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching data:', error);
             closeModal(loadingModal);
-            alert('Error loading data. Please try again.');
+            showNotification('Error loading data. Please try again.', 'error');
             return;
         }
         
@@ -247,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const modal = createModal('Add New Task', modalContent);
         
-        // Add hover effects for buttons
         const cancelBtn = document.getElementById('modal-cancel-task');
         const submitBtn = document.getElementById('modal-submit-task');
         
@@ -256,17 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.addEventListener('mouseenter', () => submitBtn.style.background = '#229954');
         submitBtn.addEventListener('mouseleave', () => submitBtn.style.background = '#27ae60');
         
-        // Focus on title input
         setTimeout(() => {
             document.getElementById('modal-task-title').focus();
         }, 100);
         
-        // Cancel button
         cancelBtn.addEventListener('click', () => {
             closeModal(modal);
         });
         
-        // Submit button
         submitBtn.addEventListener('click', async () => {
             await submitTaskFromModal(modal);
         });
@@ -285,19 +285,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Validation
         if (!title) {
-            alert('Task title is required');
+            showNotification('Task title is required', 'error');
             document.getElementById('modal-task-title').focus();
             return;
         }
 
         if (!sprintId || isNaN(sprintId)) {
-            alert('Please select a sprint');
+            showNotification('Please select a sprint', 'error');
             sprintSelect.focus();
             return;
         }
 
         if (!assignedId || isNaN(assignedId)) {
-            alert('Please select a user to assign this task to');
+            showNotification('Please select a user to assign this task to', 'error');
             assignedSelect.focus();
             return;
         }
@@ -342,16 +342,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             closeModal(modal);
-            
-            // Reload the kanban board to show the new task
+
+            // IMPORTANT FIX:
+            // Sync the project filter with the sprint used in the modal
+            const projectFilter = document.getElementById('project-filter');
+            if (projectFilter) {
+                projectFilter.value = sprintId.toString();
+            }
+
+            // Reload the kanban board to show the new task for that sprint
             clearBoard();
             await loadTasksToBoard();
             
-            showNotification(`✓ Task "${title}" added successfully`, 'success');
+            const sprintName = sprintSelect.options[sprintSelect.selectedIndex]?.text || 'selected sprint';
+            showNotification(`✓ Task "${title}" added to ${sprintName}`, 'success');
 
         } catch (err) {
             console.error('Error adding task:', err);
-            alert(`Error adding task: ${err.message}`);
+            showNotification(`Error adding task: ${err.message}`, 'error');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Add Task';
         }
@@ -435,7 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
             columns[col.getAttribute('data-status')] = col.querySelector('.task-list');
         });
 
-        const currentFilterId = document.getElementById('project-filter').value;
+        const projectFilter = document.getElementById('project-filter');
+        const currentFilterId = projectFilter ? projectFilter.value : 'all';
 
         let apiUrl;
         if (currentFilterId === 'all') {
@@ -577,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('[ERROR] Failed to delete task:', error);
-            alert(`❌ Failed to delete task: ${error.message}`);
+            showNotification(`Failed to delete task: ${error.message}`, 'error');
         });
     }
 
@@ -722,7 +731,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateTaskCounts();
             }
             
-            alert(`❌ Failed to update task status: ${error.message}\nThe task has been moved back to ${oldStatus}.`);
+            showNotification(
+                `Failed to update task status: ${error.message}. Task moved back to ${oldStatus}.`,
+                'error'
+            );
         });
     }
 
@@ -733,7 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add CSS animations
+    // Add CSS animations for notifications and modals
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
@@ -754,26 +766,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             to {
                 transform: translateX(400px);
-                opacity: 0;
+                opacity: 0);
             }
         }
         
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
         
         @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
+            from { opacity: 1; }
+            to   { opacity: 0; }
         }
     `;
     document.head.appendChild(style);
