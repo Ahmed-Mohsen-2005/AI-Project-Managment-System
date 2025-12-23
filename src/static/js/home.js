@@ -354,8 +354,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(TASKS_API_URL, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed');
             const all = await res.json();
-            const upcoming = all.filter(t => t.due_date && t.status !== 'DONE' && new Date(t.due_date) >= new Date())
-                .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+            const upcoming = all.filter(t => t.status !== 'DONE' && (!t.due_date || new Date(t.due_date) >= new Date()))
+                .sort((a, b) => {
+                    // Tasks without due dates go to the end
+                    if (!a.due_date && !b.due_date) return 0;
+                    if (!a.due_date) return 1;
+                    if (!b.due_date) return -1;
+                    return new Date(a.due_date) - new Date(b.due_date);
+                })
                 .slice(0, 5);
             updateCalendarWidget(upcoming);
         } catch (err) {
@@ -615,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const next = deadlines[0];
-        dd.textContent = `${formatDate(next.due_date)} • ${next.title}`;
+        dd.textContent = `${next.due_date ? formatDate(next.due_date) : 'No date'} • ${next.title}`;
         
         if (dl) {
             dl.innerHTML = '';
@@ -623,11 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const li = document.createElement('li');
                 li.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ecf0f1;';
                 li.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.title}</span>
-                    <span style="font-size: 12px; color: #7f8c8d; margin-left: 8px;">${formatDate(t.due_date)}</span>`;
+                    <span style="font-size: 12px; color: #7f8c8d; margin-left: 8px;">${t.due_date ? formatDate(t.due_date) : 'No date'}</span>`;
                 dl.appendChild(li);
             });
         }
     }
+
 
     function formatDate(d) {
         if (!d) return '-';

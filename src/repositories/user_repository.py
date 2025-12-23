@@ -10,7 +10,7 @@ class UserRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT user_id, name, email, role FROM userr")
+            cursor.execute("SELECT user_id, name, email, type, role FROM userr")
             rows = cursor.fetchall()
             
             users = []
@@ -76,7 +76,7 @@ class UserRepository:
         try:
             query = """
             UPDATE userr 
-            SET name = %s, email = %s, role = %s 
+            SET name = %s, email = %s, role = %s
             WHERE user_id = %s
             """
             cursor.execute(query, (user.name, user.email, user.role, user.user_id))
