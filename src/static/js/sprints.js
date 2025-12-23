@@ -74,18 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sprintList.innerHTML = `<li class="error-message">Error loading sprints: ${error.message}</li>`;
         }
     }
-    async function runAIAdjustment(sprintId) {
-    const response = await fetch(`${API_BASE_URL}/${sprintId}/ai-adjust`, {
-        method: 'POST'
-    });
-    const result = await response.json();
-    
-    // Show the AI's "Reasoning" to the user
-    if (result.adjustment_made) {
-        alert("AI Action Taken: " + result.message);
-        loadSprints(); // Refresh UI to show new dates/task counts
-    }
-}
+
     function mapApiDataToUiModel(apiData) {
         const statusVal = apiData.status ? apiData.status.toLowerCase() : 'future';
         return {
