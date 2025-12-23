@@ -20,7 +20,8 @@ class UserRepository:
                     name=row['name'],
                     email=row['email'],
                     role=row['role'],
-                    password="",  
+                    password="", 
+                    type=row['type'], 
                     is_hashed=True  
                 )
                 users.append(user)
@@ -34,7 +35,7 @@ class UserRepository:
         # Added dictionary=True here so you can use Userr(**row)
         cursor = conn.cursor(dictionary=True) 
         try:
-            cursor.execute("SELECT user_id, name, email, role, password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
+            cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
             row = cursor.fetchone()
             return Userr(**row, is_hashed=True) if row else None
         finally:
@@ -45,7 +46,7 @@ class UserRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True) # Added dictionary=True
         try:
-            cursor.execute("SELECT user_id, name, email, role, password_hash AS password FROM userr WHERE email=%s", (email,))
+            cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE email=%s", (email,))
             row = cursor.fetchone()
             return Userr(**row, is_hashed=True) if row else None
         finally:
@@ -81,6 +82,22 @@ class UserRepository:
             cursor.execute(query, (user.name, user.email, user.role, user.user_id))
             conn.commit()  # CHANGED: use conn.commit(), not self.db.commit()
             return cursor.rowcount
+        finally:
+            cursor.close()
+            conn.close()
+    # In repositories/user_repository.py
+
+    # In repositories/user_repository.py
+
+    def update_password(self, email: str, new_password_hash: str) -> bool:
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor()
+        try:
+            # Note: 'userr' table as per your previous code
+            query = "UPDATE userr SET password_hash = %s WHERE email = %s"
+            cursor.execute(query, (new_password_hash, email))
+            conn.commit()
+            return cursor.rowcount > 0
         finally:
             cursor.close()
             conn.close()

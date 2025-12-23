@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     createProjectForm.reset();
 
                     // Reload page to show new project in selector
-                    if (window.location.pathname.includes('/boards/dashboard')) {
+                    if (window.location.pathname.includes('/dashboard')) {
                         window.location.reload();
                     }
                 } else {

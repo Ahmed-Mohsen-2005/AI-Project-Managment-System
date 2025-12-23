@@ -10,4 +10,4 @@ def sprints_page():
     project_repo = RepositoryFactory.get_repository("project")
     projects = project_repo.get_all()
     print(f"DEBUG: Found {len(projects)} projects") 
-    return render_template("board/sprints.html", projects=projects)
+    return render_template("sprints.html", projects=projects)

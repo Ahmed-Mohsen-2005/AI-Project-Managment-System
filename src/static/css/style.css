@@ -85,7 +85,53 @@ body {
     margin-bottom: 25px;
     padding: 5px;
 }
+/* Add this to your style.css */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+/* --- Reset Password Specific Styles --- */
 
+#reset-final-form {
+    margin-top: 20px;
+}
+
+#reset-final-form .form-group {
+    margin-bottom: 20px;
+}
+
+/* Success/Error Styling for the Final Step */
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+}
+
+/* Styling the hidden email field indicator (optional) */
+.user-email-display {
+    font-size: 13px;
+    color: var(--secondary-color);
+    text-align: center;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 4px;
+}
+/* Ensure the back arrow has a little space */
+.text-primary i {
+    margin-right: 5px;
+}
 .toggle-btn {
     flex-grow: 1;
     padding: 10px 15px;
@@ -283,4 +329,41 @@ body {
         flex-direction: column;
         gap: 10px;
     }
+}
+/* Reset Password Form Specifics */
+#reset-final-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-email-display {
+    background: rgba(0, 123, 255, 0.1);
+    border-left: 4px solid var(--primary-color);
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+.auth-container h1 {
+    margin-bottom: 10px;
+}
+
+/* Success Message Styling */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
