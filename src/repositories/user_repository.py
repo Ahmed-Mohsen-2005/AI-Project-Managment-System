@@ -20,6 +20,7 @@ class UserRepository:
                     name=row['name'],
                     email=row['email'],
                     role=row['role'],
+                    type=row['type'],
                     password="",  
                     is_hashed=True  
                 )
@@ -34,7 +35,7 @@ class UserRepository:
         # Added dictionary=True here so you can use Userr(**row)
         cursor = conn.cursor(dictionary=True) 
         try:
-            cursor.execute("SELECT user_id, name, email, role, password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
+            cursor.execute("SELECT user_id, name, email, role, type , password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
             row = cursor.fetchone()
             return Userr(**row, is_hashed=True) if row else None
         finally:
@@ -45,7 +46,7 @@ class UserRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True) # Added dictionary=True
         try:
-            cursor.execute("SELECT user_id, name, email, role, password_hash AS password FROM userr WHERE email=%s", (email,))
+            cursor.execute("SELECT user_id, name, email, role, type , password_hash AS password FROM userr WHERE email=%s", (email,))
             row = cursor.fetchone()
             return Userr(**row, is_hashed=True) if row else None
         finally:
@@ -75,7 +76,7 @@ class UserRepository:
         try:
             query = """
             UPDATE userr 
-            SET name = %s, email = %s, role = %s 
+            SET name = %s, email = %s, role = %s
             WHERE user_id = %s
             """
             cursor.execute(query, (user.name, user.email, user.role, user.user_id))

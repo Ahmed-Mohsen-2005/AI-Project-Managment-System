@@ -1,10 +1,11 @@
 import bcrypt
 class Userr:
-    def __init__(self, user_id, name, email, password, role="standard", is_hashed=False):
+    def __init__(self, user_id, name, email, password, type ,role = "Standard" ,is_hashed=False):
         self.user_id: int = user_id
         self.name: str = name
         self.email: str = email
         self.role: str = role
+        self.type: str = type
         
         # Store password securely
         if is_hashed:
