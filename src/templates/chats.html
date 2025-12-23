@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.chats }} - AIPMS{% endblock title %}
+{% block title %}Chats - AIPMS{% endblock title %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chats.css') }}">
@@ -19,24 +19,24 @@
         
         <!-- Column 1: Channel List / Contact List -->
         <aside class="chat-sidebar">
-            <h2 class="sidebar-title"><i class="fas fa-comments"></i> {{ t.channels }}</h2>
+            <h2 class="sidebar-title"><i class="fas fa-comments"></i> Channels</h2>
             <div class="search-channels">
-                <input type="text" placeholder="{{ t.search_chats }}">
+                <input type="text" placeholder="Search chats or users...">
             </div>
             <ul id="channel-list" class="channel-list">
                 <!-- Channels loaded by JS -->
                 <li class="channel-item active" data-channel-id="general">
-                    # {{ t.general }}
+                    # General
                     <span class="unread-count">3</span>
                 </li>
                 <li class="channel-item" data-channel-id="backend">
-                    # {{ t.backend_devs }}
+                    # Backend-Devs
                 </li>
                 <li class="channel-item" data-channel-id="frontend">
-                    # {{ t.frontend_ui }}
+                    # Frontend-UI
                 </li>
                 <li class="channel-item" data-channel-id="ai-team">
-                    # {{ t.ai_modeling }}
+                    # AI-Modeling
                     <span class="unread-count">1</span>
                 </li>
                 <li class="channel-item direct-message" data-channel-id="alice">
@@ -48,10 +48,10 @@
         <!-- Column 2: Main Chat Window -->
         <main class="chat-main">
             <header class="chat-header">
-                <h2 id="current-channel-name"># {{ t.general }}</h2>
+                <h2 id="current-channel-name"># General</h2>
                 <div class="chat-actions">
-                    <button title="{{ t.invite_member }}"><i class="fas fa-user-plus"></i></button>
-                    <button title="{{ t.view_details }}"><i class="fas fa-info-circle"></i></button>
+                    <button title="Invite Member"><i class="fas fa-user-plus"></i></button>
+                    <button title="View Details"><i class="fas fa-info-circle"></i></button>
                 </div>
             </header>
             
@@ -60,28 +60,28 @@
             </div>
             
             <footer class="chat-input-area">
-                <input type="text" id="message-input" placeholder="{{ t.type_message }}">
+                <input type="text" id="message-input" placeholder="Type a message or use /command...">
                 <button id="send-btn" class="btn btn-primary btn-styled"><i class="fas fa-paper-plane"></i></button>
             </footer>
         </main>
         
         <!-- Column 3: Context and AI Sentiment Panel -->
         <aside class="chat-context-panel">
-            <h2 class="sidebar-title"><i class="fas fa-microchip"></i> {{ t.ai_context }}</h2>
+            <h2 class="sidebar-title"><i class="fas fa-microchip"></i> AI Context</h2>
             
             <!-- Team Stress Index (FR-503) -->
             <div class="context-widget stress-widget">
-                <h3 class="widget-subtitle">{{ t.channel_sentiment }}</h3>
+                <h3 class="widget-subtitle">Channel Sentiment</h3>
                 <p class="stress-score-value" id="sentiment-score">0.45</p>
-                <p class="stress-status" id="sentiment-status">{{ t.neutral_low_stress }}</p>
-                <p class="stress-detail">{{ t.avg_mood_score }}</p>
+                <p class="stress-status" id="sentiment-status">Neutral/Low Stress</p>
+                <p class="stress-detail">Avg. mood score over last 24h.</p>
             </div>
             
             <!-- Linked Tasks/Work Items -->
             <div class="context-widget linked-tasks-widget">
-                <h3 class="widget-subtitle">{{ t.linked_work_items }}</h3>
+                <h3 class="widget-subtitle">Linked Work Items</h3>
                 <ul id="linked-task-list">
-                    <li><a href="/tasks/101">WI-101: Auth API Fix</a> <span class="task-status status-active">{{ t.active }}</span></li>
+                    <li><a href="/tasks/101">WI-101: Auth API Fix</a> <span class="task-status status-active">Active</span></li>
                     <li><a href="/tasks/204">Bug-204: Report Timeout</a> <span class="task-status status-danger">P1</span></li>
                 </ul>
             </div>

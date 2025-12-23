@@ -20,29 +20,29 @@
     <div class="repo-header-controls">
         <div class="search-input-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="search" id="repo-search" placeholder="{{ t.search_repositories }}">
+            <input type="search" id="repo-search" placeholder="Search repositories...">
         </div>
-        <button id="add-new-repo-btn" class="btn btn-primary"><i class="fas fa-plus"></i> {{ t.new_repository }}</button>
+        <button id="add-new-repo-btn" class="btn btn-primary"><i class="fas fa-plus"></i> New Repository</button>
     </div>
 
     <div class="repositories-layout-grid">
         
         <!-- Left Column: List of Connected Repositories -->
         <div class="card repo-list-card">
-            <h2 class="widget-title">{{ t.connected_repositories }}</h2>
+            <h2 class="widget-title">Connected Repositories</h2>
             <div class="repo-table-container">
                 <table id="repo-table">
                     <thead>
                         <tr>
-                            <th>{{ t.name }}</th>
-                            <th>{{ t.last_updated }}</th>
-                            <th>{{ t.owner }}</th>
-                            <th>{{ t.status }}</th>
+                            <th>Name</th>
+                            <th>Last Updated</th>
+                            <th>Owner</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Repo data will be loaded here by JavaScript -->
-                        <tr><td colspan="4" class="loading-message">{{ t.loading_repositories }}</td></tr>
+                        <tr><td colspan="4" class="loading-message">Loading repositories...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -51,33 +51,33 @@
         <!-- Right Column: Integration Status and Configuration -->
         <div class="integration-status-card">
             <div class="card github-integration">
-                <h2 class="widget-title"><i class="fab fa-github"></i> {{ t.github_integration }}</h2>
+                <h2 class="widget-title"><i class="fab fa-github"></i> GitHub Integration</h2>
                 <div id="github-status" class="status-indicator disconnected">
-                    <span class="status-dot"></span> <span class="status-text">{{ t.status }}: {{ t.disconnected }}</span>
+                    <span class="status-dot"></span> <span class="status-text">Status: Disconnected</span>
                 </div>
                 
                 <button id="connect-github-btn" class="btn btn-github">
-                    <i class="fas fa-plug"></i> {{ t.connect_github }}
+                    <i class="fas fa-plug"></i> Connect to GitHub
                 </button>
 
                 <div id="github-config" class="config-settings hidden">
-                    <p class="config-label">{{ t.webhook_url }}</p>
+                    <p class="config-label">Webhook URL:</p>
                     <input type="text" value="https://aipms.com/v1/webhook/github" readonly>
-                    <button class="btn btn-secondary btn-sm copy-btn"><i class="fas fa-copy"></i> {{ t.copy }}</button>
+                    <button class="btn btn-secondary btn-sm copy-btn"><i class="fas fa-copy"></i> Copy</button>
                     
-                    <h3 class="config-subtitle">{{ t.default_notifications }}</h3>
+                    <h3 class="config-subtitle">Default Notifications:</h3>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" checked> {{ t.send_new_pr }}</label>
-                        <label><input type="checkbox"> {{ t.send_merge_main }}</label>
-                        <label><input type="checkbox"> {{ t.notify_ci_failure }}</label>
+                        <label><input type="checkbox" checked> Send on New PR</label>
+                        <label><input type="checkbox"> Send on Merge to main</label>
+                        <label><input type="checkbox"> Notify on CI failure</label>
                     </div>
                 </div>
             </div>
             
             <!-- Integration Status Placeholder for Slack/Other services -->
             <div class="card slack-integration-status">
-                <h2 class="widget-title"><i class="fab fa-slack"></i> {{ t.slack_integration }}</h2>
-                <p>{{ t.manage_slack }} <a href="/settings">{{ t.settings }}</a>.</p>
+                <h2 class="widget-title"><i class="fab fa-slack"></i> Slack Integration</h2>
+                <p>Manage Slack notifications in <a href="/settings">Settings</a>.</p>
             </div>
         </div>
     </div>

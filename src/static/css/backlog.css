@@ -105,9 +105,10 @@
     margin-right: 8px;
     display: inline-block;
 }
-.type-Epic { background-color: #9b59b6; }
-.type-Feature { background-color: #3498db; }
-.type-Bug { background-color: #e74c3c; }
+.status-TODO { background-color: #c42098; }
+.status-IN_PROGRESS { background-color: #3498db; }
+.status-IN_REVIEW { background-color: #f39c12; }
+.status-DONE { background-color: #27ae60; }
 
 /* AI Priority Score */
 .priority-score-box {

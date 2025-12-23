@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.profile }} - AIPMS{% endblock title %}
+{% block title %}Profile - AIPMS{% endblock title %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="profile-actions">
-                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> {{ t.edit_profile }}</button>
+                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Profile</button>
             </div>
         </div>
 
@@ -36,31 +36,31 @@
             
             <!-- Column 1: AI Performance Metrics & Stats -->
             <div class="card stats-widget">
-                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> {{ t.performance_summary }}</h2>
+                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> Performance Summary (AI)</h2>
                 <div class="stats-grid">
                     
                     <div class="stat-item">
                         <p class="stat-value text-primary" id="user-velocity">100%</p>
-                        <p class="stat-label">{{ t.avg_sprint_velocity }}</p>
+                        <p class="stat-label">Avg. Sprint Velocity</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-warning" id="task-rejection">5%</p>
-                        <p class="stat-label">{{ t.task_rejection_rate }}</p>
+                        <p class="stat-label">Task Rejection Rate</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-danger" id="risk-exposure">22%</p>
-                        <p class="stat-label">{{ t.ai_risk_exposure }}</p>
+                        <p class="stat-label">AI Risk Exposure</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-success" id="tasks-completed">85</p>
-                        <p class="stat-label">{{ t.tasks_completed }}</p>
+                        <p class="stat-label">Tasks Completed (YTD)</p>
                     </div>
                 </div>
             </div>
 
             <!-- Column 2: Skill Management (FR-301) -->
             <div class="card skills-widget">
-                <h2 class="widget-title"><i class="fas fa-tools"></i> {{ t.skill_set_management }}</h2>
+                <h2 class="widget-title"><i class="fas fa-tools"></i> Skill Set Management</h2>
                 <div id="skills-list" class="skills-list">
                     <!-- Skills will be loaded and displayed here -->
                 </div>
@@ -68,17 +68,17 @@
                 <div class="skill-input-group">
                     <input type="text" id="new-skill-input" placeholder="e.g., Python, SQL Server, Vue.js">
                     <select id="skill-level-select">
-                        <option value="3">{{ t.expert }}</option>
-                        <option value="2">{{ t.proficient }}</option>
-                        <option value="1">{{ t.familiar }}</option>
+                        <option value="3">Expert</option>
+                        <option value="2">Proficient</option>
+                        <option value="1">Familiar</option>
                     </select>
-                    <button id="add-skill-btn" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> {{ t.add_skill }}</button>
+                    <button id="add-skill-btn" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add</button>
                 </div>
             </div>
 
             <!-- Column 3: Recent Activity Log -->
             <div class="card activity-widget full-span">
-                <h2 class="widget-title"><i class="fas fa-history"></i> {{ t.recent_activity_log }}</h2>
+                <h2 class="widget-title"><i class="fas fa-history"></i> Recent Activity Log</h2>
                 <ul id="activity-log" class="activity-log scrollable-list">
                     <!-- Activity entries loaded by JS -->
                 </ul>

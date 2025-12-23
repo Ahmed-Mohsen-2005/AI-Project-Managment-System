@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rbacSaveBtn = document.getElementById('save-rbac-btn');
     const updateProfileBtn = document.getElementById('update-profile-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
-    const languageSelect = document.getElementById('language-select');
     
     // --- INITIALIZATION ---
     loadCurrentUserProfile();
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     rbacSaveBtn.addEventListener('click', saveRBACPermissions);
     updateProfileBtn.addEventListener('click', redirectToProfile);
     deleteAccountBtn.addEventListener('click', confirmAccountDeletion);
-    languageSelect.addEventListener('change', handleLanguageChange);
 
 
     // --- 1. TAB SWITCHING LOGIC ---
@@ -124,35 +122,5 @@ document.addEventListener('DOMContentLoaded', () => {
             // API call to /api/v1/integration/{type}/disconnect
         });
     });
-
-    // --- 5. LANGUAGE CHANGE HANDLER ---
-    function handleLanguageChange(e) {
-        const selectedLanguage = e.target.value;
-        console.log(`[LANGUAGE] Changing language to: ${selectedLanguage}`);
-        
-        // Send language preference to server
-        fetch('/api/v1/settings/language', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ language: selectedLanguage })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log(`[LANGUAGE] Language changed to ${selectedLanguage}`);
-                // Reload page to apply translations
-                window.location.reload();
-            } else {
-                console.error('[LANGUAGE] Error changing language:', data.error);
-                alert('Failed to change language: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('[LANGUAGE] Error:', error);
-            alert('Error changing language');
-        });
-    }
 
 });

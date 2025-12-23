@@ -19,12 +19,12 @@
         
         <!-- Board Header and Controls -->
         <header class="board-header">
-            <h1 class="page-title"><i class="fas fa-columns"></i> {{ t.kanban_board }}</h1>
+            <h1 class="page-title"><i class="fas fa-columns"></i> Kanban Board</h1>
             <div class="board-controls">
                 
                 <!-- Project Selection Dropdown -->
                 <div class="control-group">
-                    <label for="project-filter">{{ t.project }}:</label>
+                    <label for="project-filter">Project:</label>
                     <select id="project-filter" class="filter-select">
                         <option value="all">View All Projects</option>
                         {% for project in projects %}
@@ -35,7 +35,7 @@
                 
 
                 
-                <button id="quick-add-task-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> {{ t.add_task }}</button>
+                <button id="quick-add-task-btn" class="btn btn-primary btn-styled"><i class="fas fa-plus"></i> Add Task</button>
             </div>
         </header>
 
@@ -44,7 +44,7 @@
             
             <!-- Column 1: To Do -->
             <div class="kanban-column" id="column-todo" data-status="To Do">
-                <h2 class="column-title">{{ t.to_do }} <span class="task-count">(0)</span></h2>
+                <h2 class="column-title">To Do <span class="task-count">(0)</span></h2>
                 <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
                     <!-- Tasks will be inserted here by JavaScript -->
                 </div>
@@ -52,7 +52,7 @@
 
             <!-- Column 2: In Progress -->
             <div class="kanban-column" id="column-in-progress" data-status="In Progress">
-                <h2 class="column-title">{{ t.in_progress }} <span class="task-count">(0)</span></h2>
+                <h2 class="column-title">In Progress <span class="task-count">(0)</span></h2>
                 <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
                     <!-- Tasks will be inserted here by JavaScript -->
                 </div>
@@ -60,7 +60,7 @@
 
             <!-- Column 3: Under Review -->
             <div class="kanban-column" id="column-review" data-status="Under Review">
-                <h2 class="column-title">{{ t.under_review }} <span class="task-count">(0)</span></h2>
+                <h2 class="column-title">Under Review <span class="task-count">(0)</span></h2>
                 <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
                     <!-- Tasks will be inserted here by JavaScript -->
                 </div>
@@ -68,7 +68,7 @@
             
             <!-- Column 4: Done -->
             <div class="kanban-column" id="column-done" data-status="Done">
-                <h2 class="column-title">{{ t.done }} <span class="task-count">(0)</span></h2>
+                <h2 class="column-title">Done <span class="task-count">(0)</span></h2>
                 <div class="task-list" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
                     <!-- Tasks will be inserted here by JavaScript -->
                 </div>
@@ -81,39 +81,39 @@
     <div id="quick-add-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> {{ t.quick_create_task }}</h2>
+            <h2 class="modal-title"><i class="fas fa-plus-circle"></i> Quick Create Task</h2>
             <form id="quick-add-form">
                 <div class="form-group">
-                    <label for="task-title-input">{{ t.title }} <span class="required">*</span></label>
-                    <input type="text" id="task-title-input" required placeholder="{{ t.task_title_placeholder }}">
+                    <label for="task-title-input">Title <span class="required">*</span></label>
+                    <input type="text" id="task-title-input" required placeholder="e.g., Implement user authentication">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="task-priority">{{ t.priority }} <span class="required">*</span></label>
+                        <label for="task-priority">Priority <span class="required">*</span></label>
                         <select id="task-priority" required>
-                            <option value="Medium">{{ t.medium }}</option>
-                            <option value="High">{{ t.high }}</option>
-                            <option value="Low">{{ t.low }}</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Low">Low</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="task-status">{{ t.status }} <span class="required">*</span></label>
+                        <label for="task-status">Status <span class="required">*</span></label>
                         <select id="task-status" required>
-                            <option value="To Do">{{ t.to_do }}</option>
-                            <option value="In Progress">{{ t.in_progress }}</option>
-                            <option value="Under Review">{{ t.under_review }}</option>
-                            <option value="Done">{{ t.done }}</option>
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Under Review">Under Review</option>
+                            <option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="task-assignee">{{ t.assignee }} <span class="required">*</span></label>
+                        <label for="task-assignee">Assignee <span class="required">*</span></label>
                         <select id="task-assignee" required>
-                            <option value="You">{{ t.you }} ({{ t.project_lead }})</option>
+                            <option value="You">You (Project Lead)</option>
                             <option value="Alice J.">Alice J.</option>
                             <option value="Bob S.">Bob S.</option>
                             <option value="Charlie W.">Charlie W.</option>
@@ -121,17 +121,17 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="task-estimate">{{ t.estimate_hours }} <span class="required">*</span></label>
+                        <label for="task-estimate">Estimate (hours) <span class="required">*</span></label>
                         <input type="number" id="task-estimate" required min="0.5" step="0.5" placeholder="e.g., 8">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="task-due">{{ t.due_date }} <span class="required">*</span></label>
+                    <label for="task-due">Due Date <span class="required">*</span></label>
                     <input type="date" id="task-due" required>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-magic"></i> {{ t.create_task }}</button>
+                <button type="submit" class="btn btn-primary btn-styled full-width-btn"><i class="fas fa-magic"></i> Create Task</button>
             </form>
         </div>
     </div>

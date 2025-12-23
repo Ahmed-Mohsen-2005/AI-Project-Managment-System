@@ -83,3 +83,10 @@ def update_sprint_status(sprint_id):
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@sprint_bp.route("", methods=["GET"])
+def get_all_sprints():
+    sprint_repo = RepositoryFactory.get_repository("sprint")
+    sprints = sprint_repo.get_all()
+    return jsonify([s.to_dict() for s in sprints]), 200

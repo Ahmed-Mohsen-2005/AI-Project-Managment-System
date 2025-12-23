@@ -15,45 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const errorMessage = document.getElementById('auth-error');
-    const loginLanguageSelect = document.getElementById('login-language-select');
-
-    // --- Language Switcher (Login Page) ---
-    if (loginLanguageSelect) {
-        loginLanguageSelect.addEventListener('change', handleLanguageChange);
-    }
-    
-    function handleLanguageChange(e) {
-        const selectedLanguage = e.target.value;
-        console.log(`[LANGUAGE] Changing language to: ${selectedLanguage}`);
-        
-        // Send language preference to server
-        fetch('/api/v1/settings/language', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ language: selectedLanguage })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log(`[LANGUAGE] Language changed to ${selectedLanguage}`);
-                // Reload page to apply translations
-                window.location.reload();
-            } else {
-                console.error('[LANGUAGE] Error changing language:', data.error);
-                alert('Failed to change language: ' + data.error);
-                // Reset select to previous value on error
-                e.target.value = e.target.defaultValue;
-            }
-        })
-        .catch(error => {
-            console.error('[LANGUAGE] Error:', error);
-            alert('Error changing language');
-            // Reset select to previous value on error
-            e.target.value = e.target.defaultValue;
-        });
-    }
 
     // --- Core Functions ---
 

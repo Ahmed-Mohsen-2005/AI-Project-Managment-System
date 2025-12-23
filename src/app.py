@@ -1,4 +1,4 @@
-from flask import Flask, g, session, jsonify, request
+from flask import Flask
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
 from controllers.task_controller import task_bp
@@ -10,6 +10,8 @@ from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.admin_controller import admin_bp
 from controllers.auth_controller import auth_bp
+from controllers.home_controller import home_bp
+from controllers.documentation_controller import documentation_bp
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
@@ -26,6 +28,7 @@ app.url_map.strict_slashes = False
 app.secret_key = SECRET_KEY  # Add this line - needed for session to work!
 
 from repositories.repository_factory import RepositoryFactory
+app = Flask(__name__)   
 db = get_db() 
 print("Project Sentinel Application and SQL Server connection pool initialized.")
 mail.init_app(app)
@@ -53,43 +56,14 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(home_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(note_bp)  
+app.register_blueprint(documentation_bp)
+
 # In your main controller or app.py where the page is served
 
-# ✅ LANGUAGE SETUP - Runs before every request
-@app.before_request
-def before_request():
-    """Set up language for each request"""
-    g.current_lang = get_locale()
-    g.t = get_t()
-
-# ✅ Make language variables available to ALL templates
-@app.context_processor
-def inject_globals():
-    """Make variables available to all templates"""
-    return {
-        'current_lang': g.current_lang,
-        't': g.t
-    }
-
-# ✅ API ENDPOINT - Language change
-@app.route('/api/v1/settings/language', methods=['POST'])
-def change_language():
-    data = request.get_json()
-    lang = data.get('language', 'en')
-    
-    # Validate language
-    if lang not in ['en', 'ar']:
-        return jsonify({'error': 'Invalid language'}), 400
-    
-    # Store in session
-    session['language'] = lang
-    
-    return jsonify({'success': True, 'language': lang}), 200
-
-# Your existing routes
 @app.route("/")
 def root():
     return render_template("index.html")
@@ -140,9 +114,8 @@ def chats():
 
 @app.route("/reports")
 def reports():
-    project_repo = RepositoryFactory.get_repository("project")    
-    all_projects = project_repo.get_all()    
-    return render_template("reports.html", projects=all_projects)
+    return render_template("reports.html")
+
 @app.route("/settings")
 def settings():
     # Get current user from session (set by before_request hook)
