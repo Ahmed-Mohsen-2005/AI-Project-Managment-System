@@ -42,9 +42,9 @@
                 <label>
                     <input type="checkbox"> {{ t.remember_me }}
                 </label>
-                <a href="#" class="text-primary">{{ t.forgot_password }}</a>
+                <a href="{{ url_for('forgot_password') }}" class="text-primary">{{ t.forgotpassword }}</a>
             </div>
-            
+
             <button type="submit" class="btn-submit">{{ t.secure_login }}</button>    
         </form>
 
