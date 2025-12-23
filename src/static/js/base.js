@@ -101,85 +101,110 @@ document.addEventListener('DOMContentLoaded', () => {
         // Final action: Confirm logout
         confirmLogoutBtn.addEventListener('click', () => {
             console.log("[LOGOUT] User confirmed logout. Executing session termination...");
-            window.location.href = '/'; 
+            // Clear user session from localStorage
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
         });
     }
 
-    const projectModal = document.getElementById('create-project-modal');
-    const closeProjectBtn = document.getElementById('close-project-modal');
-    const cancelProjectBtn = document.getElementById('cancel-project-btn');
-    const projectForm = document.getElementById('create-project-form');
-    const addNewBtn = document.getElementById('add-new-btn');
+    // --- 4. Update Header Avatar with User Info ---
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const headerAvatar = document.querySelector('.user-profile-link .profile-avatar');
 
-    // Open Modal logic
+    if (currentUser && currentUser.name && headerAvatar) {
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        headerAvatar.src = `https://placehold.co/36x36/3498db/FFFFFF?text=${initials}`;
+        headerAvatar.alt = currentUser.name;
+    }
+
+    // --- 5. Global Action Handlers ---
+
+    // Project Creation Modal Elements
+    const addNewBtn = document.getElementById('add-new-btn');
+    const projectModal = document.getElementById('create-project-modal');
+    const closeProjectModalBtn = document.getElementById('close-project-modal');
+    const cancelProjectBtn = document.getElementById('cancel-project-btn');
+    const createProjectForm = document.getElementById('create-project-form');
+
+    // Open Project Modal
     if (addNewBtn && projectModal) {
         addNewBtn.addEventListener('click', () => {
             projectModal.classList.remove('hidden');
             projectModal.style.display = 'flex';
+            // Set default start date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('proj-start').value = today;
         });
     }
 
-    // Close Modal Logic
-    function closeProjectModal() {
-        if (projectModal) {
+    // Close Project Modal
+    if (closeProjectModalBtn && projectModal) {
+        closeProjectModalBtn.addEventListener('click', () => {
             projectModal.classList.add('hidden');
             projectModal.style.display = 'none';
-            projectForm.reset();
-        }
+        });
     }
 
-    if (closeProjectBtn) closeProjectBtn.addEventListener('click', closeProjectModal);
-    if (cancelProjectBtn) cancelProjectBtn.addEventListener('click', closeProjectModal);
-    
-    // Close if clicking outside
-    window.addEventListener('click', (e) => {
-        if (e.target === projectModal) closeProjectModal();
-    });
+    if (cancelProjectBtn && projectModal) {
+        cancelProjectBtn.addEventListener('click', () => {
+            projectModal.classList.add('hidden');
+            projectModal.style.display = 'none';
+        });
+    }
 
+    // Close on outside click
+    if (projectModal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === projectModal) {
+                projectModal.classList.add('hidden');
+                projectModal.style.display = 'none';
+            }
+        });
+    }
 
-    // Handle Form Submission
-    if (projectForm) {
-        projectForm.addEventListener('submit', async (e) => {
+    // Handle Project Form Submission
+    if (createProjectForm) {
+        createProjectForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Gather Data
             const formData = {
                 name: document.getElementById('proj-name').value,
                 description: document.getElementById('proj-desc').value,
                 start_date: document.getElementById('proj-start').value,
-                end_date: document.getElementById('proj-end').value,
-                budget: document.getElementById('proj-budget').value
+                end_date: document.getElementById('proj-end').value || null,
+                budget: parseFloat(document.getElementById('proj-budget').value) || 0
             };
 
             try {
                 const response = await fetch('/api/v1/projects/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(formData)
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert('Project Created Successfully!');
-                    closeProjectModal();
-                    // Optional: Refresh page or update a project list if one exists on the current page
-                    if (typeof loadProjects === "function") { loadProjects(); } 
+                    alert('Project created successfully!');
+                    projectModal.classList.add('hidden');
+                    projectModal.style.display = 'none';
+                    createProjectForm.reset();
+
+                    // Reload page to show new project in selector
+                    if (window.location.pathname.includes('/dashboard')) {
+                        window.location.reload();
+                    }
                 } else {
-                    alert('Error: ' + (result.error || 'Unknown error'));
+                    alert(result.error || 'Failed to create project');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to connect to server');
+                console.error('Error creating project:', error);
+                alert('Failed to create project. Please try again.');
             }
         });
     }
-    // --- 4. Global Action Handlers ---
-    
-    // Quick Add Button
-    document.getElementById('add-new-btn').addEventListener('click', () => {
-        console.log("Global 'Add New' clicked. Opening universal creation modal...");
-    });
 
     // Global Search Utility (Ctrl+K)
     document.addEventListener('keydown', (e) => {

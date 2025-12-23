@@ -6,6 +6,8 @@ from repositories.project_repository import ProjectRepository
 from repositories.report_repository import ReportRepository
 from repositories.sprint_repository import SprintRepository
 from repositories.task_repository import TaskRepository
+from repositories.user_skill_repository import UserSkillRepository
+from repositories.user_activity_repository import UserActivityRepository
 
 
 class RepositoryFactory:
@@ -29,5 +31,9 @@ class RepositoryFactory:
             return SprintRepository()
         elif entity_type == "task":
             return TaskRepository()
+        elif entity_type == "user_skill":
+            return UserSkillRepository()
+        elif entity_type == "user_activity":
+            return UserActivityRepository()
         else:
             raise ValueError(f"Unknown repository type: {entity_type}")
