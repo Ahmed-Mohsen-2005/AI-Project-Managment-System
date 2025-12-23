@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const reportTypeSelect = document.getElementById('report-type-select');
-    const projectFilter = document.getElementById('project-filter');
+    const sprintFilter = document.getElementById('sprint-filter');
     const generateBtn = document.getElementById('generate-report-btn');
     
     // Output areas
@@ -9,86 +9,244 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryOutput = document.getElementById('ai-summary-output');
     const analysisDetails = document.getElementById('analysis-details-list');
 
-    // --- INITIALIZATION ---
+    // API URLs
+    const SPRINT_API_URL = '/api/v1/sprints';
+    const DOCUMENTATION_API_URL = '/api/v1/documentation';
+
+    // Initialize
+    loadSprints();
     reportTypeSelect.addEventListener('change', updateUILayout);
     generateBtn.addEventListener('click', handleGenerateReport);
     
     // Set initial view state
     updateUILayout(); 
 
-    // --- MOCK DATA STRUCTURES ---
-    const MOCK_DATA = {
-        'summary': { 
-            title: "Executive Summary (AI Generated)",
-            chart: "Project Risk/Health Score Over Time",
-            ai_text: `AI generated synthesis:\n\n- The project health score is currently 78/100, down 5 points this sprint due to resource contention.\n- Key finding (FR-401): The deployment pipeline task (WI-105) consumed 150% of the estimated time, primarily due to scope creep.\n- Recommendation: Prioritize resource allocation (FR-301) for the next sprint to mitigate a 12% budget overrun forecast.`,
-            details: [{ label: 'Health Score', value: '78/100' }, { label: 'Scope Drift', value: '15%' }]
-        },
-        'velocity': {
-            title: "Sprint Velocity History",
-            chart: "Completed Points vs. Target Line",
-            ai_text: "Historical velocity analysis confirms the team is highly consistent, averaging 95% completion over the last 3 sprints. The current trend suggests the active sprint will complete 5% ahead of schedule.",
-            details: [{ label: 'Average Velocity', value: '95 points/sprint' }, { label: 'Worst Sprint (S3)', value: '75 points' }]
-        },
-        'rca': {
-            title: "Root Cause Analysis (RCA) - Sprint 3",
-            chart: "Blocker Timeline",
-            ai_text: "RCA (FR-402) found that 60% of the Sprint 3 delay was traced back to 'Unclear Requirements' from the Product Owner (measured by task rejections and high comment volume). Corrective action: Implement mandatory requirement sign-off checklist.",
-            details: [{ label: 'Primary Cause', value: 'Unclear Requirements (60%)' }, { label: 'Secondary Cause', value: 'External API Delay (20%)' }]
+    // ============================================
+    // SIMPLE MARKDOWN PARSER
+    // ============================================
+    function simpleMarkdown(text) {
+        let lines = text.split('\n');
+        let html = '';
+        let inList = false;
+        let inTable = false;
+        let tableRows = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            
+            // Check for table
+            if (line.includes('|')) {
+                if (!inTable) {
+                    inTable = true;
+                    tableRows = [];
+                }
+                tableRows.push(line);
+                continue;
+            } else if (inTable) {
+                // End of table
+                html += parseTable(tableRows);
+                inTable = false;
+                tableRows = [];
+                // Fall through to process current line
+            }
+            
+            if (line.startsWith('# ')) {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += '<h1>' + line.substring(2) + '</h1>';
+            } else if (line.startsWith('## ')) {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += '<h2>' + line.substring(3) + '</h2>';
+            } else if (line.startsWith('### ')) {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += '<h3>' + line.substring(4) + '</h3>';
+            } else if (line.match(/^\* |^- |\d+\. /)) {
+                if (!inList) { html += '<ul>'; inList = true; }
+                html += '<li>' + line.replace(/^\* |^- |\d+\. /, '') + '</li>';
+            } else if (line === '') {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += '<br>';
+            } else {
+                if (inList) { html += '</ul>'; inList = false; }
+                html += '<p>' + line + '</p>';
+            }
         }
-    };
+        
+        if (inList) html += '</ul>';
+        if (inTable) html += parseTable(tableRows);
+        
+        // Bold and italic
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        return html;
+    }
     
+    function parseTable(rows) {
+        if (rows.length < 2) return '';
+        
+        let html = '<table border="1" style="border-collapse: collapse; width: 100%;">';
+        
+        // First row is header
+        let headerCells = rows[0].split('|').slice(1, -1).map(cell => cell.trim());
+        html += '<thead><tr>';
+        headerCells.forEach(cell => {
+            html += '<th style="padding: 8px; text-align: left; background-color: #f2f2f2;">' + cell + '</th>';
+        });
+        html += '</tr></thead>';
+        
+        // Check if second row is separator
+        if (rows.length > 1 && rows[1].includes('---')) {
+            // Data rows start from index 2
+            html += '<tbody>';
+            for (let i = 2; i < rows.length; i++) {
+                let cells = rows[i].split('|').slice(1, -1).map(cell => cell.trim());
+                html += '<tr>';
+                cells.forEach(cell => {
+                    html += '<td style="padding: 8px;">' + cell + '</td>';
+                });
+                html += '</tr>';
+            }
+            html += '</tbody>';
+        } else {
+            // No separator, treat all as data
+            html += '<tbody>';
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].split('|').slice(1, -1).map(cell => cell.trim());
+                html += '<tr>';
+                cells.forEach(cell => {
+                    html += '<td style="padding: 8px;">' + cell + '</td>';
+                });
+                html += '</tr>';
+            }
+            html += '</tbody>';
+        }
+        
+        html += '</table>';
+        return html;
+    }
+
+    // ============================================
+    // LOAD SPRINTS
+    // ============================================
+    async function loadSprints() {
+        try {
+            const res = await fetch(SPRINT_API_URL);
+            if (!res.ok) throw new Error('Failed to fetch sprints');
+            
+            const sprints = await res.json();
+            sprintFilter.innerHTML = '<option value="">Select Sprint</option>';
+            
+            sprints.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.sprint_id;
+                opt.textContent = s.name;
+                sprintFilter.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('[ERROR] Load sprints failed:', err);
+        }
+    }
     // --- UI/STATE CONTROL ---
     function updateUILayout() {
         const reportType = reportTypeSelect.value;
-        const data = MOCK_DATA[reportType];
+        
+        const titles = {
+            'summary': "Executive Summary (AI Generated)",
+            'velocity': "Sprint Velocity History",
+            'risk': "Predictive Risk Forecast",
+            'rca': "Root Cause Analysis (RCA)"
+        };
+        
+        const chartTitles = {
+            'summary': "Project Risk/Health Score Over Time",
+            'velocity': "Completed Points vs. Target Line",
+            'risk': "Risk Probability Over Time",
+            'rca': "Blocker Timeline"
+        };
 
         // Update titles
-        reportOutputTitle.textContent = data.title;
-        chartTitle.textContent = data.chart;
+        reportOutputTitle.textContent = titles[reportType] || "Report";
+        chartTitle.textContent = chartTitles[reportType] || "Chart";
         
         // Clear previous content
-        summaryOutput.innerHTML = '';
+        summaryOutput.innerHTML = '<p class="loading-message">Select a sprint and click Generate Report to view AI-generated analysis.</p>';
         analysisDetails.innerHTML = '';
         
-        // Update Chart Placeholder (Simulated)
+        // Update Chart Placeholder
         const chartArea = document.getElementById('chart-visualization');
-        chartArea.innerHTML = `<img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=${data.chart.replace(/\s/g, '+')}" alt="Chart Placeholder">`;
+        chartArea.innerHTML = `<img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=${(chartTitles[reportType] || 'Chart').replace(/\s/g, '+')}" alt="Chart Placeholder">`;
     }
 
-    // --- GENERATE REPORT (API Simulation) ---
+    // --- GENERATE REPORT ---
     async function handleGenerateReport() {
         const reportType = reportTypeSelect.value;
-        const projectId = projectFilter.value;
-        const data = MOCK_DATA[reportType];
+        const sprintId = sprintFilter.value;
+        
+        if (!sprintId) {
+            alert('Please select a sprint');
+            return;
+        }
 
         // Show Loading State
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
         summaryOutput.innerHTML = '<p class="loading-message">Querying AI Services and historical data...</p>';
 
-        console.log(`[REPORT] Generating ${reportType} report for Project ${projectId}...`);
+        console.log(`[REPORT] Generating ${reportType} report for Sprint ${sprintId}...`);
 
-        // --- REAL API CALL Placeholder (POST /api/v1/reports/generate) ---
-        await new Promise(resolve => setTimeout(resolve, 2000)); 
+        try {
+            // Fetch sprint data
+            const docRes = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}`);
+            if (!docRes.ok) throw new Error('Failed to fetch sprint data');
+            const docData = await docRes.json();
 
-        // --- Render Results ---
-        
-        // 1. Render Summary Output
-        summaryOutput.innerHTML = data.ai_text.replace(/(\b[A-Z][A-Z0-9]+-\d+\b)/g, '<strong class="highlight">$&</strong>'); // Highlight WI/FR IDs
+            // Define prompts based on report type
+            const prompts = {
+                'summary': docData.ai_summary_prompt || "Generate an executive summary for this sprint including key accomplishments, metrics, and recommendations.",
+                'velocity': "Analyze the sprint velocity history and provide insights on team performance trends.",
+                'risk': "Perform a predictive risk analysis for this sprint and identify potential issues.",
+                'rca': "Conduct a root cause analysis for any issues or delays in this sprint."
+            };
 
-        // 2. Render Analysis Details List
-        data.details.forEach(detail => {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${detail.label}</strong> <span>${detail.value}</span>`;
-            analysisDetails.appendChild(li);
-        });
+            // Generate AI report
+            const aiRes = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}/ai-summary`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompts[reportType] })
+            });
+
+            if (!aiRes.ok) throw new Error('AI generation failed');
+            const aiData = await aiRes.json();
+
+            // Render Results
+            let summaryHtml = simpleMarkdown(aiData.summary);
+            summaryOutput.innerHTML = summaryHtml;
+
+            // Render Analysis Details
+            analysisDetails.innerHTML = '';
+            const details = [
+                { label: 'Sprint', value: docData.sprint_info.name },
+                { label: 'Completion Rate', value: `${docData.metrics.completion_rate}%` },
+                { label: 'Completed Tasks', value: docData.metrics.completed_tasks },
+                { label: 'Blocked Tasks', value: docData.metrics.blocked_tasks }
+            ];
+            
+            details.forEach(detail => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${detail.label}</strong> <span>${detail.value}</span>`;
+                analysisDetails.appendChild(li);
+            });
+
+        } catch (err) {
+            console.error('[ERROR] Report generation failed:', err);
+            summaryOutput.innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
+        }
 
         // Final state
         generateBtn.disabled = false;
         generateBtn.innerHTML = '<i class="fas fa-microchip"></i> Report Complete';
         setTimeout(() => {
-             generateBtn.innerHTML = '<i class="fas fa-microchip"></i> Generate Report';
+            generateBtn.innerHTML = '<i class="fas fa-microchip"></i> Generate Report';
         }, 3000);
     }
 });

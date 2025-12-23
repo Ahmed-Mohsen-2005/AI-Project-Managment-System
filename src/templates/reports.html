@@ -25,11 +25,9 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="project-filter">Project:</label>
-                    <select id="project-filter" class="filter-select">
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
-                        <option value="all">Portfolio View</option>
+                    <label for="sprint-filter">Sprint:</label>
+                    <select id="sprint-filter" class="filter-select">
+                        <option value="">Select Sprint</option>
                     </select>
                 </div>
                 
@@ -72,5 +70,6 @@
 {% endblock content %}
 
 {% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="{{ url_for('static', filename='js/reports.js') }}"></script>
 {% endblock extra_js %}
