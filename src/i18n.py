@@ -226,7 +226,13 @@ translations = {
         'notify_ci_failure': 'Notify on CI failure',
         'slack_integration': 'Slack Integration',
         'manage_slack': 'Manage Slack notifications in',
-        
+        'forgotpassword': 'Forgot Password?',
+        'back_to_login': 'Back to Login',
+        'enter_email_instruction': 'Enter your email address to reset your password.',
+        'enter_password_instruction': 'Enter your new password.',
+        'confirm_password_instruction': 'Confirm your new password.',
+        'reset_password_title': 'Reset Your Password',
+        'send_reset_link': 'Send Reset Link',
         # ===== BOARD / KANBAN PAGE =====
         'kanban_board': 'Kanban Board',
         'quick_create_task': 'Quick Create Task',
@@ -350,7 +356,11 @@ translations = {
         'search_placeholder': 'البحث في المهام أو المشاريع أو المستخدمين (Ctrl+K)...',
         'add_new': 'إضافة جديد',
         'notifications': 'الإشعارات',
-        
+        'forgotpassword': 'هل نسيت كلمة المرور؟',
+        'back_to_login': 'العودة إلى تسجيل الدخول',
+        'reset_password_title': 'إعادة تعيين كلمة المرور الخاصة بك',
+        'enter_email_instruction': 'أدخل عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور',
+        'send_reset_link': 'إرسال رابط إعادة التعيين',        
         # ===== LOGIN/SIGNUP PAGE =====
         'log_in': 'تسجيل الدخول',
         'sign_up': 'إنشاء حساب',
