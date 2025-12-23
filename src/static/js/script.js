@@ -125,11 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 // Successful Login (Status 200)
-                // In a real app, you'd save the token/session data from 'data' here.
-                alert('Login successful! Welcome, ' + data.user.name + '!');
-                
-                // --- REDIRECTION LOGIC ---
-                window.location.href = HOME_PAGE_URL;
+                // Check if this is admin login
+                if (data.is_admin) {
+                    alert('Admin login successful! Welcome to the Admin Panel.');
+                    // --- ADMIN REDIRECTION ---
+                    window.location.href = '/admin/panel';
+                } else {
+                    // Regular user login
+                    alert('Login successful! Welcome, ' + data.user.name + '!');
+                    // --- REGULAR USER REDIRECTION ---
+                    window.location.href = HOME_PAGE_URL;
+                }
             } else {
                 // Failed Login (Status 401/400/etc)
                 displayError(data.message || 'Login failed. Please try again.');

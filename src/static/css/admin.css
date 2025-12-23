@@ -1,0 +1,719 @@
+/* Admin Panel Styles */
+
+.admin-container {
+    padding: 24px;
+    background-color: var(--color-background-main);
+    min-height: calc(100vh - 100px);
+    color: var(--color-text-main);
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--color-text-main);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title i {
+    color: var(--color-primary);
+    font-size: 32px;
+}
+
+/* Search Bar Styling */
+#page-search {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 16px 12px 40px;
+    font-size: 15px;
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    transition: all var(--transition-time) ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#page-search:hover {
+    border-color: var(--color-primary-light, #5dade2);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.1);
+}
+
+#page-search:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    background-color: var(--color-background-light, #f9f9f9);
+}
+
+.search-bar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.03) 0%, rgba(41, 128, 185, 0.02) 100%);
+    border-radius: 12px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 32px;
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* Admin Layout */
+.admin-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    min-height: calc(100vh - 250px);
+}
+
+/* Admin Tabs Sidebar */
+.admin-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--color-background-light);
+    padding: 16px;
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+    border: 1px solid var(--color-border);
+}
+
+.admin-tab-item {
+    padding: 12px 16px;
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all var(--transition-time) ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.admin-tab-item i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.admin-tab-item:hover {
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+}
+
+.admin-tab-item.active {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Admin Content Area */
+.admin-content {
+    background-color: var(--color-background-light);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+.admin-pane {
+    display: none;
+    padding: 32px;
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pane-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: var(--color-text-main);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 12px;
+}
+
+/* Admin Sections */
+.admin-section {
+    margin-bottom: 32px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.section-description {
+    color: var(--color-text-secondary);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* Roles and Permissions Lists */
+.roles-list,
+.permissions-list {
+    display: grid;
+    gap: 12px;
+}
+
+.role-card,
+.permission-card {
+    padding: 16px;
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    transition: all var(--transition-time) ease;
+}
+
+.role-card:hover,
+.permission-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.card-description {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 12px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Access Matrix */
+.access-matrix {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.matrix-header {
+    display: grid;
+    grid-template-columns: 150px repeat(5, 1fr);
+    gap: 0;
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.matrix-header .header-cell {
+    padding: 16px;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.matrix-header .header-cell:last-child {
+    border-right: none;
+}
+
+.matrix-header .role-col {
+    text-align: left;
+}
+
+.matrix-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.matrix-row {
+    display: grid;
+    grid-template-columns: 150px repeat(5, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--color-border);
+    align-items: center;
+    min-height: 60px;
+}
+
+.matrix-row:last-child {
+    border-bottom: none;
+}
+
+.matrix-row:hover {
+    background-color: var(--color-background-main);
+}
+
+.matrix-cell {
+    padding: 16px;
+    text-align: center;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.matrix-cell:last-child {
+    border-right: none;
+}
+
+.matrix-cell-role {
+    text-align: left;
+    font-weight: 500;
+    color: var(--color-text-main);
+    text-align: left;
+    padding: 16px;
+}
+
+/* Checkbox toggle in matrix */
+.access-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+/* User Roles Section */
+.user-roles-controls {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.search-input,
+.filter-select,
+.filter-input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    font-size: 14px;
+    transition: all var(--transition-time) ease;
+}
+
+.search-input:focus,
+.filter-select:focus,
+.filter-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.user-roles-list {
+    display: grid;
+    gap: 12px;
+}
+
+.user-role-item {
+    padding: 16px;
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-time) ease;
+}
+
+.user-role-item:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: 4px;
+}
+
+.user-email {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.role-selector {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: var(--color-background-light);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: all var(--transition-time) ease;
+}
+
+.role-selector:hover {
+    border-color: var(--color-primary);
+}
+
+/* Audit Log */
+.audit-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.audit-log-list {
+    display: grid;
+    gap: 12px;
+}
+
+.audit-log-item {
+    padding: 16px;
+    background-color: var(--color-background-main);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    border-left: 4px solid var(--color-primary);
+}
+
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.audit-action {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 14px;
+}
+
+.audit-timestamp {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.audit-details {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+}
+
+.audit-user {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--color-background-light);
+    border-radius: 12px;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-time) ease;
+}
+
+.modal-close:hover {
+    color: var(--color-text-main);
+}
+
+/* Admin Forms */
+.admin-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--color-text-main);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all var(--transition-time) ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.required {
+    color: #e74c3c;
+    margin-left: 2px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-time) ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark, #2980b9);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-background-light);
+    border-color: var(--color-primary);
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* Utility */
+.loading-text {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: 32px;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .admin-tabs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+        height: auto;
+        position: static;
+    }
+
+    .admin-pane {
+        padding: 20px;
+    }
+
+    .matrix-header,
+    .matrix-row {
+        grid-template-columns: 100px repeat(5, 1fr);
+        font-size: 12px;
+    }
+
+    .matrix-cell,
+    .matrix-cell-role,
+    .header-cell {
+        padding: 12px;
+    }
+
+    .user-roles-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .audit-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-container {
+        padding: 16px;
+    }
+
+    .admin-tabs {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+
+    .admin-tab-item {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .admin-tab-item i {
+        font-size: 14px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .matrix-header,
+    .matrix-row {
+        grid-template-columns: 80px repeat(5, 1fr);
+        font-size: 11px;
+    }
+
+    .matrix-cell,
+    .matrix-cell-role,
+    .header-cell {
+        padding: 8px;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+}

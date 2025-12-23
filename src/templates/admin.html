@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.admin_panel }} - AIPMS{% endblock title %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='src\static\css\admin.css') }}">
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="admin-container">
+        <h1 class="page-title"><i class="fas fa-shield-alt"></i> {{ t.admin_panel }}</h1>
+
+        <!-- Search Bar -->
+        <div style="margin-bottom: 20px;">
+            <div class="search-bar-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            
+            <!-- Admin Navigation Tabs -->
+            <aside class="admin-tabs">
+                <button class="admin-tab-item active" data-tab="roles">
+                    <i class="fas fa-users"></i> {{ t.roles_management }}
+                </button>
+                <button class="admin-tab-item" data-tab="permissions">
+                    <i class="fas fa-lock"></i> {{ t.permissions_management }}
+                </button>
+                <button class="admin-tab-item" data-tab="access-control">
+                    <i class="fas fa-eye"></i> {{ t.access_control }}
+                </button>
+                <button class="admin-tab-item" data-tab="user-roles">
+                    <i class="fas fa-user-tag"></i> {{ t.user_roles }}
+                </button>
+                <button class="admin-tab-item" data-tab="audit-log">
+                    <i class="fas fa-history"></i> {{ t.audit_log }}
+                </button>
+            </aside>
+
+            <!-- Admin Content -->
+            <main class="admin-content">
+                
+                <!-- 1. Roles Management Tab -->
+                <div class="admin-pane active" id="pane-roles">
+                    <h2 class="pane-title">{{ t.roles_management }}</h2>
+                    
+                    <section class="admin-section">
+                        <div class="section-header">
+                            <h3>{{ t.available_roles }}</h3>
+                            <button id="add-role-btn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> {{ t.add_role }}
+                            </button>
+                        </div>
+                        
+                        <div id="roles-list" class="roles-list">
+                            <p class="loading-text">{{ t.loading }}...</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 2. Permissions Management Tab -->
+                <div class="admin-pane" id="pane-permissions">
+                    <h2 class="pane-title">{{ t.permissions_management }}</h2>
+                    
+                    <section class="admin-section">
+                        <div class="section-header">
+                            <h3>{{ t.system_permissions }}</h3>
+                            <button id="add-permission-btn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> {{ t.add_permission }}
+                            </button>
+                        </div>
+                        
+                        <div id="permissions-list" class="permissions-list">
+                            <p class="loading-text">{{ t.loading }}...</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 3. Access Control Tab -->
+                <div class="admin-pane" id="pane-access-control">
+                    <h2 class="pane-title">{{ t.access_control }}</h2>
+                    
+                    <section class="admin-section">
+                        <h3>{{ t.data_access_restrictions }}</h3>
+                        <p class="section-description">{{ t.manage_what_data_each_role_can_access }}</p>
+                        
+                        <div class="access-matrix">
+                            <div class="matrix-header">
+                                <div class="header-cell role-col">{{ t.role }}</div>
+                                <div class="header-cell">{{ t.sprint_boards }}</div>
+                                <div class="header-cell">{{ t.reports }}</div>
+                                <div class="header-cell">{{ t.user_profiles }}</div>
+                                <div class="header-cell">{{ t.budget_data }}</div>
+                                <div class="header-cell">{{ t.integrations }}</div>
+                            </div>
+                            
+                            <div id="access-matrix-body" class="matrix-body">
+                                <p class="loading-text">{{ t.loading }}...</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 4. User Roles Tab -->
+                <div class="admin-pane" id="pane-user-roles">
+                    <h2 class="pane-title">{{ t.user_roles }}</h2>
+                    
+                    <section class="admin-section">
+                        <h3>{{ t.assign_roles_to_users }}</h3>
+                        
+                        <div class="user-roles-controls">
+                            <input type="search" id="user-search" placeholder="{{ t.search_users }}" class="search-input">
+                            <select id="role-filter" class="filter-select">
+                                <option value="">{{ t.all_roles }}</option>
+                            </select>
+                        </div>
+                        
+                        <div id="user-roles-list" class="user-roles-list">
+                            <p class="loading-text">{{ t.loading }}...</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 5. Audit Log Tab -->
+                <div class="admin-pane" id="pane-audit-log">
+                    <h2 class="pane-title">{{ t.audit_log }}</h2>
+                    
+                    <section class="admin-section">
+                        <h3>{{ t.admin_activity_log }}</h3>
+                        
+                        <div class="audit-filters">
+                            <input type="date" id="audit-date-from" class="filter-input" placeholder="{{ t.from_date }}">
+                            <input type="date" id="audit-date-to" class="filter-input" placeholder="{{ t.to_date }}">
+                            <select id="audit-action-filter" class="filter-select">
+                                <option value="">{{ t.all_actions }}</option>
+                                <option value="role_created">{{ t.role_created }}</option>
+                                <option value="role_modified">{{ t.role_modified }}</option>
+                                <option value="role_deleted">{{ t.role_deleted }}</option>
+                                <option value="permission_assigned">{{ t.permission_assigned }}</option>
+                                <option value="user_role_changed">{{ t.user_role_changed }}</option>
+                            </select>
+                        </div>
+                        
+                        <div id="audit-log-list" class="audit-log-list">
+                            <p class="loading-text">{{ t.loading }}...</p>
+                        </div>
+                    </section>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Role Modal -->
+    <div id="role-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="role-modal-title">{{ t.add_role }}</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="role-form" class="admin-form">
+                <div class="form-group">
+                    <label for="role-name">{{ t.role_name }} <span class="required">*</span></label>
+                    <input type="text" id="role-name" required placeholder="{{ t.enter_role_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="role-description">{{ t.description }}</label>
+                    <textarea id="role-description" placeholder="{{ t.enter_description }}" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{{ t.save }}</button>
+                    <button type="button" class="btn btn-secondary modal-close-btn">{{ t.cancel }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Permission Modal -->
+    <div id="permission-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="permission-modal-title">{{ t.add_permission }}</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="permission-form" class="admin-form">
+                <div class="form-group">
+                    <label for="permission-name">{{ t.permission_name }} <span class="required">*</span></label>
+                    <input type="text" id="permission-name" required placeholder="{{ t.enter_permission_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="permission-description">{{ t.description }}</label>
+                    <textarea id="permission-description" placeholder="{{ t.enter_description }}" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{{ t.save }}</button>
+                    <button type="button" class="btn btn-secondary modal-close-btn">{{ t.cancel }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='src\static\js\admin.js') }}"></script>
+{% endblock extra_js %}

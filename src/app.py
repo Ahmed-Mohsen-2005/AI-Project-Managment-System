@@ -8,6 +8,7 @@ from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
+from controllers.admin_controller import admin_bp
 from controllers.auth_controller import auth_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
@@ -25,6 +26,7 @@ print("Project Sentinel Application and SQL Server connection pool initialized."
 
 # Register blueprints
 app.register_blueprint(user_bp)
+app.register_blueprint(admin_bp)
 app.register_blueprint(sprint_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(report_bp)
@@ -79,6 +81,10 @@ def home():
     task_service = TaskService()
     tasks = task_service.get_all_tasks()
     return render_template("home.html", tasks=tasks)
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
 
 @app.route("/repositories")
 def repositories():
