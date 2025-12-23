@@ -192,3 +192,24 @@ class TaskRepository:
     # Alias to avoid service bugs
     def get_by_sprint(self, sprint_id):
         return self.get_by_sprint_id(sprint_id)
+    
+    def get_by_project(self, project_id, user_id=None, status=None):
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = """
+                SELECT t.* FROM Task t JOIN Sprint s ON t.sprint_id = s.sprint_id
+                WHERE s.project_id = %s
+            """
+            params = [project_id]
+            if user_id:
+                query += " AND t.assigned_id = %s"; params.append(user_id)
+            if status:
+                query += " AND t.status = %s"; params.append(status)
+            query += " ORDER BY priority DESC, due_date ASC"
+            cursor.execute(query, params)
+            return [Task(**row) for row in cursor.fetchall()]
+        finally:
+            cursor.close()
+            conn.close()
+
