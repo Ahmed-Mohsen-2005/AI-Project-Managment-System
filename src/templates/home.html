@@ -8,6 +8,14 @@
 
     {% block content %}
     <div class="dashboard-container">
+        <!-- Search Bar -->
+        <div style="margin-bottom: 20px;">
+            <div class="search-bar-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
+            </div>
+        </div>
+
         <!-- 2x3 Grid Layout -->
         <div class="dashboard-grid">
             

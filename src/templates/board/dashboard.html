@@ -7,6 +7,14 @@
 {% endblock extra_css %}
 
 {% block content %}
+    <!-- Search Bar -->
+    <div style="margin-bottom: 20px;">
+        <div class="search-bar-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
+        </div>
+    </div>
+    
     <div class="project-dashboard-container">
         
         <!-- Dashboard Header (Includes Project Selector) -->
