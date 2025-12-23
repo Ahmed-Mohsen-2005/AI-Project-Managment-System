@@ -89,28 +89,28 @@ def home():
 def repositories():
     return render_template("repositories.html")
 
-@app.route("/boards/board")
+@app.route("/board")
 def board():
     project_repo = RepositoryFactory.get_repository("project")    
     all_projects = project_repo.get_all()
-    return render_template("board/board.html", projects=all_projects)
+    return render_template("board.html", projects=all_projects)
 
-@app.route("/boards/dashboard")
+@app.route("/dashboard")
 def dashboard():
     project_repo = RepositoryFactory.get_repository("project")    
     all_projects = project_repo.get_all()
-    return render_template("board/dashboard.html", projects=all_projects)
-@app.route("/boards/sprints")
+    return render_template("dashboard.html", projects=all_projects)
+@app.route("/sprints")
 def sprints():
     project_repo = RepositoryFactory.get_repository("project")    
     all_projects = project_repo.get_all()    
-    return render_template("board/sprints.html", projects=all_projects)
+    return render_template("sprints.html", projects=all_projects)
 
-@app.route("/boards/backlog")
+@app.route("/backlog")
 def backlog():
     project_repo = RepositoryFactory.get_repository("project")    
     all_projects = project_repo.get_all()
-    return render_template("board/backlog.html", projects=all_projects)
+    return render_template("backlog.html", projects=all_projects)
 
 @app.route("/chats")
 def chats():
