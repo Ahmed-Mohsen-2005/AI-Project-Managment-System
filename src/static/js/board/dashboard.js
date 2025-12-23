@@ -1,9 +1,115 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- API Configuration ---
-    const API_BASE_URL = '/api/v1/dashboard';
+    // =========================================================
+    // 1. STATIC MOCK DATA (Simulating Database/API)
+    // =========================================================
+    const STATIC_DATA = {
+        users: [
+            { user_id: 101, name: "Ahmed Mahfouz" },
+            { user_id: 102, name: "Sarah Connor" },
+            { user_id: 103, name: "Ali Hassan" },
+            { user_id: 104, name: "Mazen R." }
+        ],
+        projects: [
+            { project_id: "p-001", name: "AIPMS - Core Platform" },
+            { project_id: "p-002", name: "Website Redesign 2025" },
+            { project_id: "p-003", name: "Mobile App Integration" }
+        ],
+        // Data for each specific project
+        details: {
+            "p-001": {
+                status: "ACTIVE",
+                sprintName: "Sprint 4 - AI Modules",
+                stats: {
+                    velocity: "72.5%",
+                    aiRiskIndex: 65,
+                    tasksRemaining: 24,
+                    budgetForecast: "$12,450"
+                },
+                recommendations: [
+                    { text: "High complexity detected in 'Algorithm Optimization'. Assign senior dev.", risk: "high" },
+                    { text: "Sprint velocity is 10% lower than average due to testing bottlenecks.", risk: "medium" },
+                    { text: "Review pending for 3 days on 'User Auth'.", risk: "low" }
+                ],
+                criticalTasks: [
+                    { id: 101, title: "Fix Memory Leak in Docker Container", priority: "P1" },
+                    { id: 102, title: "Refactor API Middleware", priority: "P1" },
+                    { id: 103, title: "Update Python Dependencies", priority: "P2" }
+                ],
+                activities: [
+                    { time: "10 min ago", detail: "Ahmed M. pushed to 'feature/ai-logic'" },
+                    { time: "2 hours ago", detail: "System flagged potential delay in Sprint 4" },
+                    { time: "Yesterday", detail: "Code Review completed for Module A" }
+                ],
+                stressIndex: 0.78,
+                stressDetail: "High workload detected. 2 members are over-allocated.",
+                burndown: {
+                    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+                    ideal: [100, 85, 70, 55, 40, 25, 10],
+                    actual: [100, 95, 88, 75, 72, null, null] // Null simulates future days
+                }
+            },
+            "p-002": {
+                status: "PLANNING",
+                sprintName: "Backlog Refinement",
+                stats: {
+                    velocity: "0%",
+                    aiRiskIndex: 12,
+                    tasksRemaining: 45,
+                    budgetForecast: "$5,000"
+                },
+                recommendations: [
+                    { text: "Define clear acceptance criteria for UI stories.", risk: "medium" },
+                    { text: "Budget estimate missing for Frontend implementation.", risk: "low" }
+                ],
+                criticalTasks: [
+                    { id: 201, title: "Approve Wireframes", priority: "P1" },
+                    { id: 202, title: "Select Color Palette", priority: "P2" }
+                ],
+                activities: [
+                    { time: "1 day ago", detail: "Project created by Admin" },
+                    { time: "2 days ago", detail: "Initial budget approved" }
+                ],
+                stressIndex: 0.20,
+                stressDetail: "Team is in planning phase. Low stress.",
+                burndown: {
+                    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                    ideal: [40, 30, 20, 10],
+                    actual: [40, 38, null, null]
+                }
+            },
+            "p-003": {
+                status: "COMPLETED",
+                sprintName: "Final Release",
+                stats: {
+                    velocity: "98%",
+                    aiRiskIndex: 5,
+                    tasksRemaining: 0,
+                    budgetForecast: "$0"
+                },
+                recommendations: [
+                    { text: "Project completed successfully. Archive repository.", risk: "low" }
+                ],
+                criticalTasks: [], // Empty to test empty state
+                activities: [
+                    { time: "1 week ago", detail: "Final deployment to production" },
+                    { time: "1 week ago", detail: "Client sign-off received" }
+                ],
+                stressIndex: 0.05,
+                stressDetail: "Project finished. No active workload.",
+                burndown: {
+                    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
+                    ideal: [50, 40, 30, 20, 10],
+                    actual: [50, 35, 25, 15, 0]
+                }
+            }
+        }
+    };
 
-    // --- Element Mapping ---
+    // =========================================================
+    // 2. Element Mapping & Initialization
+    // =========================================================
+    
     const selector = document.getElementById('project-selector');
     const simulationBtn = document.getElementById('run-simulation-btn');
     const assignTasksBtn = document.getElementById('assign-tasks-btn');
@@ -14,182 +120,128 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskSelect = document.getElementById('task-select');
     const userSelect = document.getElementById('user-select');
 
-    // --- Chart Instance ---
     let burndownChart = null;
-
-    // --- Current Data ---
     let currentCriticalTasks = [];
 
-    // --- Initialization ---
+    // Initialize
     loadProjects();
 
-    // Attach listener to load new data when project selection changes
+    // Event Listeners
     selector.addEventListener('change', () => loadProjectData(selector.value));
-
-    // Attach listener for the simulation button
-    if (simulationBtn) {
-        simulationBtn.addEventListener('click', runResourceSimulation);
-    }
-
-    // Attach listeners for task assignment modal
-    if (assignTasksBtn) {
-        assignTasksBtn.addEventListener('click', openAssignModal);
-    }
-    if (closeAssignModal) {
-        closeAssignModal.addEventListener('click', closeModal);
-    }
-    if (cancelAssign) {
-        cancelAssign.addEventListener('click', closeModal);
-    }
-    if (confirmAssign) {
-        confirmAssign.addEventListener('click', handleAssignTask);
-    }
+    
+    if (simulationBtn) simulationBtn.addEventListener('click', runResourceSimulation);
+    if (assignTasksBtn) assignTasksBtn.addEventListener('click', openAssignModal);
+    
+    // Modal Listeners
+    if (closeAssignModal) closeAssignModal.addEventListener('click', closeModal);
+    if (cancelAssign) cancelAssign.addEventListener('click', closeModal);
+    if (confirmAssign) confirmAssign.addEventListener('click', handleAssignTask);
     if (assignModal) {
         assignModal.addEventListener('click', (e) => {
             if (e.target === assignModal) closeModal();
         });
     }
 
-    // --- Load Projects for Selector ---
-    async function loadProjects() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/projects`);
+    // =========================================================
+    // 3. Logic Functions (Now using STATIC_DATA)
+    // =========================================================
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    function loadProjects() {
+        console.log("Loading static projects...");
+        
+        // Populate selector from static data
+        selector.innerHTML = '';
+        const projects = STATIC_DATA.projects;
 
-            const projects = await response.json();
+        if (projects.length === 0) {
+            selector.innerHTML = '<option value="">No projects found</option>';
+            return;
+        }
 
-            // Populate the project selector
-            selector.innerHTML = '';
+        projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project.project_id;
+            option.textContent = project.name;
+            selector.appendChild(option);
+        });
 
-            if (projects.length === 0) {
-                selector.innerHTML = '<option value="">No projects found</option>';
-                return;
-            }
-
-            projects.forEach(project => {
-                const option = document.createElement('option');
-                option.value = project.project_id;
-                option.textContent = project.name;
-                selector.appendChild(option);
-            });
-
-            // Load data for the first project
-            if (projects.length > 0) {
-                loadProjectData(projects[0].project_id);
-            }
-
-        } catch (error) {
-            console.error('Error loading projects:', error);
-            selector.innerHTML = '<option value="">Error loading projects</option>';
+        // Load first project by default
+        if (projects.length > 0) {
+            loadProjectData(projects[0].project_id);
         }
     }
 
-    // --- Data Loading Function ---
-    async function loadProjectData(projectId) {
+    function loadProjectData(projectId) {
         if (!projectId) return;
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/project/${projectId}`);
+        // Simulate network delay for realism (optional)
+        // setTimeout(() => { ... }, 200);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        const projectMeta = STATIC_DATA.projects.find(p => p.project_id === projectId);
+        const data = STATIC_DATA.details[projectId];
 
-            const data = await response.json();
-
-            // Update Project Header
-            document.querySelector('.page-title').innerHTML = `<i class="fas fa-chart-bar"></i> ${data.project.name} Analytics`;
-
-            // Update status badge with appropriate color
-            const statusBadge = document.getElementById('project-status');
-            statusBadge.textContent = data.status;
-            statusBadge.className = 'status-badge';
-            if (data.status === 'COMPLETED') {
-                statusBadge.classList.add('status-completed');
-            } else if (data.status === 'PLANNING') {
-                statusBadge.classList.add('status-planning');
-            } else {
-                statusBadge.classList.add('status-active');
-            }
-
-            // Update Top Metrics (with demo fallbacks)
-            const velocity = data.stats.velocity !== '0%' ? data.stats.velocity : '67.5%';
-            const riskIndex = data.stats.aiRiskIndex !== 100 ? data.stats.aiRiskIndex + '%' : '32%';
-            const remaining = data.stats.tasksRemaining !== 0 ? data.stats.tasksRemaining : 18;
-            const budget = data.stats.budgetForecast !== '$0' ? data.stats.budgetForecast : '$45,000';
-
-            document.getElementById('current-velocity').textContent = velocity;
-            document.getElementById('risk-index').textContent = riskIndex;
-            document.getElementById('tasks-remaining').textContent = remaining;
-            document.getElementById('budget-forecast').textContent = budget;
-
-            // Update Widgets
-            renderAIRecommendations(data.recommendations);
-            currentCriticalTasks = data.criticalTasks || [];
-            renderCriticalTasks(currentCriticalTasks);
-            renderActivityFeed(data.activities);
-            updateStressIndex(data.stressIndex, data.stressDetail);
-
-            // Load burndown chart
-            loadBurndownChart(projectId);
-
-            console.log(`[DASHBOARD] Loaded data for Project ID: ${projectId}`);
-
-        } catch (error) {
-            console.error('Error loading project data:', error);
-
-            // Show error state
-            document.getElementById('current-velocity').textContent = '--';
-            document.getElementById('risk-index').textContent = '--';
-            document.getElementById('tasks-remaining').textContent = '--';
-            document.getElementById('budget-forecast').textContent = '--';
+        if (!data || !projectMeta) {
+            console.error("No static data found for ID:", projectId);
+            return;
         }
+
+        // --- Update UI ---
+
+        // 1. Header
+        document.querySelector('.page-title').innerHTML = `<i class="fas fa-chart-bar"></i> ${projectMeta.name} Analytics`;
+        
+        const statusBadge = document.getElementById('project-status');
+        statusBadge.textContent = data.status;
+        statusBadge.className = 'status-badge';
+        if (data.status === 'COMPLETED') statusBadge.classList.add('status-completed');
+        else if (data.status === 'PLANNING') statusBadge.classList.add('status-planning');
+        else statusBadge.classList.add('status-active');
+
+        // 2. Metrics
+        document.getElementById('current-velocity').textContent = data.stats.velocity;
+        document.getElementById('risk-index').textContent = data.stats.aiRiskIndex + '%';
+        document.getElementById('tasks-remaining').textContent = data.stats.tasksRemaining;
+        document.getElementById('budget-forecast').textContent = data.stats.budgetForecast;
+
+        // 3. Widgets
+        renderAIRecommendations(data.recommendations);
+        currentCriticalTasks = data.criticalTasks || [];
+        renderCriticalTasks(currentCriticalTasks);
+        renderActivityFeed(data.activities);
+        updateStressIndex(data.stressIndex, data.stressDetail);
+
+        // 4. Chart
+        loadBurndownChart(projectId);
     }
 
-    // --- Load Burndown Chart ---
-    async function loadBurndownChart(projectId) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/project/${projectId}/burndown`);
-            const data = await response.json();
+    function loadBurndownChart(projectId) {
+        const data = STATIC_DATA.details[projectId]?.burndown;
+        const sprintName = STATIC_DATA.details[projectId]?.sprintName;
 
-            const chartContainer = document.getElementById('burndown-chart');
-            const noDataMessage = document.getElementById('chart-no-data');
-            const sprintNameEl = document.getElementById('sprint-name');
+        const chartContainer = document.getElementById('burndown-chart');
+        const noDataMessage = document.getElementById('chart-no-data');
+        const sprintNameEl = document.getElementById('sprint-name');
 
-            if (sprintNameEl) {
-                sprintNameEl.textContent = data.sprintName || 'Active Sprint';
-            }
+        if (sprintNameEl) sprintNameEl.textContent = sprintName || 'Active Sprint';
 
-            if (!data.labels || data.labels.length === 0) {
-                chartContainer.style.display = 'none';
-                noDataMessage.style.display = 'flex';
-                return;
-            }
-
-            chartContainer.style.display = 'block';
-            noDataMessage.style.display = 'none';
-
-            renderBurndownChart(data);
-
-        } catch (error) {
-            console.error('Error loading burndown chart:', error);
+        if (!data || !data.labels) {
+            chartContainer.style.display = 'none';
+            noDataMessage.style.display = 'flex';
+            return;
         }
+
+        chartContainer.style.display = 'block';
+        noDataMessage.style.display = 'none';
+
+        renderBurndownChart(data);
     }
 
-    // --- Render Burndown Chart ---
     function renderBurndownChart(data) {
         const ctx = document.getElementById('burndown-canvas').getContext('2d');
 
-        // Destroy existing chart if it exists
         if (burndownChart) {
             burndownChart.destroy();
         }
-
-        // Filter out null values for actual line
-        const actualData = data.actual.map((val, idx) => val !== null ? val : undefined);
 
         burndownChart = new Chart(ctx, {
             type: 'line',
@@ -208,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     {
                         label: 'Actual Progress',
-                        data: actualData,
+                        data: data.actual,
                         borderColor: '#e74c3c',
                         backgroundColor: 'rgba(231, 76, 60, 0.1)',
                         borderWidth: 3,
@@ -222,78 +274,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Remaining Tasks'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Sprint Days'
-                        }
-                    }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
+                    y: { beginAtZero: true, title: { display: true, text: 'Remaining Tasks' } },
+                    x: { title: { display: true, text: 'Sprint Timeline' } }
                 }
             }
         });
     }
 
-    // --- DEMO DATA FOR DISPLAY ---
-    const demoRecommendations = [
-        { text: "Consider adding 2 more developers to meet sprint deadline.", risk: "high" },
-        { text: "Task 'API Integration' has been blocked for 3 days. Escalate to tech lead.", risk: "high" },
-        { text: "Sprint velocity trending 15% below target. Review task estimates.", risk: "medium" },
-        { text: "3 team members have >8 tasks assigned. Redistribute workload.", risk: "medium" },
-        { text: "Code review backlog increasing. Schedule review session.", risk: "low" }
-    ];
+    // =========================================================
+    // 4. Render Helper Functions
+    // =========================================================
 
-    const demoCriticalTasks = [
-        { id: 1, title: "Fix authentication bug in login flow", priority: "P1" },
-        { id: 2, title: "Database migration for user schema", priority: "P1" },
-        { id: 3, title: "Implement rate limiting on API endpoints", priority: "P2" },
-        { id: 4, title: "Update SSL certificates before expiry", priority: "P1" },
-        { id: 5, title: "Resolve memory leak in background worker", priority: "P2" }
-    ];
-
-    const demoActivities = [
-        { time: "2 min ago", detail: "Ahmed M. completed task 'Setup CI/CD Pipeline'" },
-        { time: "15 min ago", detail: "Jana S. moved 'User Dashboard' to In Progress" },
-        { time: "1 hour ago", detail: "Ali K. pushed 3 commits to feature/auth-module" },
-        { time: "2 hours ago", detail: "Mazen R. created new sprint 'Sprint 5 - Q1 Release'" },
-        { time: "3 hours ago", detail: "Hany M. assigned 'API Refactor' to Ahmed M." },
-        { time: "Yesterday", detail: "Team standup meeting completed - 5 participants" },
-        { time: "Yesterday", detail: "Sprint 4 retrospective notes added to reports" }
-    ];
-
-    // --- WIDGET RENDERING FUNCTIONS ---
     function renderAIRecommendations(recommendations) {
         const list = document.getElementById('ai-recommendations');
         list.innerHTML = '';
-
-        // Use demo data if no recommendations from server
-        const dataToRender = (recommendations && recommendations.length > 0) ? recommendations : demoRecommendations;
-
-        list.innerHTML = dataToRender.map(rec => {
+        if (!recommendations || recommendations.length === 0) {
+            list.innerHTML = '<li>No active recommendations.</li>';
+            return;
+        }
+        list.innerHTML = recommendations.map(rec => {
             const riskClass = rec.risk === 'high' ? 'status-danger' : rec.risk === 'medium' ? 'status-warning' : 'status-active';
             return `<li class="${riskClass}"><span class="rec-dot"></span> ${rec.text}</li>`;
         }).join('');
@@ -302,16 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCriticalTasks(tasks) {
         const list = document.getElementById('critical-tasks');
         list.innerHTML = '';
-
-        // Use demo data if no tasks from server
-        const dataToRender = (tasks && tasks.length > 0) ? tasks : demoCriticalTasks;
-
-        // Update currentCriticalTasks for modal
         if (!tasks || tasks.length === 0) {
-            currentCriticalTasks = demoCriticalTasks;
+            list.innerHTML = '<li style="justify-content:center; color:#7f8c8d;">All critical tasks assigned!</li>';
+            return;
         }
-
-        list.innerHTML = dataToRender.map(task => `
+        list.innerHTML = tasks.map(task => `
             <li>
                 <span class="task-priority-${task.priority}">${task.priority}: ${task.title}</span>
                 <span class="task-owner">Unassigned</span>
@@ -322,18 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderActivityFeed(activities) {
         const list = document.getElementById('recent-activity');
         list.innerHTML = '';
-
-        // Use demo data if no activities from server
-        const dataToRender = (activities && activities.length > 0 && activities[0].detail !== "Dashboard loaded successfully.")
-            ? activities
-            : demoActivities;
-
-        dataToRender.forEach(activity => {
+        activities.forEach(activity => {
             const item = document.createElement('li');
-            item.innerHTML = `
-                <small class="activity-time">${activity.time}</small>
-                <p class="activity-detail">${activity.detail}</p>
-            `;
+            item.innerHTML = `<small class="activity-time">${activity.time}</small><p class="activity-detail">${activity.detail}</p>`;
             list.appendChild(item);
         });
     }
@@ -342,52 +331,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const stressElement = document.getElementById('stress-index');
         const detailElement = document.getElementById('stress-detail');
 
-        // Use demo value if no data
-        const stressValue = (index !== undefined && index !== null && index !== 0) ? index : 0.62;
-        const stressDetail = (detail && detail !== "No tasks assigned yet.") ? detail : "Team workload is moderate. 3 members approaching capacity.";
-
+        const stressValue = index || 0;
         stressElement.textContent = stressValue.toFixed(2);
-        detailElement.textContent = stressDetail;
+        detailElement.textContent = detail || "Analysis pending...";
 
-        // Visual risk indicator based on index value
         stressElement.classList.remove('text-high', 'text-medium', 'text-low');
-        if (stressValue > 0.70) {
-            stressElement.classList.add('text-high');
-        } else if (stressValue > 0.40) {
-            stressElement.classList.add('text-medium');
-        } else {
-            stressElement.classList.add('text-low');
-        }
+        if (stressValue > 0.70) stressElement.classList.add('text-high');
+        else if (stressValue > 0.40) stressElement.classList.add('text-medium');
+        else stressElement.classList.add('text-low');
     }
 
-    // --- SIMULATION LOGIC (FR-507) ---
-    async function runResourceSimulation() {
-        console.log("[SIMULATION] Running resource optimization 'What If' scenario (FR-507)...");
+    // =========================================================
+    // 5. Interaction Simulation (Actions)
+    // =========================================================
 
+    function runResourceSimulation() {
         const originalText = simulationBtn.innerHTML;
-        simulationBtn.textContent = "Running AI Simulation... (3s)";
+        simulationBtn.textContent = "Running AI Simulation... (2s)";
         simulationBtn.disabled = true;
 
-        // Simulate AI processing
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        alert("AI Simulation Complete: Analysis finished. Check recommendations for suggested actions.");
-
-        simulationBtn.innerHTML = originalText;
-        simulationBtn.disabled = false;
-
-        // Reload project data to show updated recommendations
-        loadProjectData(selector.value);
+        setTimeout(() => {
+            alert("AI Simulation Complete: Workload re-balanced.\n\nResult: Risk index lowered by 12%.");
+            simulationBtn.innerHTML = originalText;
+            simulationBtn.disabled = false;
+        }, 2000);
     }
 
-    // --- TASK ASSIGNMENT MODAL FUNCTIONS ---
-    async function openAssignModal() {
+    function openAssignModal() {
         if (currentCriticalTasks.length === 0) {
-            alert('No unassigned critical tasks to assign.');
+            alert('No unassigned critical tasks available.');
             return;
         }
 
-        // Populate task select
+        // Populate Tasks
         taskSelect.innerHTML = '<option value="">-- Select a task --</option>';
         currentCriticalTasks.forEach(task => {
             const option = document.createElement('option');
@@ -396,22 +372,14 @@ document.addEventListener('DOMContentLoaded', () => {
             taskSelect.appendChild(option);
         });
 
-        // Load users
-        try {
-            const response = await fetch(`${API_BASE_URL}/users`);
-            const users = await response.json();
-
-            userSelect.innerHTML = '<option value="">-- Select a user --</option>';
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.user_id;
-                option.textContent = user.name;
-                userSelect.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading users:', error);
-            userSelect.innerHTML = '<option value="">Error loading users</option>';
-        }
+        // Populate Users (Static)
+        userSelect.innerHTML = '<option value="">-- Select a user --</option>';
+        STATIC_DATA.users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.user_id;
+            option.textContent = user.name;
+            userSelect.appendChild(option);
+        });
 
         assignModal.style.display = 'flex';
     }
@@ -422,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userSelect.value = '';
     }
 
-    async function handleAssignTask() {
+    function handleAssignTask() {
         const taskId = taskSelect.value;
         const userId = userSelect.value;
 
@@ -431,29 +399,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/task/${taskId}/assign`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ user_id: parseInt(userId) })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to assign task');
-            }
-
-            const result = await response.json();
-            alert(result.message || 'Task assigned successfully!');
-            closeModal();
-
-            // Reload project data to refresh the critical tasks list
-            loadProjectData(selector.value);
-
-        } catch (error) {
-            console.error('Error assigning task:', error);
-            alert('Failed to assign task. Please try again.');
+        // Find the user name for the alert
+        const user = STATIC_DATA.users.find(u => u.user_id == userId);
+        
+        // Remove the task from the static data array to simulate assignment
+        const projectId = selector.value;
+        if(STATIC_DATA.details[projectId]) {
+            STATIC_DATA.details[projectId].criticalTasks = STATIC_DATA.details[projectId].criticalTasks.filter(t => t.id != taskId);
         }
+
+        alert(`Task successfully assigned to ${user.name}!`);
+        closeModal();
+
+        // Refresh view
+        loadProjectData(projectId);
     }
 });

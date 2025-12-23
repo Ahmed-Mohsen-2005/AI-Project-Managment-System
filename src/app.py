@@ -11,7 +11,6 @@ from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
-from controllers.home_controller import home_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
@@ -41,7 +40,6 @@ app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(dashboard_bp)
-app.register_blueprint(home_bp)
 app.register_blueprint(note_bp)  
 # In your main controller or app.py where the page is served
 
