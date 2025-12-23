@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // API URLs
     const SPRINT_API_URL = '/api/v1/sprints';
+    const TASK_API_URL = '/api/v1/tasks';
+    const PROJECT_API_URL = '/api/v1/projects';
     const DOCUMENTATION_API_URL = '/api/v1/documentation';
 
     // Initialize
@@ -195,24 +197,52 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`[REPORT] Generating ${reportType} report for Sprint ${sprintId}...`);
 
         try {
-            // Fetch sprint data
-            const docRes = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}`);
-            if (!docRes.ok) throw new Error('Failed to fetch sprint data');
-            const docData = await docRes.json();
+            // Fetch comprehensive project data
+            const [sprintRes, tasksRes, allSprintsRes, projectsRes] = await Promise.all([
+                fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}`),
+                fetch(TASK_API_URL),
+                fetch(SPRINT_API_URL),
+                fetch(PROJECT_API_URL).catch(() => ({ ok: false, json: () => Promise.resolve([]) }))
+            ]);
 
-            // Define prompts based on report type
-            const prompts = {
-                'summary': docData.ai_summary_prompt || "Generate an executive summary for this sprint including key accomplishments, metrics, and recommendations.",
-                'velocity': "Analyze the sprint velocity history and provide insights on team performance trends.",
-                'risk': "Perform a predictive risk analysis for this sprint and identify potential issues.",
-                'rca': "Conduct a root cause analysis for any issues or delays in this sprint."
+            if (!sprintRes.ok || !tasksRes.ok || !allSprintsRes.ok) {
+                throw new Error('Failed to fetch required project data');
+            }
+
+            const sprintData = await sprintRes.json();
+            const allTasks = await tasksRes.json();
+            const allSprints = await allSprintsRes.json();
+            const allProjects = projectsRes.ok ? await projectsRes.json() : [];
+
+            // Build comprehensive context
+            const context = {
+                currentSprint: sprintData,
+                allTasks: allTasks,
+                allSprints: allSprints,
+                allProjects: allProjects,
+                reportType: reportType
             };
+
+            // Enhanced prompts with full context
+            const basePrompts = {
+                'summary': `Generate an executive summary for Sprint "${sprintData.sprint_info.name}" based on the following comprehensive project data. Include key accomplishments, metrics, recommendations, and insights from the broader project context.`,
+                'velocity': `Analyze the sprint velocity history and team performance trends using all available sprint and task data. Provide insights on patterns, improvements, and predictions.`,
+                'risk': `Perform a comprehensive predictive risk analysis for Sprint "${sprintData.sprint_info.name}" considering all project sprints, tasks, and historical data. Identify potential issues and mitigation strategies.`,
+                'rca': `Conduct a thorough root cause analysis for Sprint "${sprintData.sprint_info.name}" using complete project history, task data, and sprint information. Identify root causes and corrective actions.`
+            };
+
+            const enhancedPrompt = `${basePrompts[reportType]}
+
+PROJECT CONTEXT:
+${JSON.stringify(context, null, 2)}
+
+Please analyze this data and provide a detailed, insightful report in Markdown format with sections, lists, and tables where appropriate.`;
 
             // Generate AI report
             const aiRes = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}/ai-summary`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompts[reportType] })
+                body: JSON.stringify({ prompt: enhancedPrompt })
             });
 
             if (!aiRes.ok) throw new Error('AI generation failed');
@@ -225,10 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Render Analysis Details
             analysisDetails.innerHTML = '';
             const details = [
-                { label: 'Sprint', value: docData.sprint_info.name },
-                { label: 'Completion Rate', value: `${docData.metrics.completion_rate}%` },
-                { label: 'Completed Tasks', value: docData.metrics.completed_tasks },
-                { label: 'Blocked Tasks', value: docData.metrics.blocked_tasks }
+                { label: 'Sprint', value: sprintData.sprint_info.name },
+                { label: 'Completion Rate', value: `${sprintData.metrics.completion_rate}%` },
+                { label: 'Completed Tasks', value: sprintData.metrics.completed_tasks },
+                { label: 'Total Tasks in Project', value: allTasks.length },
+                { label: 'Total Sprints', value: allSprints.length },
+                { label: 'Total Projects', value: allProjects.length }
             ];
             
             details.forEach(detail => {

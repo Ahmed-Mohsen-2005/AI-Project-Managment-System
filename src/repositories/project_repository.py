@@ -10,10 +10,10 @@ class ProjectRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            query = "SELECT project_id, name FROM Project ORDER BY name ASC"
+            query = "SELECT project_id, name, description, start_date, end_date, budget FROM Project ORDER BY name ASC"
             cursor.execute(query)
             rows = cursor.fetchall()
-            return rows
+            return [Project(**row) for row in rows]
         finally:
             # Always return connection to the pool
             cursor.close()
