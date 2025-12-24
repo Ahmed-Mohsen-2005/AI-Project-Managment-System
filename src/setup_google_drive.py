@@ -1,4 +1,3 @@
-
 """
 Google Drive OAuth Setup Script
 Run this script once to authenticate and generate token.json
@@ -11,11 +10,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-# Define the scopes your app needs
-SCOPES = [
-    'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.metadata.readonly'
-]
+# Define the scopes your app needs - FULL ACCESS
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 CREDENTIALS_FILE = 'credentials.json'
 TOKEN_FILE = 'token.json'
@@ -49,7 +45,7 @@ def authenticate():
             creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
             print("✓ Loaded credentials from token.json")
         except Exception as e:
-            print(f"⚠️  Error loading token: {e}")
+            print(f"⚠️ Error loading token: {e}")
             print("Will create a new token...")
     
     # If credentials are invalid or don't exist, authenticate
@@ -182,7 +178,7 @@ def main():
         print("  1. Make sure both files are in your project root")
         print("  2. Start your Flask application")
         print("  3. Navigate to /docs to access Google Drive")
-        print("\n⚠️  IMPORTANT: Add these files to .gitignore:")
+        print("\n⚠️ IMPORTANT: Add these files to .gitignore:")
         print(f"    {CREDENTIALS_FILE}")
         print(f"    {TOKEN_FILE}")
         print("="*60)
@@ -195,8 +191,7 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  " \
-        "Setup interrupted by user")
+        print("\n\n⚠️ Setup interrupted by user")
         sys.exit(1)
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")

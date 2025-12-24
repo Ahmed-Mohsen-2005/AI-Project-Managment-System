@@ -158,18 +158,77 @@ class DriveClient:
         except HttpError as error:
             raise DriveClientError(f"An error occurred getting metadata: {error}")
 
+    def _is_google_doc(self, mime_type):
+        """Check if the file is a Google Workspace document"""
+        google_doc_types = [
+            'application/vnd.google-apps.document',
+            'application/vnd.google-apps.spreadsheet',
+            'application/vnd.google-apps.presentation',
+            'application/vnd.google-apps.drawing'
+        ]
+        return mime_type in google_doc_types
+
+    def _get_export_mime_type(self, google_mime_type):
+        """Get the appropriate export MIME type for Google Workspace files"""
+        export_map = {
+            'application/vnd.google-apps.document': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  # .docx
+            'application/vnd.google-apps.spreadsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # .xlsx
+            'application/vnd.google-apps.presentation': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # .pptx
+            'application/vnd.google-apps.drawing': 'application/pdf'  # .pdf
+        }
+        return export_map.get(google_mime_type, 'application/pdf')
+
+    def _get_export_extension(self, google_mime_type):
+        """Get the file extension for exported Google Workspace files"""
+        extension_map = {
+            'application/vnd.google-apps.document': '.docx',
+            'application/vnd.google-apps.spreadsheet': '.xlsx',
+            'application/vnd.google-apps.presentation': '.pptx',
+            'application/vnd.google-apps.drawing': '.pdf'
+        }
+        return extension_map.get(google_mime_type, '.pdf')
+
     def download_file(self, file_id):
-        """Download file content"""
+        """Download file content - handles both regular files and Google Docs"""
         try:
-            request = self.service.files().get_media(fileId=file_id)
-            file_io = io.BytesIO()
-            downloader = MediaIoBaseDownload(file_io, request)
+            # First, get the file metadata to check its type
+            metadata = self.get_file_metadata(file_id)
+            mime_type = metadata['mime_type']
             
-            done = False
-            while done is False:
-                status, done = downloader.next_chunk()
-            
-            return file_io.getvalue()
+            # Check if it's a Google Workspace document
+            if self._is_google_doc(mime_type):
+                # Export Google Docs
+                export_mime_type = self._get_export_mime_type(mime_type)
+                request = self.service.files().export_media(
+                    fileId=file_id,
+                    mimeType=export_mime_type
+                )
+                
+                file_io = io.BytesIO()
+                downloader = MediaIoBaseDownload(file_io, request)
+                
+                done = False
+                while not done:
+                    status, done = downloader.next_chunk()
+                
+                # Add the appropriate extension to the filename
+                extension = self._get_export_extension(mime_type)
+                if not metadata['name'].endswith(extension):
+                    metadata['name'] = metadata['name'] + extension
+                    metadata['mime_type'] = export_mime_type
+                
+                return file_io.getvalue(), metadata
+            else:
+                # Download regular binary files
+                request = self.service.files().get_media(fileId=file_id)
+                file_io = io.BytesIO()
+                downloader = MediaIoBaseDownload(file_io, request)
+                
+                done = False
+                while not done:
+                    status, done = downloader.next_chunk()
+                
+                return file_io.getvalue(), metadata
             
         except HttpError as error:
             raise DriveClientError(f"An error occurred downloading: {error}")
@@ -222,7 +281,9 @@ class DriveClient:
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel',
             'text/plain': 'Text',
             'application/vnd.google-apps.document': 'Google Doc',
-            'application/vnd.google-apps.spreadsheet': 'Google Sheet'
+            'application/vnd.google-apps.spreadsheet': 'Google Sheet',
+            'application/vnd.google-apps.presentation': 'Google Slides',
+            'application/vnd.google-apps.drawing': 'Google Drawing'
         }
         # Default to generic type or Image if it starts with image/
         if mime_type and mime_type.startswith('image/'):

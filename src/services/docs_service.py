@@ -349,37 +349,22 @@ class DocsService:
             raise DocsServiceError(f"Failed to get document: {str(e)}")
     
     def download_document(self, file_id):
-        """
-        Download document content
-        
-        Args:
-            file_id: Google Drive file ID
-        
-        Returns:
-            Dictionary with file content and metadata
-        """
+        """Download a document"""
         try:
-            # Get metadata first
-            metadata = self.drive_client.get_file_metadata(file_id)
-            
-            # Download content
-            content = self.drive_client.download_file(file_id)
+            # download_file now returns (content, metadata)
+            content, metadata = self.drive_client.download_file(file_id)
             
             return {
                 'success': True,
                 'content': content,
                 'metadata': metadata
             }
-            
         except DriveClientError as e:
             logger.error(f"Drive error downloading document: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
-        except Exception as e:
-            logger.error(f"Unexpected error downloading document: {e}")
-            raise DocsServiceError(f"Failed to download document: {str(e)}")
     
     # ===== DOCUMENT MANAGEMENT =====
     
