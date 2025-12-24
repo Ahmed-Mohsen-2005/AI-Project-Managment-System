@@ -1,6 +1,7 @@
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
+from controllers.documentation_controller import docs_bp
 from controllers.task_controller import task_bp
 from controllers.report_controller import report_bp
 from controllers.note_controller import note_bp 
@@ -18,7 +19,7 @@ from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 from services.task_service import TaskService
-from i18n import get_locale, get_t  # Import the functions we created
+from i18n import get_locale, get_t
 from flask_mail import Mail
 import os
 mail = Mail()

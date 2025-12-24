@@ -1,82 +1,583 @@
-    {% extends "base.html" %}
+{% extends "base.html" %}
 
-    {% block title %}Dashboard - AIPMS{% endblock title %}
+{% block title %}Dashboard - AIPMS{% endblock title %}
 
-    {% block extra_css %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    {% endblock extra_css %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <style>
+        /* ===== ENHANCED DASHBOARD STYLES ===== */
+        
+        /* Container with better spacing */
+        .dashboard-container {
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
 
-    {% block content %}
+        /* Project Filter - THINNER & MORE COMPACT */
+        .project-filter-section {
+            background: var(--color-background-card);
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
 
+        .project-filter-section:hover {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .project-filter-section h3 {
+            margin: 0 0 12px 0;
+            color: var(--color-text-main);
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-        <!-- 2x3 Grid Layout -->
-        <div class="dashboard-grid">
-            
-            <!-- Top-Left: Calendar Widget -->
-            <div class="card widget calendar-widget">
-                <h2 class="widget-title">Calendar</h2>
-                <div class="calendar-content">
-                    <div class="next-deadline">
-                        <p class="deadline-label">Next Deadline</p>
-                        <p class="deadline-info" id="next-deadline-display">Loading...</p>
-                    </div>
-                    <ul id="calendar-deadlines" class="deadline-list">
-                        <!-- Upcoming deadlines populated by JS -->
-                    </ul>
-                </div>
+        .project-filter-section h3 i {
+            color: var(--color-primary);
+            font-size: 16px;
+        }
+        
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls label {
+            font-weight: 500;
+            color: var(--color-text-main);
+            font-size: 13px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-controls label i {
+            color: var(--color-primary);
+            font-size: 13px;
+        }
+        
+        #project-select {
+            flex: 1;
+            min-width: 220px;
+            max-width: 450px;
+            padding: 8px 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 13px;
+            background: var(--color-background-card);
+            color: var(--color-text-main);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        #project-select:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+        }
+        
+        #project-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        #project-select option {
+            background: var(--color-background-card);
+            color: var(--color-text-main);
+            padding: 8px;
+        }
+        
+        .filter-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            padding: 6px 10px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 5px;
+            border-left: 2px solid var(--color-primary);
+        }
+        
+        .filter-info i {
+            color: var(--color-primary);
+            font-size: 12px;
+        }
+
+        /* Enhanced Grid Layout - SWAPPED POSITIONS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            grid-template-rows: minmax(400px, auto) minmax(450px, auto) minmax(240px, auto);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Enhanced Widget Styles */
+        .widget {
+            background: var(--color-background-card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .widget:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text-main);
+            margin: 0 0 20px 0;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .widget-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--color-primary);
+            border-radius: 2px;
+        }
+
+        /* Calendar Widget - MORE SPACE */
+        .calendar-widget {
+            min-height: 400px;
+        }
+
+        .calendar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .calendar-widget .next-deadline {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 20px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-widget .deadline-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .calendar-widget .deadline-info {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .deadline-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* To-do List Widget - COMPACT BADGES LIKE IMAGE 2 */
+        .todo-widget {
+            min-height: 400px;
+        }
+
+        .todo-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            padding-right: 4px;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        /* COMPACT TODO BADGES - LIKE SECOND IMAGE */
+        #todo-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--color-border);
+            transition: background 0.2s;
+        }
+
+        #todo-list li:hover {
+            background: rgba(52, 152, 219, 0.05) !important;
+        }
+
+        #todo-list li span:first-of-type {
+            color: var(--color-text-main) !important;
+            font-weight: 500 !important;
+            flex: 1;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* SMALL COMPACT TODO BADGES */
+        #todo-list li span[style*="background"] {
+            flex-shrink: 0 !important;
+            padding: 4px 12px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            border-radius: 12px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            min-width: 55px !important;
+            text-align: center !important;
+        }
+
+        /* Empty state text */
+        #todo-list .empty-state {
+            color: var(--color-text-secondary) !important;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn-add-task {
+            margin-top: auto;
+            padding: 12px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-add-task:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-add-task:active {
+            transform: translateY(0);
+        }
+
+        /* Notes Widget - MORE SPACE */
+        .notes-widget {
+            min-height: 450px;
+        }
+
+        .notes-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .btn-add-note {
+            width: 100%;
+            padding: 12px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn-add-note:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .notes-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Team Members Widget - NOW IN ROW 2 RIGHT */
+        .team-widget {
+            min-height: 450px;
+        }
+
+        .team-members {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 20px;
+            padding: 10px 0;
+            overflow-y: auto;
+            max-height: 380px;
+        }
+
+        /* Time Tracker Widget - NOW AT BOTTOM (FULL WIDTH) */
+        .time-tracker-widget {
+            grid-column: 1 / -1;
+            min-height: 200px;
+            max-height: 240px;
+        }
+
+        .time-tracker-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* UNIFIED SCROLLBAR STYLING - Like Notes */
+        .todo-list::-webkit-scrollbar,
+        .notes-container::-webkit-scrollbar,
+        .deadline-list::-webkit-scrollbar,
+        .team-members::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todo-list::-webkit-scrollbar-track,
+        .notes-container::-webkit-scrollbar-track,
+        .deadline-list::-webkit-scrollbar-track,
+        .team-members::-webkit-scrollbar-track {
+            background: var(--color-background);
+            border-radius: 3px;
+        }
+
+        .todo-list::-webkit-scrollbar-thumb,
+        .notes-container::-webkit-scrollbar-thumb,
+        .deadline-list::-webkit-scrollbar-thumb,
+        .team-members::-webkit-scrollbar-thumb {
+            background: #bdc3c7;
+            border-radius: 3px;
+        }
+
+        .todo-list::-webkit-scrollbar-thumb:hover,
+        .notes-container::-webkit-scrollbar-thumb:hover,
+        .deadline-list::-webkit-scrollbar-thumb:hover,
+        .team-members::-webkit-scrollbar-thumb:hover {
+            background: #95a5a6;
+        }
+
+        /* Dark mode scrollbar */
+        body.dark-mode .todo-list::-webkit-scrollbar-track,
+        body.dark-mode .notes-container::-webkit-scrollbar-track,
+        body.dark-mode .deadline-list::-webkit-scrollbar-track,
+        body.dark-mode .team-members::-webkit-scrollbar-track,
+        html[data-theme="dark"] .todo-list::-webkit-scrollbar-track,
+        html[data-theme="dark"] .notes-container::-webkit-scrollbar-track,
+        html[data-theme="dark"] .deadline-list::-webkit-scrollbar-track,
+        html[data-theme="dark"] .team-members::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        body.dark-mode .todo-list::-webkit-scrollbar-thumb,
+        body.dark-mode .notes-container::-webkit-scrollbar-thumb,
+        body.dark-mode .deadline-list::-webkit-scrollbar-thumb,
+        body.dark-mode .team-members::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .todo-list::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .notes-container::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .deadline-list::-webkit-scrollbar-thumb,
+        html[data-theme="dark"] .team-members::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .time-tracker-widget {
+                grid-column: 1;
+            }
+
+            .widget {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 16px;
+            }
+
+            .project-filter-section {
+                padding: 12px 16px;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #project-select {
+                max-width: 100%;
+            }
+
+            .dashboard-grid {
+                gap: 16px;
+            }
+
+            .widget {
+                padding: 16px;
+            }
+
+            .team-members {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        /* Loading States */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading-placeholder {
+            animation: pulse 1.5s ease-in-out infinite;
+            background: var(--color-border);
+            border-radius: 4px;
+        }
+
+        /* Empty States */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+            text-align: center;
+            font-style: italic;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+
+<div class="dashboard-container">
+    <!-- Project Filter Section - THINNER -->
+    <div class="project-filter-section">
+        <h3><i class="fas fa-filter"></i> Filter Dashboard</h3>
+        <div class="filter-controls">
+            <label for="project-select">
+                <i class="fas fa-project-diagram"></i> Select Project:
+            </label>
+            <select id="project-select" class="form-select">
+                <option value="">All Projects</option>
+            </select>
+            <div class="filter-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Filter tasks,Team Members and notes by project</span>
             </div>
+        </div>
+    </div>
 
-            <!-- Top-Right: To-do List Widget -->
-            <div class="card widget todo-widget">
-                <h2 class="widget-title">To-do List</h2>
-                <ul id="todo-list" class="todo-list">
-                    <!-- Tasks loaded by JS -->
+    <!-- Dashboard Grid Layout -->
+    <div class="dashboard-grid">
+        
+        <!-- Row 1 Left: Calendar Widget -->
+        <div class="card widget calendar-widget">
+            <h2 class="widget-title">Calendar</h2>
+            <div class="calendar-content">
+                <div class="next-deadline">
+                    <p class="deadline-label">Next Deadline</p>
+                    <p class="deadline-info" id="next-deadline-display">Loading...</p>
+                </div>
+                <ul id="calendar-deadlines" class="deadline-list">
+                    <!-- Upcoming deadlines populated by JS -->
                 </ul>
-                <button id="add-task-btn" class="btn-add-task">
-                    <i class="fas fa-plus"></i> Add Task
-                </button>
             </div>
+        </div>
 
-            <!-- Middle-Left: Notes Widget -->
-            <div class="card widget notes-widget">
-                <h2 class="widget-title">Notes</h2>
-                <div class="notes-content" id="notes-content">
-                    <!-- Notes loaded by JS -->
-                </div>
+        <!-- Row 1 Right: To-do List Widget -->
+        <div class="card widget todo-widget">
+            <h2 class="widget-title">To-do List</h2>
+            <ul id="todo-list" class="todo-list">
+                <!-- Tasks loaded by JS -->
+            </ul>
+            <button id="add-task-btn" class="btn-add-task">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
+        </div>
+
+        <!-- Row 2 Left: Notes Widget -->
+        <div class="card widget notes-widget">
+            <h2 class="widget-title">Notes</h2>
+            <div class="notes-content" id="notes-content">
+                <!-- Notes loaded by JS -->
             </div>
+        </div>
 
-            <!-- Middle-Right: Team Tracker Widget -->
-            <div class="card widget team-tracker-widget">
-                <h2 class="widget-title">Team Tracker</h2>
-                <textarea id="project-updates-input" placeholder="Summarize project updates..." class="updates-input"></textarea>
-                <button id="generate-summary-btn" class="btn btn-primary">
-                    <i class="fas fa-magic"></i> Generate Summary
-                </button>
-                <div id="summary-output" class="summary-output hidden"></div>
+        <!-- Row 2 Right: Team Members Widget -->
+        <div class="card widget team-widget">
+            <h2 class="widget-title">Team Members</h2>
+            <div class="team-members" id="team-members">
+                <!-- Team members loaded by JS -->
             </div>
+        </div>
 
-            <!-- Bottom-Left: Time Tracker Widget -->
-            <div class="card widget time-tracker-widget">
-                <h2 class="widget-title">Time Tracker</h2>
-                <div class="time-tracker-content">
-                    <canvas id="time-tracker-chart"></canvas>
-                </div>
+        <!-- Row 3 Full Width: Time Tracker Widget -->
+        <div class="card widget time-tracker-widget">
+            <h2 class="widget-title">Time Tracker</h2>
+            <div class="time-tracker-content">
+                <canvas id="time-tracker-chart"></canvas>
             </div>
+        </div>
 
-            <!-- Bottom-Right: Team Widget -->
-            <div class="card widget team-widget">
-                <h2 class="widget-title">Team</h2>
-                <div class="team-members" id="team-members">
-                    <!-- Team members loaded by JS -->
-                </div>
-            </div>
+    </div> <!-- end dashboard-grid -->
+</div>
 
-        </div> <!-- end dashboard-grid -->
+{% endblock content %}
 
-
-    </div> <!-- end dashboard-container -->
-    {% endblock content %}
-
-    {% block extra_js %}
-        <script src="{{ url_for('static', filename='js/home.js') }}"></script>
-    {% endblock extra_js %}
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock extra_js %}
