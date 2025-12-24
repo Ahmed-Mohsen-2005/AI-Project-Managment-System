@@ -7,6 +7,7 @@ let currentProjectFilter = null;
 let currentFolderId = null;
 let currentView = 'grid';
 let allDocuments = [];
+let folderHistory = []; // Track folder navigation
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[DOCS] Page loaded, initializing...');
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize
     loadProjects();
     loadDocuments();
+    initializeBreadcrumb();
     
     // Event listeners
     if (uploadBtn) {
@@ -102,6 +104,79 @@ document.addEventListener('DOMContentLoaded', () => {
         folderForm.addEventListener('submit', handleCreateFolder);
     }
     
+    // ===== BREADCRUMB NAVIGATION =====
+    
+    function initializeBreadcrumb() {
+        const rootItem = document.querySelector('[data-folder="root"]');
+        if (rootItem) {
+            rootItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToRoot();
+            });
+        }
+    }
+    
+    function navigateToRoot() {
+        currentFolderId = null;
+        folderHistory = [];
+        updateBreadcrumb();
+        loadDocuments();
+    }
+    
+    function updateBreadcrumb() {
+        const breadcrumb = document.querySelector('.breadcrumb');
+        
+        // Clear all except root
+        const items = breadcrumb.querySelectorAll('.breadcrumb-item');
+        items.forEach((item, index) => {
+            if (index > 0) item.remove();
+        });
+        
+        // Add folder history
+        folderHistory.forEach((folder, index) => {
+            const item = createBreadcrumbItem(folder, index);
+            breadcrumb.appendChild(item);
+        });
+        
+        // Update active state
+        const allItems = breadcrumb.querySelectorAll('.breadcrumb-item');
+        allItems.forEach((item, index) => {
+            item.classList.toggle('active', index === allItems.length - 1);
+        });
+    }
+    
+    function createBreadcrumbItem(folder, index) {
+        const item = document.createElement('a');
+        item.href = '#';
+        item.className = 'breadcrumb-item';
+        item.dataset.folderId = folder.id;
+        item.innerHTML = `<i class="fas fa-chevron-right"></i> ${escapeHtml(folder.name)}`;
+        
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToFolderByIndex(index);
+        });
+        
+        return item;
+    }
+    
+    function navigateToFolderByIndex(index) {
+        // Remove folders after this index
+        folderHistory = folderHistory.slice(0, index + 1);
+        currentFolderId = folderHistory[index].id;
+        updateBreadcrumb();
+        loadDocuments();
+    }
+    
+    function openFolder(folderId, folderName) {
+        // Add to history
+        folderHistory.push({ id: folderId, name: folderName });
+        currentFolderId = folderId;
+        
+        updateBreadcrumb();
+        loadDocuments();
+    }
+    
     // ===== PROJECT FILTER =====
     
     async function loadProjects() {
@@ -151,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 filter.appendChild(option);
             });
             
-            // Restore previous selection
             if (currentValue) {
                 filter.value = currentValue;
             }
@@ -171,8 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ===== LOAD DOCUMENTS =====
     
-    async function loadDocuments(folderId = null) {
-        console.log('[DOCS] Loading documents...');
+    async function loadDocuments() {
+        console.log('[DOCS] Loading documents from folder:', currentFolderId || 'root');
         
         const filesContainer = document.getElementById('files-container');
         const emptyState = document.querySelector('.empty-state');
@@ -193,8 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 sort_by: 'recent'
             });
             
-            // Add folder filter if needed
-            // Note: You may need to modify your backend to support folder filtering
+            // Add folder filter
+            if (currentFolderId) {
+                params.append('folder_id', currentFolderId);
+            }
             
             const response = await fetch(`${DOCS_API_URL}?${params}`, {
                 method: 'GET',
@@ -214,16 +290,9 @@ document.addEventListener('DOMContentLoaded', () => {
             allDocuments = result.documents || [];
             console.log('[DOCS] Loaded', allDocuments.length, 'documents');
             
-            // Apply project filter if active
-            let filteredDocs = allDocuments;
-            if (currentProjectFilter) {
-                // Filter by project - you may need to add project_id to your docs
-                // For now, showing all docs
-                filteredDocs = allDocuments;
-            }
-            
-            renderDocuments(filteredDocs);
+            renderDocuments(allDocuments);
             updateStorageInfo(result);
+            updateFolderInfo();
             
         } catch (err) {
             console.error('[DOCS] Error:', err);
@@ -237,6 +306,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    function updateFolderInfo() {
+        // Update folder selector in upload modal
+        const uploadFolderInfo = document.getElementById('current-folder-info');
+        if (uploadFolderInfo) {
+            if (currentFolderId && folderHistory.length > 0) {
+                const currentFolder = folderHistory[folderHistory.length - 1];
+                uploadFolderInfo.innerHTML = `
+                    <i class="fas fa-folder"></i>
+                    Files will be uploaded to: <strong>${escapeHtml(currentFolder.name)}</strong>
+                `;
+                uploadFolderInfo.style.display = 'block';
+            } else {
+                uploadFolderInfo.innerHTML = `
+                    <i class="fas fa-home"></i>
+                    Files will be uploaded to: <strong>My Drive (Root)</strong>
+                `;
+                uploadFolderInfo.style.display = 'block';
+            }
+        }
+    }
+    
     function renderDocuments(documents) {
         const filesContainer = document.getElementById('files-container');
         const emptyState = document.querySelector('.empty-state');
@@ -245,12 +335,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!documents || documents.length === 0) {
             emptyState.style.display = 'flex';
+            emptyState.innerHTML = `
+                <i class="fas fa-folder-open"></i>
+                <h3>This folder is empty</h3>
+                <p>Upload files or create a new folder to get started</p>
+            `;
             return;
         }
         
         emptyState.style.display = 'none';
         
-        documents.forEach(doc => {
+        // Sort: folders first, then files
+        const folders = documents.filter(doc => doc.type === 'Folder');
+        const files = documents.filter(doc => doc.type !== 'Folder');
+        const sorted = [...folders, ...files];
+        
+        sorted.forEach(doc => {
             const card = createDocumentCard(doc);
             filesContainer.appendChild(card);
         });
@@ -271,16 +371,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3 class="file-name">${escapeHtml(doc.name)}</h3>
                 <div class="file-meta">
                     <span title="${doc.modified_at}">${doc.modified_relative || 'Unknown'}</span>
-                    ${doc.size_formatted ? `<span>${doc.size_formatted}</span>` : ''}
+                    ${doc.size && !isFolder ? `<span>${formatFileSize(parseInt(doc.size))}</span>` : ''}
                 </div>
             </div>
             <div class="file-actions">
-                ${doc.web_link ? `<a href="${doc.web_link}" target="_blank" class="file-action-btn" title="Open in Drive">
+                ${doc.web_link && !isFolder ? `<a href="${doc.web_link}" target="_blank" class="file-action-btn" title="Open in Drive">
                     <i class="fas fa-external-link-alt"></i>
                 </a>` : ''}
-                <button class="file-action-btn download-btn" data-id="${doc.id}" title="Download">
+                ${!isFolder ? `<button class="file-action-btn download-btn" data-id="${doc.id}" title="Download">
                     <i class="fas fa-download"></i>
-                </button>
+                </button>` : ''}
                 <button class="file-action-btn rename-btn" data-id="${doc.id}" title="Rename">
                     <i class="fas fa-edit"></i>
                 </button>
@@ -316,10 +416,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Click to open folder or preview
+        // Click to open folder
         if (isFolder) {
+            card.style.cursor = 'pointer';
             card.addEventListener('click', () => {
                 openFolder(doc.id, doc.name);
+            });
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
             });
         }
         
@@ -335,12 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'Image': 'fa-file-image',
             'Google Doc': 'fa-file-alt',
             'Google Sheet': 'fa-table',
+            'Google Slides': 'fa-file-powerpoint',
         };
         return iconMap[fileType] || 'fa-file';
     }
     
     function updateStorageInfo(result) {
-        // This is placeholder - implement based on your API response
         const usedEl = document.getElementById('storage-used');
         const totalEl = document.getElementById('storage-total');
         const progressEl = document.getElementById('storage-progress');
@@ -355,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleFilesUpload(files) {
         if (!files || files.length === 0) return;
         
-        console.log('[UPLOAD] Starting upload for', files.length, 'file(s)');
+        console.log('[UPLOAD] Starting upload for', files.length, 'file(s) to folder:', currentFolderId || 'root');
         
         const uploadList = document.getElementById('upload-list');
         uploadList.innerHTML = '';
@@ -376,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             loadDocuments();
             closeModal('upload-modal');
+            fileInput.value = ''; // Reset input
         }, 1000);
     }
     
@@ -400,11 +508,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('file', file);
         
+        // Add current folder ID if we're inside a folder
         if (currentFolderId) {
             formData.append('folder_id', currentFolderId);
         }
         
-        // Simulate progress (since we can't track XMLHttpRequest progress easily with fetch)
+        // Simulate progress
         const progressInterval = setInterval(() => {
             const currentWidth = parseInt(progressBar.style.width) || 0;
             if (currentWidth < 90) {
@@ -460,7 +569,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         const folderName = document.getElementById('folder-name').value.trim();
-        const projectId = document.getElementById('folder-project').value;
         
         if (!folderName) {
             showNotification('Folder name is required', 'error');
@@ -519,7 +627,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Download failed');
             }
             
-            // Create download link
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -635,7 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const filesContainer = document.getElementById('files-container');
         
-        // Update buttons
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute('data-view') === view) {
@@ -643,7 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Update container class
         if (view === 'list') {
             filesContainer.classList.remove('files-grid');
             filesContainer.classList.add('files-list');
@@ -653,46 +758,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // ===== BREADCRUMB NAVIGATION =====
-    
-    function openFolder(folderId, folderName) {
-        currentFolderId = folderId;
-        
-        // Update breadcrumb
-        const breadcrumb = document.querySelector('.breadcrumb');
-        const newItem = document.createElement('a');
-        newItem.href = '#';
-        newItem.className = 'breadcrumb-item active';
-        newItem.dataset.folder = folderId;
-        newItem.innerHTML = `<i class="fas fa-chevron-right"></i> ${escapeHtml(folderName)}`;
-        
-        // Remove active from previous items
-        breadcrumb.querySelectorAll('.breadcrumb-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        breadcrumb.appendChild(newItem);
-        
-        // Add click handler
-        newItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateToFolder(folderId);
-        });
-        
-        loadDocuments(folderId);
-    }
-    
-    function navigateToFolder(folderId) {
-        currentFolderId = folderId;
-        loadDocuments(folderId);
-    }
-    
     // ===== UTILITY FUNCTIONS =====
     
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = 'flex';
+            updateFolderInfo(); // Update folder info when opening upload modal
         }
     }
     
@@ -735,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function formatFileSize(bytes) {
-        if (!bytes) return 'Unknown';
+        if (!bytes || isNaN(bytes)) return 'Unknown';
         const sizes = ['B', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
@@ -764,6 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(400px); opacity: 0; }
         }
+        .folder { color: #f39c12 !important; }
     `;
     document.head.appendChild(style);
     

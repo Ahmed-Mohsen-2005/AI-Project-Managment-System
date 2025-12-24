@@ -28,18 +28,7 @@ class DocsService:
     
     # ===== DOCUMENT LISTING =====
     
-    def list_documents(self, limit=50, sort_by='recent', file_type=None):
-        """
-        Get list of documents with optional filtering
-        
-        Args:
-            limit: Maximum number of documents to return
-            sort_by: Sort order ('recent', 'name', 'size')
-            file_type: Filter by file type (e.g., 'PDF', 'Word')
-        
-        Returns:
-            Dictionary with documents list and metadata
-        """
+    def list_documents(self, limit=50, sort_by='recent', file_type=None, folder_id=None):
         try:
             # Map sort options to Drive API order
             order_map = {
@@ -52,11 +41,12 @@ class DocsService:
             # Map file type to MIME type if specified
             mime_type = self._get_mime_type_filter(file_type)
             
-            # Get files from Drive
+            # Get files from Drive (with folder filter)
             files = self.drive_client.list_files(
                 limit=limit,
                 order_by=order_by,
-                mime_type=mime_type
+                mime_type=mime_type,
+                folder_id=folder_id
             )
             
             # Add service-level enrichment
@@ -66,6 +56,7 @@ class DocsService:
                 'success': True,
                 'count': len(enriched_files),
                 'documents': enriched_files,
+                'folder_id': folder_id,
                 'timestamp': datetime.now().isoformat()
             }
             
@@ -79,7 +70,8 @@ class DocsService:
         except Exception as e:
             logger.error(f"Unexpected error listing documents: {e}")
             raise DocsServiceError(f"Failed to list documents: {str(e)}")
-    
+        
+
     def _get_mime_type_filter(self, file_type):
         """Map user-friendly file type to MIME type"""
         if not file_type:

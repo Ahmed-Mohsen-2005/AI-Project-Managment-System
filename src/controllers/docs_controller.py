@@ -33,12 +33,14 @@ def list_documents():
         - limit: number of documents (default: 50)
         - sort_by: recent|name|size (default: recent)
         - type: filter by file type
+        - folder_id: filter by folder (optional)
     """
     try:
         # Get query parameters
         limit = request.args.get('limit', 50, type=int)
         sort_by = request.args.get('sort_by', 'recent')
         file_type = request.args.get('type')
+        folder_id = request.args.get('folder_id')
         
         # Validate limit
         if limit < 1 or limit > 100:
@@ -52,7 +54,8 @@ def list_documents():
         result = service.list_documents(
             limit=limit,
             sort_by=sort_by,
-            file_type=file_type
+            file_type=file_type,
+            folder_id=folder_id
         )
         
         return jsonify(result), 200 if result['success'] else 500
@@ -69,7 +72,6 @@ def list_documents():
             'success': False,
             'error': str(e)
         }), 500
-
 
 @docs_bp.route('/api/documents/<file_id>', methods=['GET'])
 def get_document(file_id):

@@ -22,14 +22,20 @@ class DriveClient:
         """Initialize the Drive API client"""
         self.creds = None
         self.service = None
+        
+        # Get the base directory (project root) - where app.py is located
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.credentials_path = os.path.join(self.base_dir, 'credentials.json')
+        self.token_path = os.path.join(self.base_dir, 'token.json')
+        
         self._authenticate()
 
     def _authenticate(self):
         """Handle OAuth2 authentication"""
         try:
             # The file token.json stores the user's access and refresh tokens
-            if os.path.exists('token.json'):
-                self.creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+            if os.path.exists(self.token_path):
+                self.creds = Credentials.from_authorized_user_file(self.token_path, SCOPES)
             
             # If there are no (valid) credentials available, let the user log in.
             if not self.creds or not self.creds.valid:
@@ -37,15 +43,18 @@ class DriveClient:
                     self.creds.refresh(Request())
                 else:
                     # distinct check for credentials.json existence
-                    if not os.path.exists('credentials.json'):
-                        raise DriveClientError("credentials.json not found. Please download it from Google Cloud Console.")
+                    if not os.path.exists(self.credentials_path):
+                        raise DriveClientError(
+                            f"credentials.json not found at {self.credentials_path}. "
+                            f"Please download it from Google Cloud Console and place it in the project root."
+                        )
                         
                     flow = InstalledAppFlow.from_client_secrets_file(
-                        'credentials.json', SCOPES)
+                        self.credentials_path, SCOPES)
                     self.creds = flow.run_local_server(port=0)
                 
                 # Save the credentials for the next run
-                with open('token.json', 'w') as token:
+                with open(self.token_path, 'w') as token:
                     token.write(self.creds.to_json())
 
             self.service = build('drive', 'v3', credentials=self.creds)
@@ -54,10 +63,16 @@ class DriveClient:
             logger.error(f"Authentication failed: {e}")
             raise DriveClientError(f"Authentication failed: {e}")
 
-    def list_files(self, limit=50, order_by='modifiedTime desc', mime_type=None):
+    def list_files(self, limit=50, order_by='modifiedTime desc', mime_type=None, folder_id=None):
         """List files from Drive"""
         try:
             query = "trashed = false"
+            
+            # Filter by folder
+            if folder_id:
+                query += f" and '{folder_id}' in parents"
+            
+            # Filter by mime type
             if mime_type:
                 query += f" and mimeType = '{mime_type}'"
 
