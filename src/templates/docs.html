@@ -1,19 +1,150 @@
 {% extends "base.html" %}
 
-{% block title %}Documentation - AIPMS{% endblock title %}
+{% block title %}Docs - AIPMS{% endblock title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
 {% endblock extra_css %}
 
 {% block content %}
-    <!-- Your docs page content here -->
-    <div class="docs-container">
-        <h1>Documentation</h1>
-        <!-- Add your documentation content -->
+<div class="docs-container">
+    <!-- Search Bar -->
+    <div class="search-bar-container">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+            type="text" 
+            id="page-search" 
+            placeholder="Search files and folders..." 
+            autocomplete="off"
+        >
     </div>
-{% endblock content %}
 
-{% block extra_js %}
-    <script src="{{ url_for('static', filename='js/docs.js') }}"></script>
-{% endblock extra_js %}
+    <!-- Docs Header -->
+    <div class="docs-header">
+        <h1 class="page-title">
+            <i class="fas fa-folder-open"></i>
+            Documents
+        </h1>
+        <div class="docs-controls">
+            <div class="control-group">
+                <label for="project-filter">
+                    <i class="fas fa-filter"></i> Project:
+                </label>
+                <select id="project-filter" class="filter-select">
+                    <option value="">All Projects</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="upload-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Upload to Drive
+            </button>
+            <button class="btn btn-styled" id="create-folder-btn">
+                <i class="fas fa-folder-plus"></i>
+                New Folder
+            </button>
+        </div>
+    </div>
+
+    <!-- Storage Info -->
+    <div class="storage-info">
+        <div class="storage-stats">
+            <div class="stat-item">
+                <i class="fas fa-hdd"></i>
+                <span id="storage-used">0 GB</span> / <span id="storage-total">15 GB</span>
+            </div>
+            <div class="storage-bar">
+                <div class="storage-progress" id="storage-progress" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="grid" title="Grid View">
+                <i class="fas fa-th"></i>
+            </button>
+            <button class="view-btn" data-view="list" title="List View">
+                <i class="fas fa-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-container">
+        <nav class="breadcrumb">
+            <a href="#" class="breadcrumb-item active" data-folder="root">
+                <i class="fas fa-home"></i> My Drive
+            </a>
+        </nav>
+    </div>
+
+    <!-- Files Grid/List -->
+    <div class="files-section">
+        <div id="files-container" class="files-grid">
+            <!-- Files will be loaded dynamically -->
+            <div class="loading-skeleton"></div>
+            <div class="loading-skeleton"></div>
+            <div class="loading-skeleton"></div>
+            <div class="loading-skeleton"></div>
+        </div>
+        <div class="empty-state" style="display: none;">
+            <i class="fas fa-folder-open"></i>
+            <h3>No files yet</h3>
+            <p>Upload your first file to Google Drive</p>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="upload-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Upload to Google Drive
+            </h2>
+            <span class="close-btn" data-modal="upload-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="upload-zone" id="upload-zone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Drag & Drop Files Here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="file-input" multiple hidden>
+            </div>
+            <div class="upload-list" id="upload-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Folder Modal -->
+<div id="folder-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-folder-plus"></i>
+                Create New Folder
+            </h2>
+            <span class="close-btn" data-modal="folder-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="create-folder-form">
+                <div class="form-group">
+                    <label for="folder-name">Folder Name <span class="required">*</span></label>
+                    <input type="text" id="folder-name" name="folder-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="folder-project">Project</label>
+                    <select id="folder-project" name="folder-project">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary full-width-btn">
+                    <i class="fas fa-folder-plus"></i>
+                    Create Folder
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="{{ url_for('static', filename='js/docs.js') }}"></script>
+{% endblock content %}

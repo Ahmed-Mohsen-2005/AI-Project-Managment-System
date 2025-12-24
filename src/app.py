@@ -1,7 +1,7 @@
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
-from controllers.documentation_controller import docs_bp
+
 from controllers.task_controller import task_bp
 from controllers.report_controller import report_bp
 from controllers.note_controller import note_bp 
@@ -11,6 +11,8 @@ from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.admin_controller import admin_bp
 from controllers.auth_controller import auth_bp
+from controllers.docs_controller import docs_bp
+from controllers.documentation_controller import documentation_bp
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
@@ -46,6 +48,7 @@ mail = Mail(app)
 app.register_blueprint(user_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(sprint_bp)
+app.register_blueprint(docs_bp)
 app.register_blueprint(task_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(view_bp)
@@ -54,11 +57,14 @@ app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
 app.register_blueprint(auth_bp)
-app.register_blueprint(docs_bp)
 app.register_blueprint(profile_bp)
+app.register_blueprint(documentation_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(note_bp)  
 # In your main controller or app.py where the page is served
+
+
+
 
 # ✅ LANGUAGE SETUP - Runs before every request
 @app.before_request
@@ -83,7 +89,7 @@ def change_language():
     lang = data.get('language', 'en')
     
     # Validate language
-    if lang not in ['en', 'ar']:
+    if lang not in ['en', 'ar', 'fr']:
         return jsonify({'error': 'Invalid language'}), 400
     
     # Store in session
@@ -145,6 +151,7 @@ def reports():
     project_repo = RepositoryFactory.get_repository("project")    
     all_projects = project_repo.get_all()    
     return render_template("reports.html", projects=all_projects)
+
 @app.route("/settings")
 def settings():
     # Get current user from session (set by before_request hook)
@@ -190,5 +197,14 @@ def profile():
         print(f"[PROFILE] User ID {user_id} not found!")
     
     return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
+
+@app.route("/docs")
+def docs():
+    return render_template("docs.html")
+
+
+    #     project_repo = RepositoryFactory.get_repository("project")    
+    # all_projects = project_repo.get_all()    
+    # return render_template("reports.html", projects=all_projects)
 if __name__ == "__main__":
     app.run(debug=True)
