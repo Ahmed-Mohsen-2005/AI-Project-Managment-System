@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="profile-actions">
-                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Profile</button>
+                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> {{ t.edit_profile }}</button>
             </div>
         </div>
 
@@ -36,16 +36,16 @@
             
             <!-- Column 1: AI Performance Metrics & Stats -->
             <div class="card stats-widget">
-                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> Performance Summary (AI)</h2>
+                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> {{ t.performance_summary }}</h2>
                 <div class="stats-grid">
                     
                     <div class="stat-item">
                         <p class="stat-value text-primary" id="user-velocity">100%</p>
-                        <p class="stat-label">Avg. Sprint Velocity</p>
+                        <p class="stat-label">{{ t.avg_sprint_velocity }}</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-warning" id="task-rejection">5%</p>
-                        <p class="stat-label">Task Rejection Rate</p>
+                        <p class="stat-label">{{ t.task_rejection_rate }}</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-danger" id="risk-exposure">22%</p>

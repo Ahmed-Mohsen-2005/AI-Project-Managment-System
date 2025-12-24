@@ -7,7 +7,7 @@
 {% endblock extra_css %}
 
 {% block content %}
-    <div class="settings-container card" data-user-id="{{ user_id or 2 }}">
+    <div class="settings-container card" data-user-id="{{ user_id }}">
         <h1 class="page-title"><i class="fas fa-cog"></i> {{ t.settings_title }}</h1>
 
         <!-- Search Bar -->
@@ -38,17 +38,13 @@
                     
                     <section class="setting-section">
                         <h3>Display Preferences</h3>
-                        <div class="setting-group">
-                            <label class="toggle-switch">Dark Mode
-                                <input type="checkbox" id="dark-mode-toggle">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
+
                         <div class="setting-group">
                             <label for="language-select">Language</label>
                             <select id="language-select">
-                                <option>English (US)</option>
-                                <option>Arabic (AR)</option>
+                                <option value="en"{% if current_lang == 'en' %} selected{% endif %}>English (US)</option>
+                                <option value="ar"{% if current_lang == 'ar' %} selected{% endif %}>Arabic (AR)</option>
+                                <option value="fr"{% if current_lang == 'fr' %} selected{% endif %}>Français (FR)</option>
                             </select>
                         </div>
                     </section>
