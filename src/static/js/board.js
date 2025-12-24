@@ -1,16 +1,23 @@
-// Kanban Board - Task Management with Modal Popups
+// Kanban Board - Task Management with Project Filter
 const TASKS_API_URL = '/api/v1/tasks';
 const SPRINTS_API_URL = '/api/v1/sprints';
 const USERS_API_URL = '/api/v1/users';
+const PROJECTS_API_URL = '/api/v1/projects';
+
+// Global state for filtering
+let currentProjectFilter = null;
+let allSprints = [];
+let allTasks = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     const quickAddBtn = document.getElementById('quick-add-task-btn');
     const projectFilter = document.getElementById('project-filter');
 
-    // Initialize the board and load tasks for the default project
-    loadTasksToBoard();
+    // Initialize - Load projects first, then board
+    loadProjects();
+    loadSprintsAndTasks();
 
-    // Attach initial drag events (will be re-attached after load/filter)
+    // Attach initial drag events
     attachDragListeners();
 
     // --- EVENT LISTENERS ---
@@ -20,6 +27,117 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (projectFilter) {
         projectFilter.addEventListener('change', handleProjectFilterChange);
+    }
+
+    // ------------------------------------------------
+    // PROJECT FILTER FUNCTIONS
+    // ------------------------------------------------
+
+    async function loadProjects() {
+        console.log('[PROJECTS] Loading projects...');
+        
+        try {
+            const response = await fetch(PROJECTS_API_URL, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const projects = await response.json();
+            console.log('[PROJECTS] Received', projects.length, 'projects');
+            
+            populateProjectFilter(projects);
+            
+        } catch (err) {
+            console.error('[PROJECTS] Error:', err);
+            const projectFilter = document.getElementById('project-filter');
+            if (projectFilter) {
+                projectFilter.innerHTML = '<option value="">All Projects (Error loading)</option>';
+            }
+        }
+    }
+
+    function populateProjectFilter(projects) {
+        const projectFilter = document.getElementById('project-filter');
+        if (!projectFilter) return;
+        
+        projectFilter.innerHTML = '<option value="">All Projects</option>';
+        
+        projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project.project_id;
+            option.textContent = project.name || `Project ${project.project_id}`;
+            projectFilter.appendChild(option);
+        });
+        
+        console.log('[PROJECTS] Filter populated with', projects.length, 'projects');
+    }
+
+    async function loadSprintsAndTasks() {
+        try {
+            // Load sprints
+            const sprintsResponse = await fetch(SPRINTS_API_URL, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            if (sprintsResponse.ok) {
+                allSprints = await sprintsResponse.json();
+                console.log('[SPRINTS] Loaded', allSprints.length, 'sprints');
+            }
+            
+            // Load all tasks
+            const tasksResponse = await fetch(TASKS_API_URL, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            if (tasksResponse.ok) {
+                allTasks = await tasksResponse.json();
+                console.log('[TASKS] Loaded', allTasks.length, 'tasks');
+            }
+            
+            // Now render the board
+            await loadTasksToBoard();
+            
+        } catch (err) {
+            console.error('[INIT] Error loading data:', err);
+        }
+    }
+
+    async function handleProjectFilterChange() {
+        const projectFilter = document.getElementById('project-filter');
+        const projectId = projectFilter.value;
+        currentProjectFilter = projectId ? parseInt(projectId) : null;
+        
+        console.log('[FILTER] Changed to project:', currentProjectFilter || 'All');
+        
+        showNotification('Filtering board...', 'info');
+        
+        clearBoard();
+        await loadTasksToBoard();
+        
+        showNotification('✓ Board filtered', 'success');
+    }
+
+    function clearBoard() {
+        document.querySelectorAll('.task-list').forEach(list => list.innerHTML = '');
+    }
+
+    function getFilteredTasks() {
+        if (!currentProjectFilter) {
+            return allTasks;
+        }
+        
+        // Get sprints for the current project
+        const projectSprints = allSprints.filter(s => s.project_id === currentProjectFilter);
+        const sprintIds = projectSprints.map(s => s.sprint_id);
+        
+        // Filter tasks by sprint IDs
+        return allTasks.filter(t => sprintIds.includes(t.sprint_id));
     }
 
     // ------------------------------------------------
@@ -124,13 +242,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let users = [];
         
         try {
-            // Fetch sprints
-            const sprintsResponse = await fetch(SPRINTS_API_URL, {
-                method: 'GET',
-                credentials: 'include'
-            });
-            if (sprintsResponse.ok) {
-                sprints = await sprintsResponse.json();
+            // Use cached sprints if available
+            sprints = allSprints.length > 0 ? allSprints : [];
+            
+            // If not cached, fetch
+            if (sprints.length === 0) {
+                const sprintsResponse = await fetch(SPRINTS_API_URL, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (sprintsResponse.ok) {
+                    sprints = await sprintsResponse.json();
+                    allSprints = sprints;
+                }
             }
             
             // Fetch users
@@ -151,10 +275,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close loading modal
         closeModal(loadingModal);
         
+        // Filter sprints by project if filter is active
+        if (currentProjectFilter) {
+            sprints = sprints.filter(s => s.project_id === currentProjectFilter);
+            
+            if (sprints.length === 0) {
+                showNotification('No sprints available for this project. Please create a sprint first.', 'error');
+                return;
+            }
+        }
+        
+        // Check if we have any sprints at all
+        if (sprints.length === 0) {
+            showNotification('No sprints available. Please create a sprint first.', 'error');
+            return;
+        }
+        
         // Build sprint options HTML
-        const sprintOptions = sprints.length > 0 
-            ? sprints.map(sprint => `<option value="${sprint.sprint_id}">${sprint.name}</option>`).join('')
-            : '<option value="">No sprints available</option>';
+        const sprintOptions = sprints.map(sprint => 
+            `<option value="${sprint.sprint_id}">${sprint.name}</option>`
+        ).join('');
         
         // Build user options HTML
         const userOptions = users.length > 0
@@ -163,6 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const modalContent = `
             <div style="display: flex; flex-direction: column; gap: 15px;">
+                ${currentProjectFilter ? `<div style="padding: 10px; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 6px; color: #2e7d32; font-size: 13px;"><i class="fas fa-info-circle"></i> Task will be added to the currently filtered project</div>` : ''}
+                
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #2c3e50;">
                         Task Title <span style="color: red;">*</span>
@@ -328,29 +470,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(newTask)
             });
 
-            const responseText = await response.text();
-            const contentType = response.headers.get('content-type');
-            
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error(`Server error (${response.status}): Expected JSON response`);
-            }
-
-            const data = JSON.parse(responseText);
-
             if (!response.ok) {
+                const data = await response.json();
                 throw new Error(data.error || `Server error: ${response.status}`);
             }
 
+            const createdTask = await response.json();
+
             closeModal(modal);
 
-            // IMPORTANT FIX:
-            // Sync the project filter with the sprint used in the modal
-            const projectFilter = document.getElementById('project-filter');
-            if (projectFilter) {
-                projectFilter.value = sprintId.toString();
-            }
+            // Add the new task to our cache
+            allTasks.push(createdTask);
 
-            // Reload the kanban board to show the new task for that sprint
+            // Reload the board to show the new task
             clearBoard();
             await loadTasksToBoard();
             
@@ -363,20 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Add Task';
         }
-    }
-
-    // ------------------------------------------------
-    // PROJECT FILTER LOGIC
-    // ------------------------------------------------
-    
-    function handleProjectFilterChange() {
-        console.log(`[FILTER] Changing board view...`);
-        clearBoard();
-        loadTasksToBoard();
-    }
-
-    function clearBoard() {
-        document.querySelectorAll('.task-list').forEach(list => list.innerHTML = '');
     }
 
     // ------------------------------------------------
@@ -435,57 +553,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     }
 
-    function loadTasksToBoard() {
-        console.log("[ACTION] Loading tasks from database...");
+    async function loadTasksToBoard() {
+        console.log("[ACTION] Loading tasks to board...");
 
         const columns = {};
         document.querySelectorAll('.kanban-column').forEach(col => {
             columns[col.getAttribute('data-status')] = col.querySelector('.task-list');
         });
 
-        const projectFilter = document.getElementById('project-filter');
-        const currentFilterId = projectFilter ? projectFilter.value : 'all';
+        try {
+            // Get filtered tasks based on current project filter
+            const filteredTasks = getFilteredTasks();
+            
+            console.log(`[SUCCESS] Rendering ${filteredTasks.length} tasks on board`);
 
-        let apiUrl;
-        if (currentFilterId === 'all') {
-            apiUrl = '/api/v1/tasks/';
-        } else {
-            apiUrl = `/api/v1/tasks/sprint/${currentFilterId}`;
-        }
-
-        console.log(`[DEBUG] Current filter: "${currentFilterId}"`);
-        console.log(`[DEBUG] Fetching from: ${apiUrl}`);
-
-        fetch(apiUrl)
-            .then(response => {
-                console.log(`[DEBUG] Response status: ${response.status}`);
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error(`[ERROR] Server response: ${text}`);
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
+            filteredTasks.forEach((dbTask) => {
+                const uiTask = convertDBTaskToUI(dbTask);
+                const card = createTaskCard(uiTask);
+                if (columns[uiTask.status]) {
+                    columns[uiTask.status].appendChild(card);
                 }
-                return response.json();
-            })
-            .then(tasksFromDB => {
-                console.log(`[SUCCESS] Loaded ${tasksFromDB.length} tasks from database`);
-
-                tasksFromDB.forEach((dbTask) => {
-                    const uiTask = convertDBTaskToUI(dbTask);
-                    const card = createTaskCard(uiTask);
-                    if (columns[uiTask.status]) {
-                        columns[uiTask.status].appendChild(card);
-                    }
-                });
-
-                updateTaskCounts();
-                attachDragListeners();
-                console.log('[SUCCESS] Board loaded and rendered');
-            })
-            .catch(error => {
-                console.error('[ERROR] Failed to load tasks:', error);
-                updateTaskCounts();
             });
+
+            updateTaskCounts();
+            attachDragListeners();
+            console.log('[SUCCESS] Board loaded and rendered');
+            
+        } catch (error) {
+            console.error('[ERROR] Failed to load tasks:', error);
+            updateTaskCounts();
+        }
     }
 
     function convertDBTaskToUI(dbTask) {
@@ -561,7 +658,8 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         })
         .then(response => {
             if (!response.ok) {
@@ -573,6 +671,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             console.log(`[SUCCESS] Task ${taskId} deleted successfully`);
+            
+            // Remove from cache
+            allTasks = allTasks.filter(t => t.task_id !== parseInt(taskId));
             
             if (taskCard) {
                 taskCard.classList.add('deleting');
@@ -603,6 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             z-index: 10000;
             animation: slideIn 0.3s ease;
+            font-size: 14px;
         `;
         notification.textContent = message;
         document.body.appendChild(notification);
@@ -707,6 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ status: backendStatus })
         })
         .then(response => {
@@ -719,6 +822,13 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
             console.log(`[SUCCESS] Task ${taskId} status updated successfully to ${newStatus}`);
+            
+            // Update task in cache
+            const taskIndex = allTasks.findIndex(t => t.task_id === parseInt(taskId));
+            if (taskIndex !== -1) {
+                allTasks[taskIndex].status = backendStatus;
+            }
+            
             showNotification(`Task moved to ${newStatus}`, 'success');
         })
         .catch(error => {
@@ -766,7 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             to {
                 transform: translateX(400px);
-                opacity: 0);
+                opacity: 0;
             }
         }
         
@@ -778,6 +888,10 @@ document.addEventListener('DOMContentLoaded', () => {
         @keyframes fadeOut {
             from { opacity: 1; }
             to   { opacity: 0; }
+        }
+        
+        .task-card.deleting {
+            animation: fadeOut 0.3s ease;
         }
     `;
     document.head.appendChild(style);

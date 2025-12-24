@@ -1,6 +1,7 @@
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
+from controllers.documentation_controller import docs_bp
 from controllers.task_controller import task_bp
 from controllers.report_controller import report_bp
 from controllers.note_controller import note_bp 
@@ -19,12 +20,12 @@ from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 from services.task_service import TaskService
-from i18n import get_locale, get_t  # Import the functions we created
+from i18n import get_locale, get_t
 from flask_mail import Mail
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
-app.secret_key = SECRET_KEY  # Add this line - needed for session to work!
+app.secret_key = SECRET_KEY 
 
 from repositories.repository_factory import RepositoryFactory
 db = get_db() 
@@ -35,14 +36,14 @@ app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=465,
     MAIL_USE_TLS=False,
-    MAIL_USE_SSL=True,  # Must be False if using TLS/587
+    MAIL_USE_SSL=True,  
     MAIL_USERNAME='ahmedazab05@gmail.com',
-    MAIL_PASSWORD='irutaktwowcddgkc',  # The App Password, NO SPACES
+    MAIL_PASSWORD='irutaktwowcddgkc', 
     MAIL_DEFAULT_SENDER='ahmedazab05@gmail.com'
 )
 
 mail = Mail(app)
-# Register blueprints
+
 app.register_blueprint(user_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(sprint_bp)
