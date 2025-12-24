@@ -15,9 +15,9 @@ services:
     environment:
       # Database access details matching database_config.py's fallback values
 <<<<<<< HEAD
-      MYSQL_ROOT_PASSWORD: ali2005
+      MYSQL_ROOT_PASSWORD: mazen2004
 =======
-      MYSQL_ROOT_PASSWORD: ali2005
+      MYSQL_ROOT_PASSWORD: mazen2004
 >>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
       MYSQL_DATABASE: AIPMS
       MYSQL_USER: root
@@ -27,9 +27,9 @@ services:
     healthcheck:
       # Execute a simple authenticated query that must succeed
 <<<<<<< HEAD
-      test: ["CMD", "mysql", "--user=root", "--password=ali2005", "--execute", "SELECT 1"]
+      test: ["CMD", "mysql", "--user=root", "--password=mazen2004", "--execute", "SELECT 1"]
 =======
-      test: ["CMD", "mysql", "--user=root", "--password=ali2005", "--execute", "SELECT 1"]
+      test: ["CMD", "mysql", "--user=root", "--password=mazen2004", "--execute", "SELECT 1"]
 >>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
       interval: 5s
       timeout: 5s
@@ -57,9 +57,9 @@ services:
       DB_NAME: "AIPMS"
       DB_USER: "root"                # Use the MySQL root user name
 <<<<<<< HEAD
-      DB_PASSWORD: "ali2005" # Use the MySQL root user password
+      DB_PASSWORD: "mazen2004" # Use the MySQL root user password
 =======
-      DB_PASSWORD: "ali2005" # Use the MySQL root user password
+      DB_PASSWORD: "mazen2004" # Use the MySQL root user password
 >>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
       DB_TYPE: "mysql+pymysql"       # Ensure correct SQLAlchemy dialect
       SECRET_KEY: "Jana-Ahmed-Ali-Mazen-Hany-2025"
