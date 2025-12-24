@@ -34,56 +34,56 @@
     <div class="backlog-container">
         
         <header class="backlog-header">
-            <h1 class="page-title"><i class="fas fa-clipboard-list"></i> Project Backlog & Prioritization</h1>
+            <h1 class="page-title"><i class="fas fa-clipboard-list"></i> {{ t.backlog_prioritization }}</h1>
             <div class="backlog-controls">
                 <div class="control-group">
-                    <label for="project-filter">Project:</label>
+                    <label for="project-filter">{{ t.project }}:</label>
                     <select id="project-filter" class="filter-select">
-                        <option value="1">Core Backend Initiative</option>
-                        <option value="2">Frontend UI Revamp</option>
-                        <option value="all">All Projects</option>
+                        <option value="1">{{ t.core_backend_initiative }}</option>
+                        <option value="2">{{ t.frontend_ui_revamp }}</option>
+                        <option value="all">{{ t.all_projects }}</option>
                     </select>
                 </div>
                 
                 <div class="control-group">
-                    <label for="sort-by">Sort By:</label>
+                    <label for="sort-by">{{ t.sort_by }}</label>
                     <select id="sort-by" class="filter-select">
-                        <option value="ai_score">AI Priority Score (Desc)</option>
-                        <option value="priority">Manual Priority (Desc)</option>
-                        <option value="creation_date">Creation Date (Asc)</option>
+                        <option value="ai_score">{{ t.ai_priority_score }}</option>
+                        <option value="priority">{{ t.manual_priority }}</option>
+                        <option value="creation_date">{{ t.creation_date }}</option>
                     </select>
                 </div>
 
                 <button id="quick-add-item-btn" class="btn btn-primary btn-styled">
-                    <i class="fas fa-plus"></i> Add Backlog Item
+                    <i class="fas fa-plus"></i> {{ t.add_backlog_item }}
                 </button>
                 <button id="generate-docs-btn" class="btn btn-secondary btn-styled">
-                    <i class="fas fa-file-alt"></i> Generate Sprint Docs
+                    <i class="fas fa-file-alt"></i> {{ t.generate_report }}
                 </button>
             </div>
         </header>
 
         <section class="backlog-list-area card">
             <div class="backlog-list-header">
-                <span class="col-id">ID</span>
-                <span class="col-title">Title & Status</span>
-                <span class="col-priority">Priority</span>
-                <span class="col-assignee">Assignee</span>
-                <span class="col-score">Assigned Sprint</span>
-                <span class="col-actions">Actions</span>
+                <span class="col-id">{{ t.backlog_id }}</span>
+                <span class="col-title">{{ t.backlog_title }}</span>
+                <span class="col-priority">{{ t.backlog_priority }}</span>
+                <span class="col-assignee">{{ t.backlog_assignee }}</span>
+                <span class="col-score">{{ t.sprint }}</span>
+                <span class="col-actions">{{ t.actions }}</span>
             </div>
 
             <ul id="backlog-item-list" class="sortable-list">
-                <li class="loading-message">Loading backlog items...</li>
+                <li class="loading-message">{{ t.loading_backlog }}</li>
             </ul>
         </section>
         
         <div id="sprint-planning-target" class="card drop-target-area" data-sprint-id="2">
-            <i class="fas fa-layer-group"></i> Drag Items Here to Plan Next Sprint
+            <i class="fas fa-layer-group"></i> {{ t.plan_sprint }}
         </div>
         
         <div id="doc-output" style="display: none;">
-            <h3><i class="fas fa-file-alt"></i> Generated Sprint Documentation</h3>
+            <h3><i class="fas fa-file-alt"></i> {{ t.generate_report }}</h3>
             <div id="doc-content"></div>
         </div>
     </div>

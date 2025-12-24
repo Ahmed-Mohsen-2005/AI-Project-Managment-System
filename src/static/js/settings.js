@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     rbacSaveBtn.addEventListener('click', saveRBACPermissions);
     updateProfileBtn.addEventListener('click', redirectToProfile);
     deleteAccountBtn.addEventListener('click', confirmAccountDeletion);
+    
+    // Language change handler
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', handleLanguageChange);
+    }
 
 
     // --- 1. TAB SWITCHING LOGIC ---
@@ -122,5 +128,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // API call to /api/v1/integration/{type}/disconnect
         });
     });
+    
+    // --- 5. LANGUAGE CHANGE HANDLER ---
+    function handleLanguageChange(event) {
+        const selectedLanguage = event.target.value;
+        console.log('[LANGUAGE] Changing language to:', selectedLanguage);
+        
+        // Send language preference to server
+        fetch('/api/v1/settings/language', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ language: selectedLanguage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('[LANGUAGE] Language changed successfully to:', selectedLanguage);
+                // Reload the page to apply new language
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            } else {
+                alert('Failed to change language: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('[LANGUAGE] Error changing language:', error);
+            alert('Error changing language');
+        });
+    }
 
 });
