@@ -39,6 +39,22 @@ translations = {
         'agree_terms': 'By signing up, you agree to the',
         
         # ===== SETTINGS PAGE =====
+        'settings_security_role_management_title': 'Security & Role Management (Admin Only)',
+        'settings_authentication': 'Authentication',
+        'settings_2fa_label': 'Two-Factor Authentication (2FA)',
+        'settings_rbac_fr201': 'Role-Based Access Control (FR-201)',
+        'settings_manage_user_permissions': 'Manage User Permissions',
+        'settings_current_role_label': 'Current Role',
+        'settings_permission_header': 'Permission',
+        'settings_status_header': 'Status',
+        'settings_permission_manage_budget_fr403': 'Manage Budget (FR-403)',
+        'settings_permission_create_projects_fr101': 'Create Projects (FR-101)',
+        'settings_save_permissions': 'Save Permissions',
+        'settings_role_project_manager': 'Project Manager',
+        'settings_sample_user_alice': 'Alice J. (Team Member)',
+        'settings_sample_user_bob': 'Bob S. (Project Manager)',
+
+
         'settings_general_profile': 'General & Profile',
         'settings_security_rbac': 'Security & RBAC',
         'settings_integrations': 'Integrations',
@@ -387,6 +403,22 @@ translations = {
         'agree_terms': 'بالتسجيل، فإنك توافق على',
         
         # ===== SETTINGS PAGE =====
+
+        'settings_security_role_management_title': 'الأمان وإدارة الأدوار (للمسؤولين فقط)',
+        'settings_authentication': 'المصادقة',
+        'settings_2fa_label': 'المصادقة الثنائية (2FA)',
+        'settings_rbac_fr201': 'التحكم في الوصول القائم على الأدوار (FR-201)',
+        'settings_manage_user_permissions': 'إدارة أذونات المستخدم',
+        'settings_current_role_label': 'الدور الحالي',
+        'settings_permission_header': 'الإذن',
+        'settings_status_header': 'الحالة',
+        'settings_permission_manage_budget_fr403': 'إدارة الميزانية (FR-403)',
+        'settings_permission_create_projects_fr101': 'إنشاء المشاريع (FR-101)',
+        'settings_save_permissions': 'حفظ الأذونات',
+        'settings_role_project_manager': 'مدير مشروع',
+        'settings_sample_user_alice': 'أليس ج. (عضو فريق)',
+        'settings_sample_user_bob': 'بوب س. (مدير مشروع)',
+
         'settings_general_profile': 'عام والملف الشخصي',
         'settings_security_rbac': 'الأمان و RBAC',
         'settings_integrations': 'التكاملات',
@@ -720,6 +752,22 @@ translations = {
         'agree_terms': 'En vous inscrivant, vous acceptez les',
         
         # ===== SETTINGS PAGE =====
+
+        'settings_security_role_management_title': 'Sécurité et Gestion des Rôles (Admin Uniquement)',
+        'settings_authentication': 'Authentification',
+        'settings_2fa_label': 'Authentification à Deux Facteurs (2FA)',
+        'settings_rbac_fr201': "Contrôle d'Accès Basé sur les Rôles (FR-201)",
+        'settings_manage_user_permissions': 'Gérer les Permissions des Utilisateurs',
+        'settings_current_role_label': 'Rôle Actuel',
+        'settings_permission_header': 'Permission',
+        'settings_status_header': 'Statut',
+        'settings_permission_manage_budget_fr403': 'Gérer le Budget (FR-403)',
+        'settings_permission_create_projects_fr101': 'Créer des Projets (FR-101)',
+        'settings_save_permissions': 'Enregistrer les Permissions',
+        'settings_role_project_manager': 'Chef de Projet',
+        'settings_sample_user_alice': "Alice J. (Membre de l’Équipe)",
+        'settings_sample_user_bob': 'Bob S. (Chef de Projet)',
+
         'settings_general_profile': 'Général & Profil',
         'settings_security_rbac': 'Sécurité & RBAC',
         'settings_integrations': 'Intégrations',

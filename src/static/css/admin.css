@@ -528,6 +528,145 @@ form {
     margin-bottom: 20px;
 }
 
+
+/* ===== ADMIN SETTINGS (SECURITY & RBAC) ===== */
+
+.admin-settings-panel {
+    padding-top: 10px;
+}
+
+.admin-card {
+    background: #0f172a; /* dark navy card like screenshot */
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    padding: 24px 28px;
+}
+
+/* Inside card */
+.admin-setting-section + .admin-setting-section {
+    border-top: 1px solid rgba(148, 163, 184, 0.4);
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.admin-setting-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin-bottom: 16px;
+}
+
+.admin-setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 14px;
+}
+
+.admin-setting-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-setting-label {
+    color: #e5e7eb;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.admin-setting-help {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.admin-setting-control {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 220px;
+}
+
+/* Permissions table-style */
+.admin-permission-header {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-permission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.admin-permission-row:first-of-type {
+    border-top: none;
+}
+
+.admin-permission-row .permission-name {
+    color: #e5e7eb;
+}
+
+/* Toggle switch reused in admin context */
+.admin-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+.admin-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.admin-toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e7eb;
+    transition: 0.3s;
+    border-radius: 999px;
+}
+
+.admin-toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.admin-toggle-switch input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+.admin-toggle-switch input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+/* Footer button alignment */
+.admin-settings-footer {
+    margin-top: 18px;
+}
+
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .admin-header {

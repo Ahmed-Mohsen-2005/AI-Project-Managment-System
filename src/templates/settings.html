@@ -27,18 +27,18 @@
                 <button class="tab-item active" data-tab="general">
                     <i class="fas fa-sliders-h"></i> {{ t.settings_general_profile }}
                 </button>
-                <button class="tab-item" data-tab="security">
-                    <i class="fas fa-shield-alt"></i> {{ t.settings_security_rbac }}
-                </button>
+                <!-- <button class="tab-item" data-tab="security">
+                    <i class="fas fa-shield-alt"></i> {{ t.settings_security_rbac }} -->
+                <!-- </button> -->
                 <button class="tab-item" data-tab="integrations">
                     <i class="fas fa-plug"></i> {{ t.settings_integrations }}
                 </button>
                 <button class="tab-item" data-tab="ai-governance">
                     <i class="fas fa-brain"></i> {{ t.settings_ai_governance }}
                 </button>
-                <button class="tab-item" data-tab="notifications">
+                <!-- <button class="tab-item" data-tab="notifications">
                     <i class="fas fa-bell"></i> {{ t.settings_notifications }}
-                </button>
+                </button> -->
             </aside>
 
             <!-- Column 2: Tab Content -->
@@ -83,61 +83,6 @@
                                 <i class="fas fa-trash-alt"></i> {{ t.settings_delete_account }}
                             </button>
                         </div>
-                    </section>
-                </div>
-
-                <!-- 2. Security & RBAC Tab -->
-                <div class="tab-pane" id="pane-security">
-                    <h2 class="pane-title">{{ t.settings_security_role_management_title }}</h2>
-                    
-                    <section class="setting-section">
-                        <h3>{{ t.settings_authentication }}</h3>
-                        <div class="setting-group flex-justify">
-                            <label>{{ t.settings_2fa_label }}</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="2fa-toggle" checked>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </section>
-                    
-                    <section class="setting-section" id="rbac-management-section">
-                        <h3>{{ t.settings_rbac_fr201 }}</h3>
-                        <div class="setting-group">
-                            <label for="manage-user-select">{{ t.settings_manage_user_permissions }}</label>
-                            <select id="manage-user-select" class="full-width-input">
-                                <option value="1">{{ t.settings_sample_user_alice }}</option>
-                                <option value="2">{{ t.settings_sample_user_bob }}</option>
-                            </select>
-                        </div>
-                        <div class="setting-group">
-                            <label for="current-role">{{ t.settings_current_role_label }}</label>
-                            <span id="current-role" class="status-badge status-active">
-                                {{ t.settings_role_project_manager }}
-                            </span>
-                        </div>
-                        
-                        <div class="setting-group permission-grid">
-                            <label class="grid-header">{{ t.settings_permission_header }}</label>
-                            <label class="grid-header">{{ t.settings_status_header }}</label>
-                            
-                            <!-- Permission Item 1 -->
-                            <span class="permission-name">{{ t.settings_permission_manage_budget_fr403 }}</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" data-permission="manage_budget" checked>
-                                <span class="slider round"></span>
-                            </label>
-
-                            <!-- Permission Item 2 -->
-                            <span class="permission-name">{{ t.settings_permission_create_projects_fr101 }}</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" data-permission="create_project">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <button id="save-rbac-btn" class="btn btn-primary mt-md">
-                            {{ t.settings_save_permissions }}
-                        </button>
                     </section>
                 </div>
 
@@ -228,36 +173,7 @@
                     </section>
                 </div>
 
-                <!-- 5. Notifications Tab -->
-                <div class="tab-pane" id="pane-notifications">
-                    <h2 class="pane-title">{{ t.settings_notification_channels }}</h2>
-                    
-                    <section class="setting-section">
-                        <h3>{{ t.settings_email_preferences }}</h3>
-                        <div class="setting-group flex-justify">
-                            <label>{{ t.settings_receive_email_p1_tasks }}</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </section>
-                    
-                    <section class="setting-section">
-                        <h3>{{ t.settings_slack_configuration_linked }}</h3>
-                        <p>{{ t.settings_slack_alerts_channel }}</p>
-                        <div class="setting-group flex-justify">
-                            <label>{{ t.settings_receive_alerts_swarm_assignment_fr202 }}</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </section>
-                </div>
-            </main>
-        </div>
-    </div>
+
 {% endblock content %}
 
 {% block extra_js %}
