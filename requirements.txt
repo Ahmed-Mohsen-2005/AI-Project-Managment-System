@@ -4,3 +4,5 @@ requests
 pyodbc
 sqlalchemy
 python-dotenv
+flask_mail
+bcrypt
