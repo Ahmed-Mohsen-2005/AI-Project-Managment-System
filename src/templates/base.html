@@ -56,12 +56,18 @@
                 <a href="/repositories" id="nav-repos" class="nav-item">
                     <i class="fas fa-code-branch"></i> <span>{{ t.repos }}</span>
                 </a>
-                <a href="/whiteboard" id="nav-whiteboard" class="nav-item">
-                    <i class="fas fa-chalkboard"></i> <span>Whiteboard</span>
-                </a>
-                <a href="/drawio" id="nav-drawio" class="nav-item">
-                    <i class="fas fa-project-diagram"></i> <span>Diagrams</span>
-                </a>
+
+                <!-- Nested Tools Section -->
+                <div class="nav-item-parent" id="nav-tools-parent">
+                    <div class="nav-item has-submenu" id="tools-toggle">
+                        <i class="fas fa-toolbox"></i> <span>Tools</span>
+                        <i class="fas fa-chevron-down submenu-icon"></i>
+                    </div>
+                    <div class="submenu" id="tools-submenu">
+                        <a href="/whiteboard" class="nav-item submenu-item" id="nav-whiteboard"><i class="fas fa-chalkboard"></i> <span>Whiteboard</span></a>
+                        <a href="/drawio" class="nav-item submenu-item" id="nav-drawio"><i class="fas fa-project-diagram"></i> <span>Diagrams</span></a>
+                    </div>
+                </div>
 
             </nav>
             

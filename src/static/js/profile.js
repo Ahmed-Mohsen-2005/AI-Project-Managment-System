@@ -22,6 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZATION ---
     loadProfileData();
 
+    // Check if we should auto-open the edit modal (from settings page)
+    if (localStorage.getItem('openEditModal') === 'true') {
+        localStorage.removeItem('openEditModal');
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+            handleEditProfile();
+        }, 100);
+    }
+
     // --- EVENT LISTENERS ---
     addSkillBtn.addEventListener('click', handleAddSkill);
     editProfileBtn.addEventListener('click', handleEditProfile);

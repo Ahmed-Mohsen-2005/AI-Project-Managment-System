@@ -105,14 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tasks-remaining').textContent = data.stats.tasksRemaining || '0';
             document.getElementById('budget-forecast').textContent = data.stats.budgetForecast || '$0';
 
-            // 3. Widgets
-            renderAIRecommendations(data.recommendations || []);
+            // 3. Store critical tasks for assignment modal
             currentCriticalTasks = data.criticalTasks || [];
-            renderCriticalTasks(currentCriticalTasks);
-            renderActivityFeed(data.activities || []);
-            updateStressIndex(data.stressIndex || 0, data.stressDetail || '');
 
-            // 4. Chart
+            // 4. Widgets
+            renderActivityFeed(data.activities || []);
+
+            // 5. Chart
             loadBurndownChart(projectId);
         } catch (error) {
             console.error('Error loading project data:', error);
@@ -349,4 +348,5 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Failed to assign task. Please try again.');
         }
     }
+
 });
