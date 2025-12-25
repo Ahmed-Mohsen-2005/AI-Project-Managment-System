@@ -218,8 +218,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. PROFILE ACTIONS ---
+    const editModal = document.getElementById('edit-profile-modal');
+    const closeEditModalBtn = document.getElementById('close-edit-modal');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editForm = document.getElementById('edit-profile-form');
+
     function handleEditProfile() {
-        // Redirect to settings page for profile editing
-        window.location.href = '/settings?tab=general';
+        // Load current profile data into modal
+        document.getElementById('edit-name').value = document.getElementById('user-name').textContent;
+        document.getElementById('edit-email').value = document.getElementById('user-email').textContent;
+        document.getElementById('edit-role').value = currentUser.role || 'user';
+
+        // Show modal
+        editModal.classList.remove('hidden');
     }
+
+    function closeEditModal() {
+        editModal.classList.add('hidden');
+    }
+
+    closeEditModalBtn.addEventListener('click', closeEditModal);
+    cancelEditBtn.addEventListener('click', closeEditModal);
+
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('edit-name').value.trim(),
+            email: document.getElementById('edit-email').value.trim(),
+            role: document.getElementById('edit-role').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('[PROFILE] Profile updated successfully');
+
+                // Update UI
+                document.getElementById('user-name').textContent = formData.name;
+                document.getElementById('user-email').textContent = formData.email;
+                document.getElementById('user-role').textContent = formData.role;
+
+                // Update avatar with new initials
+                const initials = formData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                const avatarImg = document.getElementById('profile-avatar');
+                if (avatarImg) {
+                    avatarImg.src = `https://placehold.co/80x80/4a90e2/ffffff?text=${initials}`;
+                }
+
+                // Update localStorage
+                currentUser.name = formData.name;
+                currentUser.email = formData.email;
+                currentUser.role = formData.role;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                // Close modal
+                closeEditModal();
+
+                // Reload activity log to show the update
+                await loadActivityLog();
+
+                alert('Profile updated successfully!');
+            } else {
+                const err = await response.json();
+                alert('Error updating profile: ' + (err.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            alert('Failed to connect to server.');
+        }
+    });
 });

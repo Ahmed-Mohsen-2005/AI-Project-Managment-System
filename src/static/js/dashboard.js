@@ -1,110 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // =========================================================
-    // 1. STATIC MOCK DATA (Simulating Database/API)
+    // 1. API Configuration
     // =========================================================
-    const STATIC_DATA = {
-        users: [
-            { user_id: 101, name: "Ahmed Mahfouz" },
-            { user_id: 102, name: "Sarah Connor" },
-            { user_id: 103, name: "Ali Hassan" },
-            { user_id: 104, name: "Mazen R." }
-        ],
-        projects: [
-            { project_id: "p-001", name: "AIPMS - Core Platform" },
-            { project_id: "p-002", name: "Website Redesign 2025" },
-            { project_id: "p-003", name: "Mobile App Integration" }
-        ],
-        // Data for each specific project
-        details: {
-            "p-001": {
-                status: "ACTIVE",
-                sprintName: "Sprint 4 - AI Modules",
-                stats: {
-                    velocity: "72.5%",
-                    aiRiskIndex: 65,
-                    tasksRemaining: 24,
-                    budgetForecast: "$12,450"
-                },
-                recommendations: [
-                    { text: "High complexity detected in 'Algorithm Optimization'. Assign senior dev.", risk: "high" },
-                    { text: "Sprint velocity is 10% lower than average due to testing bottlenecks.", risk: "medium" },
-                    { text: "Review pending for 3 days on 'User Auth'.", risk: "low" }
-                ],
-                criticalTasks: [
-                    { id: 101, title: "Fix Memory Leak in Docker Container", priority: "P1" },
-                    { id: 102, title: "Refactor API Middleware", priority: "P1" },
-                    { id: 103, title: "Update Python Dependencies", priority: "P2" }
-                ],
-                activities: [
-                    { time: "10 min ago", detail: "Ahmed M. pushed to 'feature/ai-logic'" },
-                    { time: "2 hours ago", detail: "System flagged potential delay in Sprint 4" },
-                    { time: "Yesterday", detail: "Code Review completed for Module A" }
-                ],
-                stressIndex: 0.78,
-                stressDetail: "High workload detected. 2 members are over-allocated.",
-                burndown: {
-                    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
-                    ideal: [100, 85, 70, 55, 40, 25, 10],
-                    actual: [100, 95, 88, 75, 72, null, null] // Null simulates future days
-                }
-            },
-            "p-002": {
-                status: "PLANNING",
-                sprintName: "Backlog Refinement",
-                stats: {
-                    velocity: "0%",
-                    aiRiskIndex: 12,
-                    tasksRemaining: 45,
-                    budgetForecast: "$5,000"
-                },
-                recommendations: [
-                    { text: "Define clear acceptance criteria for UI stories.", risk: "medium" },
-                    { text: "Budget estimate missing for Frontend implementation.", risk: "low" }
-                ],
-                criticalTasks: [
-                    { id: 201, title: "Approve Wireframes", priority: "P1" },
-                    { id: 202, title: "Select Color Palette", priority: "P2" }
-                ],
-                activities: [
-                    { time: "1 day ago", detail: "Project created by Admin" },
-                    { time: "2 days ago", detail: "Initial budget approved" }
-                ],
-                stressIndex: 0.20,
-                stressDetail: "Team is in planning phase. Low stress.",
-                burndown: {
-                    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-                    ideal: [40, 30, 20, 10],
-                    actual: [40, 38, null, null]
-                }
-            },
-            "p-003": {
-                status: "COMPLETED",
-                sprintName: "Final Release",
-                stats: {
-                    velocity: "98%",
-                    aiRiskIndex: 5,
-                    tasksRemaining: 0,
-                    budgetForecast: "$0"
-                },
-                recommendations: [
-                    { text: "Project completed successfully. Archive repository.", risk: "low" }
-                ],
-                criticalTasks: [], // Empty to test empty state
-                activities: [
-                    { time: "1 week ago", detail: "Final deployment to production" },
-                    { time: "1 week ago", detail: "Client sign-off received" }
-                ],
-                stressIndex: 0.05,
-                stressDetail: "Project finished. No active workload.",
-                burndown: {
-                    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
-                    ideal: [50, 40, 30, 20, 10],
-                    actual: [50, 35, 25, 15, 0]
-                }
-            }
-        }
-    };
+    const API_BASE_URL = '/api/v1/dashboard';
 
     // =========================================================
     // 2. Element Mapping & Initialization
@@ -146,94 +45,109 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Logic Functions (Now using STATIC_DATA)
     // =========================================================
 
-    function loadProjects() {
-        console.log("Loading static projects...");
-        
-        // Populate selector from static data
-        selector.innerHTML = '';
-        const projects = STATIC_DATA.projects;
+    async function loadProjects() {
+        console.log("Loading projects from API...");
 
-        if (projects.length === 0) {
-            selector.innerHTML = '<option value="">No projects found</option>';
-            return;
-        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/projects`);
+            if (!response.ok) throw new Error('Failed to load projects');
 
-        projects.forEach(project => {
-            const option = document.createElement('option');
-            option.value = project.project_id;
-            option.textContent = project.name;
-            selector.appendChild(option);
-        });
+            const projects = await response.json();
 
-        // Load first project by default
-        if (projects.length > 0) {
-            loadProjectData(projects[0].project_id);
+            selector.innerHTML = '';
+
+            if (projects.length === 0) {
+                selector.innerHTML = '<option value="">No projects found</option>';
+                return;
+            }
+
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.project_id;
+                option.textContent = project.name;
+                selector.appendChild(option);
+            });
+
+            // Load first project by default
+            if (projects.length > 0) {
+                loadProjectData(projects[0].project_id);
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            selector.innerHTML = '<option value="">Error loading projects</option>';
         }
     }
 
-    function loadProjectData(projectId) {
+    async function loadProjectData(projectId) {
         if (!projectId) return;
 
-        // Simulate network delay for realism (optional)
-        // setTimeout(() => { ... }, 200);
+        try {
+            const response = await fetch(`${API_BASE_URL}/project/${projectId}`);
+            if (!response.ok) throw new Error('Failed to load project data');
 
-        const projectMeta = STATIC_DATA.projects.find(p => p.project_id === projectId);
-        const data = STATIC_DATA.details[projectId];
+            const data = await response.json();
 
-        if (!data || !projectMeta) {
-            console.error("No static data found for ID:", projectId);
-            return;
+            // --- Update UI ---
+
+            // 1. Header
+            document.querySelector('.page-title').innerHTML = `<i class="fas fa-chart-bar"></i> ${data.project.name} Analytics`;
+
+            const statusBadge = document.getElementById('project-status');
+            statusBadge.textContent = data.status;
+            statusBadge.className = 'status-badge';
+            if (data.status === 'COMPLETED') statusBadge.classList.add('status-completed');
+            else if (data.status === 'PLANNING') statusBadge.classList.add('status-planning');
+            else statusBadge.classList.add('status-active');
+
+            // 2. Metrics
+            document.getElementById('current-velocity').textContent = data.stats.velocity || '0%';
+            document.getElementById('risk-index').textContent = data.stats.aiRiskIndex || '0';
+            document.getElementById('tasks-remaining').textContent = data.stats.tasksRemaining || '0';
+            document.getElementById('budget-forecast').textContent = data.stats.budgetForecast || '$0';
+
+            // 3. Widgets
+            renderAIRecommendations(data.recommendations || []);
+            currentCriticalTasks = data.criticalTasks || [];
+            renderCriticalTasks(currentCriticalTasks);
+            renderActivityFeed(data.activities || []);
+            updateStressIndex(data.stressIndex || 0, data.stressDetail || '');
+
+            // 4. Chart
+            loadBurndownChart(projectId);
+        } catch (error) {
+            console.error('Error loading project data:', error);
+            alert('Failed to load project data. Please try again.');
         }
-
-        // --- Update UI ---
-
-        // 1. Header
-        document.querySelector('.page-title').innerHTML = `<i class="fas fa-chart-bar"></i> ${projectMeta.name} Analytics`;
-        
-        const statusBadge = document.getElementById('project-status');
-        statusBadge.textContent = data.status;
-        statusBadge.className = 'status-badge';
-        if (data.status === 'COMPLETED') statusBadge.classList.add('status-completed');
-        else if (data.status === 'PLANNING') statusBadge.classList.add('status-planning');
-        else statusBadge.classList.add('status-active');
-
-        // 2. Metrics
-        document.getElementById('current-velocity').textContent = data.stats.velocity;
-        document.getElementById('risk-index').textContent = data.stats.aiRiskIndex + '%';
-        document.getElementById('tasks-remaining').textContent = data.stats.tasksRemaining;
-        document.getElementById('budget-forecast').textContent = data.stats.budgetForecast;
-
-        // 3. Widgets
-        renderAIRecommendations(data.recommendations);
-        currentCriticalTasks = data.criticalTasks || [];
-        renderCriticalTasks(currentCriticalTasks);
-        renderActivityFeed(data.activities);
-        updateStressIndex(data.stressIndex, data.stressDetail);
-
-        // 4. Chart
-        loadBurndownChart(projectId);
     }
 
-    function loadBurndownChart(projectId) {
-        const data = STATIC_DATA.details[projectId]?.burndown;
-        const sprintName = STATIC_DATA.details[projectId]?.sprintName;
-
+    async function loadBurndownChart(projectId) {
         const chartContainer = document.getElementById('burndown-chart');
         const noDataMessage = document.getElementById('chart-no-data');
         const sprintNameEl = document.getElementById('sprint-name');
 
-        if (sprintNameEl) sprintNameEl.textContent = sprintName || 'Active Sprint';
+        try {
+            const response = await fetch(`${API_BASE_URL}/project/${projectId}/burndown`);
+            if (!response.ok) throw new Error('Failed to load burndown data');
 
-        if (!data || !data.labels) {
+            const data = await response.json();
+
+            if (sprintNameEl) sprintNameEl.textContent = data.sprintName || 'Active Sprint';
+
+            if (!data.labels || data.labels.length === 0) {
+                chartContainer.style.display = 'none';
+                noDataMessage.style.display = 'flex';
+                return;
+            }
+
+            chartContainer.style.display = 'block';
+            noDataMessage.style.display = 'none';
+
+            renderBurndownChart(data);
+        } catch (error) {
+            console.error('Error loading burndown chart:', error);
             chartContainer.style.display = 'none';
             noDataMessage.style.display = 'flex';
-            return;
         }
-
-        chartContainer.style.display = 'block';
-        noDataMessage.style.display = 'none';
-
-        renderBurndownChart(data);
     }
 
     function renderBurndownChart(data) {
@@ -357,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-    function openAssignModal() {
+    async function openAssignModal() {
         if (currentCriticalTasks.length === 0) {
             alert('No unassigned critical tasks available.');
             return;
@@ -372,14 +286,23 @@ document.addEventListener('DOMContentLoaded', () => {
             taskSelect.appendChild(option);
         });
 
-        // Populate Users (Static)
-        userSelect.innerHTML = '<option value="">-- Select a user --</option>';
-        STATIC_DATA.users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.user_id;
-            option.textContent = user.name;
-            userSelect.appendChild(option);
-        });
+        // Populate Users from API
+        try {
+            const response = await fetch(`${API_BASE_URL}/users`);
+            if (!response.ok) throw new Error('Failed to load users');
+
+            const users = await response.json();
+            userSelect.innerHTML = '<option value="">-- Select a user --</option>';
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.user_id;
+                option.textContent = user.name;
+                userSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading users:', error);
+            userSelect.innerHTML = '<option value="">Error loading users</option>';
+        }
 
         assignModal.style.display = 'flex';
     }
@@ -390,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userSelect.value = '';
     }
 
-    function handleAssignTask() {
+    async function handleAssignTask() {
         const taskId = taskSelect.value;
         const userId = userSelect.value;
 
@@ -399,19 +322,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Find the user name for the alert
-        const user = STATIC_DATA.users.find(u => u.user_id == userId);
-        
-        // Remove the task from the static data array to simulate assignment
         const projectId = selector.value;
-        if(STATIC_DATA.details[projectId]) {
-            STATIC_DATA.details[projectId].criticalTasks = STATIC_DATA.details[projectId].criticalTasks.filter(t => t.id != taskId);
+
+        try {
+            // Call API to assign task
+            const response = await fetch(`${API_BASE_URL}/task/${taskId}/assign`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to assign task');
+
+            const result = await response.json();
+            alert(result.message || 'Task successfully assigned!');
+            closeModal();
+
+            // Refresh view
+            await loadProjectData(projectId);
+        } catch (error) {
+            console.error('Error assigning task:', error);
+            alert('Failed to assign task. Please try again.');
         }
-
-        alert(`Task successfully assigned to ${user.name}!`);
-        closeModal();
-
-        // Refresh view
-        loadProjectData(projectId);
     }
 });

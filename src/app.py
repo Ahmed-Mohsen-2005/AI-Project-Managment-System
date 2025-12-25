@@ -193,5 +193,14 @@ def profile():
         print(f"[PROFILE] User ID {user_id} not found!")
     
     return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
+
+@app.route("/whiteboard")
+def whiteboard():
+    return render_template("whiteboard.html")
+
+@app.route("/drawio")
+def drawio():
+    return render_template("drawio.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
