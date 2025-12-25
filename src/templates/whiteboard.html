@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Whiteboard - AIPMS{% endblock title %}
+
+{% block extra_css %}
+<style>
+    /* Make iframe fill the entire content area */
+    #page-content {
+        padding: 0;
+        height: calc(100vh - 60px);
+        overflow: hidden;
+    }
+
+    .iframe-container {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #f8f9fa;
+    }
+
+    .iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="iframe-container">
+    <iframe
+        src="https://excalidraw.com/"
+        title="Whiteboard"
+        allow="clipboard-read; clipboard-write"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+    ></iframe>
+</div>
+{% endblock content %}
