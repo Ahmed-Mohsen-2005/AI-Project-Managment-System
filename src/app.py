@@ -16,6 +16,7 @@ from controllers.documentation_controller import documentation_bp
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
+from controllers.time_controller import time_bp
 from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
@@ -56,6 +57,7 @@ app.register_blueprint(project_bp)
 app.register_blueprint(notification_bp)
 app.register_blueprint(integration_bp)
 app.register_blueprint(file_attachment_bp)
+app.register_blueprint(time_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(documentation_bp)
