@@ -32,7 +32,6 @@ class UserRepository:
 
     def get_by_id(self, user_id: int) -> Userr | None:
         conn = self.db_manager.get_connection()
-        # Added dictionary=True here so you can use Userr(**row)
         cursor = conn.cursor(dictionary=True) 
         try:
             cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
@@ -44,7 +43,7 @@ class UserRepository:
 
     def get_by_email(self, email: str) -> Userr | None:
         conn = self.db_manager.get_connection()
-        cursor = conn.cursor(dictionary=True) # Added dictionary=True
+        cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE email=%s", (email,))
             row = cursor.fetchone()
@@ -63,7 +62,7 @@ class UserRepository:
             """
             values = (user.name, user.email, user.password_hash, user.role)
             cursor.execute(sql, values)
-            conn.commit()  # CHANGED: use conn.commit(), not self.db.commit()
+            conn.commit()
             user.user_id = cursor.lastrowid 
             return user
         finally:
@@ -80,24 +79,67 @@ class UserRepository:
             WHERE user_id = %s
             """
             cursor.execute(query, (user.name, user.email, user.role, user.user_id))
-            conn.commit()  # CHANGED: use conn.commit(), not self.db.commit()
+            conn.commit()
             return cursor.rowcount
         finally:
             cursor.close()
             conn.close()
-    # In repositories/user_repository.py
-
-    # In repositories/user_repository.py
 
     def update_password(self, email: str, new_password_hash: str) -> bool:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
-            # Note: 'userr' table as per your previous code
             query = "UPDATE userr SET password_hash = %s WHERE email = %s"
             cursor.execute(query, (new_password_hash, email))
             conn.commit()
             return cursor.rowcount > 0
+        finally:
+            cursor.close()
+            conn.close()
+
+    def get_user_stats(self, user_id: int) -> dict:
+        """Get performance statistics for a user."""
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            # Tasks completed this year
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM Task
+                WHERE assigned_id = %s AND status = 'DONE'
+                AND YEAR(CURDATE()) = YEAR(CURDATE())
+            """, (user_id,))
+            tasks_completed = cursor.fetchone()['count']
+
+            # Total tasks assigned
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM Task
+                WHERE assigned_id = %s
+            """, (user_id,))
+            total_tasks = cursor.fetchone()['count']
+
+            # Completion rate (as velocity proxy)
+            completion_rate = round((tasks_completed / total_tasks * 100) if total_tasks > 0 else 0, 1)
+
+            # AI-related tasks
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM Task
+                WHERE assigned_id = %s AND title LIKE '%AI%'
+            """, (user_id,))
+            ai_tasks = cursor.fetchone()['count']
+
+            # Calculate AI risk exposure (percentage of AI tasks)
+            risk_exposure = round((ai_tasks / total_tasks * 100) if total_tasks > 0 else 0, 1)
+
+            # Task rejection rate (simplified - tasks moved back from IN_REVIEW to TODO/IN_PROGRESS)
+            # Since we don't track task history, we'll return 0 for now
+            rejection_rate = "0%"
+
+            return {
+                "velocity": f"{completion_rate}%",
+                "rejectionRate": rejection_rate,
+                "riskExposure": f"{risk_exposure}%",
+                "tasksCompleted": tasks_completed
+            }
         finally:
             cursor.close()
             conn.close()

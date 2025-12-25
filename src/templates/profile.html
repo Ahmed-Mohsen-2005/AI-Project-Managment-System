@@ -19,15 +19,16 @@
         <!-- Profile Header Card -->
         <div class="card profile-header-card">
             <div class="profile-info-main">
-                <img src="https://placehold.co/80x80/4a90e2/ffffff?text=J" alt="User Avatar" class="profile-avatar-large">
+                {% set initials = current_user_name[0]|upper if current_user_name else 'U' %}
+                <img src="https://placehold.co/80x80/4a90e2/ffffff?text={{ initials }}" alt="User Avatar" class="profile-avatar-large" id="profile-avatar">
                 <div class="profile-text-details">
                     <h1 class="page-title" id="user-name">{{ current_user_name }}</h1>
-                    <p class="user-role" id="user-role">Project Manager (PM)</p>
+                    <p class="user-role" id="user-role">Loading...</p>
                     <p class="user-email" id="user-email">{{ current_user_email }}</p>
                 </div>
             </div>
             <div class="profile-actions">
-                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Profile</button>
+                <button id="edit-profile-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> {{ t.edit_profile }}</button>
             </div>
         </div>
 
@@ -36,16 +37,16 @@
             
             <!-- Column 1: AI Performance Metrics & Stats -->
             <div class="card stats-widget">
-                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> Performance Summary (AI)</h2>
+                <h2 class="widget-title"><i class="fas fa-chart-bar"></i> {{ t.performance_summary }}</h2>
                 <div class="stats-grid">
                     
                     <div class="stat-item">
                         <p class="stat-value text-primary" id="user-velocity">100%</p>
-                        <p class="stat-label">Avg. Sprint Velocity</p>
+                        <p class="stat-label">{{ t.avg_sprint_velocity }}</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-warning" id="task-rejection">5%</p>
-                        <p class="stat-label">Task Rejection Rate</p>
+                        <p class="stat-label">{{ t.task_rejection_rate }}</p>
                     </div>
                     <div class="stat-item">
                         <p class="stat-value text-danger" id="risk-exposure">22%</p>
@@ -83,6 +84,39 @@
                     <!-- Activity entries loaded by JS -->
                 </ul>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+                <button id="close-edit-modal" class="icon-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-name"><i class="fas fa-user"></i> Full Name <span class="required">*</span></label>
+                    <input type="text" id="edit-name" name="name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-email"><i class="fas fa-envelope"></i> Email <span class="required">*</span></label>
+                    <input type="email" id="edit-email" name="email" placeholder="Enter your email address" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-role"><i class="fas fa-briefcase"></i> Role <span class="required">*</span></label>
+                    <select id="edit-role" name="role" required>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="user">User</option>
+                        <option value="guest">Guest</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 {% endblock content %}

@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     rbacSaveBtn.addEventListener('click', saveRBACPermissions);
     updateProfileBtn.addEventListener('click', redirectToProfile);
     deleteAccountBtn.addEventListener('click', confirmAccountDeletion);
+    
+    // Language change handler
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) {
+        languageSelect.addEventListener('change', handleLanguageChange);
+    }
 
 
     // --- 1. TAB SWITCHING LOGIC ---
@@ -106,13 +112,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. INTEGRATION & DELETE LOGIC ---
     function redirectToProfile() {
+        // Set flag to open edit modal when profile page loads
+        localStorage.setItem('openEditModal', 'true');
         // Redirect to profile page
         window.location.href = '/profile';
     }
 
-    function confirmAccountDeletion() {
-        // Redirect to profile page (same as update profile button)
-        window.location.href = '/profile';
+    async function confirmAccountDeletion() {
+        // Get current user info
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || !currentUser.user_id) {
+            alert('Error: No user logged in');
+            return;
+        }
+
+        const userEmail = currentUser.email || 'your account';
+
+        // Show confirmation dialog
+        const confirmMessage = `⚠️ WARNING: This action cannot be undone!\n\n` +
+            `Are you sure you want to permanently delete your account (${userEmail})?\n\n` +
+            `This will delete:\n` +
+            `• Your profile and all personal information\n` +
+            `• All your skills and activity logs\n` +
+            `• Your project assignments`;
+
+        const firstConfirm = confirm(confirmMessage);
+        if (!firstConfirm) {
+            return;
+        }
+
+        // Final confirmation
+        const finalConfirm = confirm('Last chance! Are you absolutely sure you want to delete your account?');
+        if (!finalConfirm) {
+            return;
+        }
+
+        try {
+            // Call API to delete account
+            const response = await fetch(`/api/v1/users/${currentUser.user_id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Account deleted successfully. You will be logged out now.');
+
+                // Clear all user data from localStorage
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('user_id');
+
+                // Redirect to login page
+                window.location.href = '/';
+            } else {
+                const error = await response.json();
+                alert('Error deleting account: ' + (error.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('[DELETE ACCOUNT] Error:', error);
+            alert('Failed to delete account. Please try again or contact support.');
+        }
     }
     
     document.querySelectorAll('.disconnect-btn').forEach(btn => {
@@ -122,5 +183,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // API call to /api/v1/integration/{type}/disconnect
         });
     });
+    
+    // --- 5. LANGUAGE CHANGE HANDLER ---
+    function handleLanguageChange(event) {
+        const selectedLanguage = event.target.value;
+        console.log('[LANGUAGE] Changing language to:', selectedLanguage);
+        
+        // Send language preference to server
+        fetch('/api/v1/settings/language', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ language: selectedLanguage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('[LANGUAGE] Language changed successfully to:', selectedLanguage);
+                // Reload the page to apply new language
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            } else {
+                alert('Failed to change language: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('[LANGUAGE] Error changing language:', error);
+            alert('Error changing language');
+        });
+    }
 
 });

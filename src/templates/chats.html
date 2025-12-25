@@ -22,9 +22,9 @@
         
         <!-- Column 1: Channel List -->
         <aside class="chat-sidebar">
-            <h2 class="sidebar-title"><i class="fas fa-comments"></i> Channels</h2>
+            <h2 class="sidebar-title"><i class="fas fa-comments"></i> {{ t.channels }}</h2>
             <div class="search-channels">
-                <input type="text" placeholder="Search chats or users...">
+                <input type="text" placeholder="{{ t.search_chats }}">
             </div>
             <ul id="channel-list" class="channel-list">
                 <!-- Channels loaded by JS -->
@@ -42,8 +42,8 @@
                     <h2 id="current-channel-name"># Select a channel</h2>
                 </div>
                 <div class="chat-actions">
-                    <button title="Invite Member"><i class="fas fa-user-plus"></i></button>
-                    <button title="View Details"><i class="fas fa-info-circle"></i></button>
+                    <button title="{{ t.invite_member }}"><i class="fas fa-user-plus"></i></button>
+                    <button title="{{ t.view_details }}"><i class="fas fa-info-circle"></i></button>
                 </div>
             </header>
             
@@ -68,7 +68,7 @@
         
         <!-- Column 3: AI Context Panel -->
         <aside class="chat-context-panel">
-            <h2 class="sidebar-title"><i class="fas fa-microchip"></i> AI Context</h2>
+            <h2 class="sidebar-title"><i class="fas fa-microchip"></i> {{ t.ai_context }}</h2>
             
             <!-- AI Summary Button -->
             <button id="ai-summary-btn" class="btn btn-secondary full-width-btn">

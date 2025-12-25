@@ -1,6 +1,9 @@
-mysql-connector-python==8.0.33
 Flask>=2.2.0
 requests
-pyodbc
 sqlalchemy
 python-dotenv
+flask_mail
+mysql-connector-python==8.0.33
+pymysql
+cryptography
+bcrypt

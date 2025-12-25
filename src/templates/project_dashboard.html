@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Dashboard{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: var(--color-background-main);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--color-border);
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .project-meta h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        color: var(--color-text-main);
+    }
+
+    .project-meta p {
+        color: var(--color-text-secondary);
+        margin: 0;
+    }
+
+    .meta-tags {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .tag {
+        background: var(--color-background-light);
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-main);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* GitHub Section */
+    .github-section {
+        background: var(--color-background-main);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 16px 24px;
+        background: rgba(52, 152, 219, 0.05);
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .commit-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .commit-item {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: background 0.1s;
+    }
+
+    .commit-item:last-child { border-bottom: none; }
+    .commit-item:hover { background: var(--color-sidebar-hover); }
+
+    .commit-avatar {
+        width: 32px;
+        height: 32px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #555;
+        font-size: 12px;
+    }
+
+    .commit-content { flex: 1; }
+
+    .commit-msg {
+        display: block;
+        font-weight: 600;
+        color: var(--color-text-main);
+        text-decoration: none;
+        margin-bottom: 4px;
+    }
+
+    .commit-msg:hover { color: var(--color-primary); }
+
+    .commit-meta {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+    }
+
+    .sha-badge {
+        font-family: monospace;
+        background: var(--color-border);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+
+    <div class="dashboard-header">
+        <div class="project-meta">
+            <h1>{{ project.name }}</h1>
+            <p>{{ project.description }}</p>
+            
+            <div class="meta-tags">
+                <span class="tag"><i class="fas fa-calendar"></i> Due: {{ project.end_date or 'No Deadline' }}</span>
+                <span class="tag"><i class="fas fa-coins"></i> Budget: ${{ project.budget or '0' }}</span>
+                {% if project.github_repo %}
+                    <span class="tag" style="border-color: #2ea44f; color: #2ea44f; background: rgba(46, 164, 79, 0.1);">
+                        <i class="fab fa-github"></i> {{ project.github_repo }}
+                    </span>
+                {% else %}
+                    <span class="tag" style="color: var(--color-text-secondary);">
+                        <i class="fas fa-unlink"></i> No Repo Linked
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="project-actions">
+            <a href="/repositories" class="btn btn-secondary"><i class="fas fa-cog"></i> Manage Integration</a>
+        </div>
+    </div>
+
+    {% if project.github_repo %}
+        <div class="github-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-code-branch" style="color: var(--color-primary);"></i>
+                    Live Code Activity
+                </div>
+                <small style="color: var(--color-text-secondary);">Last 10 Commits</small>
+            </div>
+
+            {% if commits %}
+                <ul class="commit-list">
+                    {% for commit in commits %}
+                    <li class="commit-item">
+                        <div class="commit-avatar">{{ commit.author[0] | upper }}</div>
+                        <div class="commit-content">
+                            <a href="{{ commit.url }}" target="_blank" class="commit-msg">{{ commit.message }}</a>
+                            <div class="commit-meta">
+                                <span class="sha-badge">{{ commit.sha }}</span>
+                                {{ commit.author }} committed on {{ commit.date }}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div style="padding: 40px; text-align: center; color: var(--color-text-secondary);">
+                    <i class="fas fa-ghost" style="font-size: 24px; margin-bottom: 10px;"></i><br>
+                    No commits found or GitHub is not connected.
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 60px; border: 2px dashed var(--color-border); border-radius: 12px;">
+            <i class="fab fa-github" style="font-size: 48px; color: var(--color-text-secondary); margin-bottom: 20px;"></i>
+            <h3>No Code Repository Linked</h3>
+            <p style="margin-bottom: 20px;">Link a GitHub repository to see live commits and activity here.</p>
+            <a href="/repositories" class="btn btn-primary">Link Repository Now</a>
+        </div>
+    {% endif %}
+
+{% endblock content %}

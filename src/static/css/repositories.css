@@ -6,10 +6,12 @@
     font-size: 24px;
     font-weight: 600;
     margin-bottom: var(--spacing-lg);
+    color: var(--color-text-main); /* ✅ Fix: Ensure text follows theme */
 }
 
 .page-title i {
     margin-right: var(--spacing-sm);
+    color: var(--color-primary);
 }
 
 .repo-header-controls {
@@ -29,11 +31,13 @@
     padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 40px;
     border: 1px solid var(--color-border);
     border-radius: 8px;
+    background-color: var(--color-background-main); /* ✅ Fix: Dynamic bg */
+    color: var(--color-text-main); /* ✅ Fix: Dynamic text */
 }
 
 .repositories-layout-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Repositories list takes 2/3, status takes 1/3 */
+    grid-template-columns: 2fr 1fr; 
     gap: var(--spacing-lg);
 }
 
@@ -41,6 +45,10 @@
 .repo-list-card {
     grid-column: 1 / 2;
     min-height: 400px;
+    background-color: var(--color-background-main); /* ✅ Fix */
+    border: 1px solid var(--color-border); /* ✅ Fix: Add border for definition */
+    border-radius: 8px;
+    padding: var(--spacing-md); /* ✅ Fix: Add padding */
 }
 
 .repo-table-container {
@@ -64,8 +72,18 @@
 #repo-table tbody td {
     padding: var(--spacing-md) var(--spacing-sm);
     border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-main); /* ✅ Fix: Ensure row text is visible */
 }
 
+#repo-table tbody td a {
+    color: var(--color-text-main);
+    text-decoration: none;
+}
+#repo-table tbody td a:hover {
+    color: var(--color-primary);
+}
+
+/* Status Badges - Keeping colors but ensuring they pop */
 .status-badge {
     padding: 4px 8px;
     border-radius: 4px;
@@ -73,10 +91,9 @@
     font-weight: 600;
     color: white;
 }
-
-.status-badge.active { background-color: #4CAF50; } /* Green */
-.status-badge.inactive { background-color: #f44336; } /* Red */
-.status-badge.syncing { background-color: #ff9800; } /* Orange */
+.status-badge.active { background-color: #2ea44f; } /* GitHub Green */
+.status-badge.inactive { background-color: #cb2431; } /* GitHub Red */
+.status-badge.syncing { background-color: #dbab09; } /* GitHub Orange */
 
 /* Integration Status Card Styling */
 .integration-status-card {
@@ -86,8 +103,21 @@
     gap: var(--spacing-lg);
 }
 
-.github-integration, .slack-integration-status {
+.card {
+    background: var(--color-background-main);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
     padding: var(--spacing-lg);
+}
+
+.widget-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Status Indicator */
@@ -96,6 +126,7 @@
     align-items: center;
     margin-bottom: var(--spacing-md);
     font-weight: 600;
+    color: var(--color-text-main); /* ✅ Fix */
 }
 
 .status-dot {
@@ -105,13 +136,13 @@
     margin-right: var(--spacing-sm);
 }
 
-.status-indicator.connected .status-dot { background-color: #4CAF50; }
-.status-indicator.disconnected .status-dot { background-color: #f44336; }
-.status-indicator.syncing .status-dot { background-color: #ff9800; }
-.status-indicator.connected .status-text { color: #4CAF50; }
+.status-indicator.connected .status-dot { background-color: #2ea44f; }
+.status-indicator.disconnected .status-dot { background-color: #cb2431; }
+.status-indicator.connected .status-text { color: #2ea44f; }
+.status-indicator.disconnected .status-text { color: var(--color-text-secondary); }
 
 .btn-github {
-    background-color: var(--color-sidebar); /* Dark color for GitHub button */
+    background-color: #24292e; /* Standard GitHub Dark */
     color: white;
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 6px;
@@ -119,10 +150,11 @@
     cursor: pointer;
     margin-top: var(--spacing-sm);
     transition: background-color 0.2s;
+    width: 100%;
 }
 
 .btn-github:hover {
-    background-color: var(--color-sidebar-hover);
+    background-color: #444d56;
 }
 
 .config-settings {
@@ -131,12 +163,21 @@
     padding-top: var(--spacing-md);
 }
 
+.config-label {
+    color: var(--color-text-secondary); /* ✅ Fix */
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
 .config-settings input {
     width: 100%;
     padding: var(--spacing-sm);
     border: 1px solid var(--color-border);
     border-radius: 4px;
-    background-color: var(--color-background-main);
+    background-color: var(--color-background-light); /* ✅ Fix: Dark mode input bg */
+    color: var(--color-text-main); /* ✅ Fix: Input text color */
     font-size: 12px;
     margin-bottom: var(--spacing-sm);
 }
@@ -145,11 +186,15 @@
     font-size: 14px;
     font-weight: 600;
     margin: var(--spacing-sm) 0;
+    color: var(--color-text-main); /* ✅ Fix */
 }
 
 .checkbox-group label {
     display: block;
     font-size: 13px;
+    color: var(--color-text-secondary); /* ✅ Fix */
+    margin-bottom: 6px;
+    cursor: pointer;
 }
 
 .hidden {
@@ -159,38 +204,27 @@
 /* Responsive adjustments */
 @media (max-width: 900px) {
     .repositories-layout-grid {
-        grid-template-columns: 1fr; /* Stack vertically on smaller screens */
-    }
-
-    .repo-list-card, .integration-status-card {
-        grid-column: 1 / 2;
+        grid-template-columns: 1fr; 
     }
 }
 
-/* ===== REPOSITORIES PAGE SEARCH BAR STYLES ===== */
+/* ===== SEARCH BAR STYLES ===== */
 #page-search {
     width: 100%;
     max-width: 600px;
     padding: 12px 16px 12px 40px;
     font-size: 15px;
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border); /* ✅ Fix: Lighter border for dark mode */
     border-radius: 8px;
     background-color: var(--color-background-main);
     color: var(--color-text-main);
-    transition: all var(--transition-time) ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-#page-search:hover {
-    border-color: var(--color-primary-light, #5dade2);
-    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.1);
+    transition: all 0.2s ease;
 }
 
 #page-search:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    background-color: var(--color-background-light, #f9f9f9);
+    background-color: var(--color-background-light);
 }
 
 #page-search::placeholder {
@@ -203,7 +237,9 @@
     align-items: center;
     margin-bottom: 24px;
     padding: 16px;
-    background: linear-gradient(135deg, rgba(52, 152, 219, 0.03) 0%, rgba(41, 128, 185, 0.02) 100%);
+    /* ✅ Fix: Removed hardcoded gradient, used a variable friendly background */
+    background-color: var(--color-background-light); 
+    border: 1px solid var(--color-border);
     border-radius: 12px;
 }
 
@@ -212,4 +248,132 @@
     left: 32px;
     color: var(--color-primary);
     font-size: 16px;
+}
+
+/* ✅ MODAL STYLES (Fixed for Dark Mode) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* ✅ Fix: Darker overlay */
+    backdrop-filter: blur(2px); /* Modern touch */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--color-background-main); /* ✅ Fix: Dynamic BG */
+    padding: 24px;
+    border-radius: 12px;
+    width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* ✅ Fix: Stronger shadow for dark mode */
+    border: 1px solid var(--color-border);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border); /* Separator */
+    padding-bottom: 12px;
+}
+
+.modal-header h3 {
+    color: var(--color-text-main); /* ✅ Fix */
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 16px;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text-main); /* ✅ Fix */
+}
+
+.modal-body input[type="text"], 
+.modal-body textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-background-light); /* ✅ Fix: Dynamic Input BG */
+    color: var(--color-text-main); /* ✅ Fix: Dynamic Input Text */
+    font-family: inherit;
+}
+
+.modal-body input:focus, 
+.modal-body textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-text-secondary); /* ✅ Fix */
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--color-text-main);
+}
+/* ✅ Project Link Badge */
+.project-link-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background-color: rgba(52, 152, 219, 0.1); /* Light Blue */
+    color: var(--color-primary);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.project-link-badge:hover {
+    background-color: var(--color-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+}
+.btn-link-repo {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.btn-link-repo:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(52, 152, 219, 0.05);
 }
