@@ -25,7 +25,7 @@ class DatabaseConnection:
                     pool_reset_session=True,
                     host="localhost",
                     user="root",
-                    password="Hany2005",
+                    password="jana2005",
                     database="AIPMS"
                 )
                 print("Core Connection pool initialized successfully")

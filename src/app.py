@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
@@ -9,8 +12,10 @@ from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
-from controllers.docs_controller import docs_bp
 from controllers.documentation_controller import documentation_bp
+from controllers.slack_integration_controller import slack_bp
+
+
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
