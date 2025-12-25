@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Output areas
     const reportOutputTitle = document.getElementById('report-output-title');
-    const chartTitle = document.getElementById('chart-title');
+    // const chartTitle = document.getElementById('chart-title');
     const summaryOutput = document.getElementById('ai-summary-output');
     const analysisDetails = document.getElementById('analysis-details-list');
 
@@ -188,12 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'rca': "Root Cause Analysis (RCA)"
         };
         
-        const chartTitles = {
-            'summary': "Project Health Score Over Time",
-            'velocity': "Completed Points vs. Target Line",
-            'risk': "Risk Probability Over Time",
-            'rca': "Blocker Timeline"
-        };
+        // const chartTitles = {
+        //     'summary': "Project Health Score Over Time",
+        //     'velocity': "Completed Points vs. Target Line",
+        //     'risk': "Risk Probability Over Time",
+        //     'rca': "Blocker Timeline"
+        // };
 
         reportOutputTitle.textContent = titles[reportType] || "Report";
         chartTitle.textContent = chartTitles[reportType] || "Chart";
@@ -201,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryOutput.innerHTML = '<p class="loading-message">Select a project and click Generate Report to view AI-generated analysis.</p>';
         analysisDetails.innerHTML = '';
         
-        const chartArea = document.getElementById('chart-visualization');
-        chartArea.innerHTML = `<img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=${(chartTitles[reportType] || 'Chart').replace(/\s/g, '+')}" alt="Chart Placeholder">`;
+        // const chartArea = document.getElementById('chart-visualization');
+        // chartArea.innerHTML = `<img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=${(chartTitles[reportType] || 'Chart').replace(/\s/g, '+')}" alt="Chart Placeholder">`;
     }
 
     // ============================================

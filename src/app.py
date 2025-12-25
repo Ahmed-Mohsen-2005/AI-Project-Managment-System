@@ -72,7 +72,6 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(note_bp)  
-    app.register_blueprint(slack_bp)
     # In your main controller or app.py where the page is served
 
     # ✅ LANGUAGE SETUP - Runs before every request
@@ -226,7 +225,7 @@ def create_app():
     def export_pdf_route(project_id):
         from controllers import documentation_controller
         return documentation_controller.export_project_pdf(project_id)
-        
+
 
     return app
 if __name__ == "__main__":
