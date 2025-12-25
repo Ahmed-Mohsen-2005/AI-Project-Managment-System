@@ -60,7 +60,7 @@ def create_app():
     app.register_blueprint(task_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(report_bp)
-    # app.register_blueprint(slack_bp)
+    # app.register_blueprint(slack_bp)  
     app.register_blueprint(docs_bp)
     app.register_blueprint(view_bp)
     app.register_blueprint(project_bp)

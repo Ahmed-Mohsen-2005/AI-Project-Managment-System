@@ -1,10 +1,9 @@
 /* ---------------------------------------------------- */
-/* Reports Page Specific Styles */
+/* Reports Page Specific Styles - DARK MODE COMPATIBLE */
 /* ---------------------------------------------------- */
 
 :root {
     --ai-highlight: #4a90e2;    /* Primary Blue */
-    --chart-bg: #f5f5f5;
     --rca-color: #cc6600;
 }
 
@@ -14,48 +13,141 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-lg);
+    padding: 20px 24px;
+    background: var(--color-background-card);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+
+.reports-header:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .reports-header:hover,
+html[data-theme="dark"] .reports-header:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .page-title {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: color 0.3s ease;
+    letter-spacing: -0.5px;
+}
+
+.page-title i {
+    color: var(--color-primary);
+    font-size: 26px;
 }
 
 .reports-controls {
     display: flex;
     gap: var(--spacing-md);
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .filter-select {
-    padding: 8px 12px;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
+    padding: 10px 14px;
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--color-background-card);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: all 0.3s ease;
     min-width: 180px;
-    background-color: white;
+}
+
+.filter-select:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
 }
 
 .btn-styled {
-    background: linear-gradient(145deg, var(--color-primary), var(--color-primary-dark));
+    background: var(--color-primary);
     color: white;
-    padding: 10px 18px;
+    padding: 11px 22px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-styled::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-styled:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-styled:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.btn-styled:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
 .btn-secondary {
-    background-color: #a0a0a0;
+    background-color: #95a5a6;
     color: white;
-    padding: 10px 18px;
+    padding: 11px 22px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
 }
 
 /* 1. Reports Grid Layout */
@@ -69,9 +161,21 @@
 
 .card {
     padding: var(--spacing-lg);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    background-color: white;
-    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    background-color: var(--color-background-card);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .card:hover,
+html[data-theme="dark"] .card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Widget Layout */
@@ -81,10 +185,12 @@
     display: flex;
     flex-direction: column;
 }
+
 .chart-area-widget {
     grid-column: 2 / 3; /* Right Column */
     grid-row: 1 / 2;
 }
+
 .metrics-details-widget {
     grid-column: 2 / 3; /* Right Column */
     grid-row: 2 / 3;
@@ -92,31 +198,81 @@
 
 /* 2. Content Specific Styles */
 .widget-title {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     margin-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 2px solid var(--color-border);
     padding-bottom: var(--spacing-sm);
+    color: var(--color-text-main);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.widget-title i {
+    color: var(--color-primary);
 }
 
 .ai-report-box {
     flex-grow: 1;
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: var(--spacing-md);
-    background-color: var(--chart-bg);
+    background-color: var(--color-background);
     margin-bottom: var(--spacing-md);
     white-space: pre-wrap; /* Preserve formatting for AI summary */
-    line-height: 1.5;
+    line-height: 1.6;
     font-size: 14px;
     color: var(--color-text-main);
-    
     max-height: 500px;
     overflow-y: auto;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .ai-report-box,
+html[data-theme="dark"] .ai-report-box {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbar styling for AI report box */
+.ai-report-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ai-report-box::-webkit-scrollbar-track {
+    background: var(--color-background);
+    border-radius: 4px;
+}
+
+.ai-report-box::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.ai-report-box::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+body.dark-mode .ai-report-box::-webkit-scrollbar-track,
+html[data-theme="dark"] .ai-report-box::-webkit-scrollbar-track {
+    background: var(--color-background);
+}
+
+body.dark-mode .ai-report-box::-webkit-scrollbar-thumb,
+html[data-theme="dark"] .ai-report-box::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+}
+
+body.dark-mode .ai-report-box::-webkit-scrollbar-thumb:hover,
+html[data-theme="dark"] .ai-report-box::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .ai-report-box strong.highlight {
-    color: var(--ai-highlight);
+    color: var(--color-primary);
     font-weight: 700;
 }
 
@@ -126,93 +282,193 @@
     align-items: center;
     height: 100%;
     min-height: 300px;
-    background-color: var(--chart-bg);
-    border-radius: 6px;
+    background-color: var(--color-background);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+    color: var(--color-text-secondary);
+    font-size: 14px;
 }
 
 .analysis-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
+
 .analysis-list li {
     padding: var(--spacing-sm) 0;
     border-bottom: 1px dashed var(--color-border);
     display: flex;
     justify-content: space-between;
     font-size: 13px;
+    color: var(--color-text-main);
+    transition: all 0.3s ease;
 }
+
 .analysis-list li:last-child {
     border-bottom: none;
 }
 
-.mt-md { margin-top: var(--spacing-md); }
-.full-width-btn { width: 100%; }
+.analysis-list li:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 4px;
+}
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-    .reports-grid {
-        grid-template-columns: 1fr; /* Single column stack */
-    }
-    .reports-grid > div {
-        grid-column: 1 / -1;
-    }
-    .report-output-widget {
-        grid-row: 1 / 2; /* Push output back to top */
-    }
-    .chart-area-widget {
-        grid-row: 2 / 3;
-    }
-    .metrics-details-widget {
-        grid-row: 3 / 4;
-    }
-    .chart-visualization-placeholder {
-        min-height: 250px;
-    }
+body.dark-mode .analysis-list li:hover,
+html[data-theme="dark"] .analysis-list li:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.analysis-list li span:first-child {
+    font-weight: 600;
+}
+
+.analysis-list li span:last-child {
+    color: var(--color-text-secondary);
+}
+
+.mt-md { 
+    margin-top: var(--spacing-md); 
+}
+
+.full-width-btn { 
+    width: 100%; 
+    justify-content: center;
 }
 
 /* ===== REPORTS PAGE SEARCH BAR STYLES ===== */
+.search-bar-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: var(--color-background-card);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--color-border);
+}
+
+.search-bar-container:hover {
+    border-color: rgba(52, 152, 219, 0.3);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.search-bar-container .search-icon {
+    position: absolute;
+    left: 36px;
+    color: var(--color-primary);
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
 #page-search {
     width: 100%;
     max-width: 600px;
     padding: 12px 16px 12px 40px;
     font-size: 15px;
     border: 2px solid var(--color-border);
-    border-radius: 8px;
-    background-color: var(--color-background-main);
+    border-radius: 10px;
+    background-color: var(--color-background-card);
     color: var(--color-text-main);
-    transition: all var(--transition-time) ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    font-weight: 500;
 }
 
 #page-search:hover {
-    border-color: var(--color-primary-light, #5dade2);
-    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    transform: translateY(-1px);
 }
 
 #page-search:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    background-color: var(--color-background-light, #f9f9f9);
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+    transform: translateY(0);
 }
 
 #page-search::placeholder {
     color: var(--color-text-secondary);
+    font-weight: 400;
 }
 
-.search-bar-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 24px;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(52, 152, 219, 0.03) 0%, rgba(41, 128, 185, 0.02) 100%);
-    border-radius: 12px;
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .reports-grid {
+        grid-template-columns: 1fr; /* Single column stack */
+    }
+    
+    .reports-grid > div {
+        grid-column: 1 / -1;
+    }
+    
+    .report-output-widget {
+        grid-row: 1 / 2; /* Push output back to top */
+    }
+    
+    .chart-area-widget {
+        grid-row: 2 / 3;
+    }
+    
+    .metrics-details-widget {
+        grid-row: 3 / 4;
+    }
+    
+    .chart-visualization-placeholder {
+        min-height: 250px;
+    }
+    
+    .reports-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px 20px;
+    }
+    
+    .reports-controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
 }
 
-.search-bar-container .search-icon {
-    position: absolute;
-    left: 32px;
-    color: var(--color-primary);
-    font-size: 16px;
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 24px;
+    }
+    
+    .search-bar-container {
+        padding: 12px 16px;
+    }
+    
+    #page-search {
+        max-width: 100%;
+    }
+    
+    .ai-report-box {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-title {
+        font-size: 20px;
+    }
+    
+    .card {
+        padding: var(--spacing-md);
+    }
+    
+    .widget-title {
+        font-size: 16px;
+    }
 }
