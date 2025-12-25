@@ -10,12 +10,12 @@ services:
       - mysql_data:/var/lib/mysql
     command: --lower_case_table_names=1
     environment:
-      MYSQL_ROOT_PASSWORD: AhmedMohsen2005
+      MYSQL_ROOT_PASSWORD: mazen2004
       MYSQL_DATABASE: AIPMS
     
     # Robust Health Check
     healthcheck:
-      test: ["CMD", "mysql", "--user=root", "--password=AhmedMohsen2005", "--execute", "SELECT 1"]
+      test: ["CMD", "mysql", "--user=root", "--password=mazen2004", "--execute", "SELECT 1"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -48,7 +48,7 @@ services:
       DB_PORT: "3306"
       DB_NAME: "AIPMS"
       DB_USER: "root"
-      DB_PASSWORD: "AhmedMohsen2005"
+      DB_PASSWORD: "mazen2004"
       DB_TYPE: "mysql+pymysql"
       
       # --- Security ---

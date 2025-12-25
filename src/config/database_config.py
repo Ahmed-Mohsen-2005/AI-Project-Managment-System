@@ -3,7 +3,7 @@ import os
 class Config:
     # 1. Fetch Environment Variables (with defaults for local testing)
     DB_USER = os.environ.get('DB_USER', 'root')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'AhmedMohsen2005')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', 'mazen2004')
     DB_HOST = os.environ.get('DB_HOST', 'localhost') # Docker will set this to 'mysql-db'
     DB_PORT = os.environ.get('DB_PORT', '3306')
     DB_NAME = os.environ.get('DB_NAME', 'AIPMS')
