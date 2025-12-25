@@ -43,7 +43,8 @@ def create_app():
         MAIL_DEFAULT_SENDER='ahmedazab05@gmail.com',
         GITHUB_CLIENT_ID='Ov23liq32CIu50Dq3TPd',
         GITHUB_CLIENT_SECRET='6796059b992356cf037943b6c7391d5b05327607', # <--- PASTE YOUR SECRET HERE
-        GITHUB_REDIRECT_URI=f"{base_url}/integration/github/callback")
+        GITHUB_REDIRECT_URI=f"{base_url}/integration/github/callback",
+        GITHUB_WEBHOOK_SECRET='my_secure_webhook_secret_123')
 
     # Register blueprints
     app.register_blueprint(user_bp)

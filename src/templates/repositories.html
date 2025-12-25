@@ -62,7 +62,7 @@
 
                 <div id="github-config" class="config-settings hidden">
                     <p class="config-label">{{ t.webhook_url }}</p>
-                    <input type="text" value="{{ BASE_URL }}/v1/webhook/github" readonly>
+                    <input type="text" value="https://nonfossiliferous-laughingly-malaya.ngrok-free.dev/integration/webhook/github" readonly>
                     <button class="btn btn-secondary btn-sm copy-btn"><i class="fas fa-copy"></i> {{ t.copy }}</button>
                     
                     <h3 class="config-subtitle">{{ t.default_notifications }}</h3>
@@ -78,6 +78,35 @@
             <div class="card slack-integration-status">
                 <h2 class="widget-title"><i class="fab fa-slack"></i> Slack Integration</h2>
                 <p>Manage Slack notifications in <a href="/settings">Settings</a>.</p>
+            </div>
+        </div>
+    </div>
+    <div id="create-repo-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> {{ t.new_repository }}</h3>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-repo-name">{{ t.repository_name }} *</label>
+                    <input type="text" id="new-repo-name" placeholder="e.g., AIPMS-Module-X">
+                </div>
+                <div class="form-group">
+                    <label for="new-repo-desc">{{ t.description }}</label>
+                    <textarea id="new-repo-desc" rows="3" placeholder="Short description of the project"></textarea>
+                </div>
+                <div class="form-group checkbox-wrapper">
+                    <label>
+                        <input type="checkbox" id="new-repo-private"> 
+                        <span style="margin-left: 8px;">Private Repository</span>
+                        <i class="fas fa-lock" style="font-size: 12px; margin-left: 5px; color: #666;"></i>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-create-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-create-btn" class="btn btn-primary">Create Repository</button>
             </div>
         </div>
     </div>
