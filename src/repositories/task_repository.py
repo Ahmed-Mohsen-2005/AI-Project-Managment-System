@@ -13,10 +13,11 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
                 SELECT task_id, sprint_id, title, status, priority,
                        estimate_hours, due_date, created_by, assigned_id
-                FROM Task
+                FROM task
             """)
             rows = cursor.fetchall()
             return [Task(**row) for row in rows]
@@ -28,10 +29,11 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
                 SELECT task_id, sprint_id, title, status, priority,
                        estimate_hours, due_date, created_by, assigned_id
-                FROM Task WHERE task_id=%s
+                FROM task WHERE task_id=%s
             """, (task_id,))
             row = cursor.fetchone()
             return Task(**row) if row else None
@@ -43,8 +45,9 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
-                INSERT INTO Task
+                INSERT INTO task
                 (sprint_id, title, status, priority,
                  estimate_hours, due_date, created_by, assigned_id)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
@@ -68,8 +71,9 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
-                UPDATE Task
+                UPDATE task
                 SET sprint_id=%s, title=%s, status=%s, priority=%s,
                     estimate_hours=%s, due_date=%s, assigned_id=%s
                 WHERE task_id=%s
@@ -93,7 +97,8 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("DELETE FROM Task WHERE task_id=%s", (task_id,))
+            # FIX: 'Task' -> 'task'
+            cursor.execute("DELETE FROM task WHERE task_id=%s", (task_id,))
             conn.commit()
             return cursor.rowcount
         finally:
@@ -107,10 +112,11 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
                 SELECT task_id, sprint_id, title, status, priority,
                        estimate_hours, due_date, created_by, assigned_id
-                FROM Task
+                FROM task
                 WHERE assigned_id=%s
                 ORDER BY due_date DESC
                 LIMIT %s
@@ -125,10 +131,11 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
                 SELECT task_id, sprint_id, title, status, priority,
                        estimate_hours, due_date, created_by, assigned_id
-                FROM Task
+                FROM task
                 WHERE assigned_id=%s AND due_date < %s
                 ORDER BY due_date ASC
             """, (user_id, date.today()))
@@ -139,16 +146,18 @@ class TaskRepository:
             conn.close()
 
     # --------------------------------------------------
-    # BACKLOG (SPRINT = NULL)
+    # BACKLOG
     # --------------------------------------------------
     def get_backlog_tasks(self, user_id=None, limit=None):
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             query = """
                 SELECT task_id, sprint_id, title, status, priority,
                     estimate_hours, due_date, created_by, assigned_id
-                FROM Task
+                FROM task
+                WHERE sprint_id IS NULL
             """
             params = []
 
@@ -176,10 +185,11 @@ class TaskRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task'
             cursor.execute("""
                 SELECT task_id, sprint_id, title, status, priority,
                        estimate_hours, due_date, created_by, assigned_id
-                FROM Task
+                FROM task
                 WHERE sprint_id=%s
                 ORDER BY priority DESC, due_date ASC
             """, (sprint_id,))
@@ -189,16 +199,16 @@ class TaskRepository:
             cursor.close()
             conn.close()
 
-    # Alias to avoid service bugs
     def get_by_sprint(self, sprint_id):
         return self.get_by_sprint_id(sprint_id)
-    
+
     def get_by_project(self, project_id, user_id=None, status=None):
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Task' -> 'task', 'Sprint' -> 'sprint'
             query = """
-                SELECT t.* FROM Task t JOIN Sprint s ON t.sprint_id = s.sprint_id
+                SELECT t.* FROM task t JOIN sprint s ON t.sprint_id = s.sprint_id
                 WHERE s.project_id = %s
             """
             params = [project_id]
@@ -212,4 +222,3 @@ class TaskRepository:
         finally:
             cursor.close()
             conn.close()
-

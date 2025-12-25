@@ -3,62 +3,47 @@ from models.user_skill import UserSkill
 
 class UserSkillRepository:
     def __init__(self):
-        self._db_instance = DatabaseConnection()
-
-    @property
-    def db(self):
-        return self._db_instance.get_connection()
+        # FIX: Do not use @property for db connection, it causes leaks
+        self.db_manager = DatabaseConnection()
 
     def get_by_user_id(self, user_id):
-        cursor = self.db.cursor(dictionary=True)
-        query = """
-            SELECT skill_id, user_id, skill_name, skill_level
-            FROM UserSkill
-            WHERE user_id = %s
-            ORDER BY skill_level DESC
-        """
-        cursor.execute(query, (user_id,))
-        rows = cursor.fetchall()
-        cursor.close()
-        return [UserSkill(**row) for row in rows]
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            # FIX: Lowercase 'user_skills'
+            query = """
+                SELECT skill_id, user_id, skill_name, skill_level
+                FROM user_skills
+                WHERE user_id = %s
+                ORDER BY skill_level DESC
+            """
+            cursor.execute(query, (user_id,))
+            rows = cursor.fetchall()
+            return [UserSkill(**row) for row in rows]
+        finally:
+            cursor.close()
+            conn.close() # FIX: Must close connection!
 
     def create(self, skill: UserSkill):
-        cursor = self.db.cursor()
-        query = """
-            INSERT INTO UserSkill (user_id, skill_name, skill_level)
-            VALUES (%s, %s, %s)
-        """
-        cursor.execute(query, (skill.user_id, skill.skill_name, skill.skill_level))
-        self.db.commit()
-        skill.skill_id = cursor.lastrowid
-        cursor.close()
-        return skill.skill_id
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor()
+        try:
+            query = "INSERT INTO user_skills (user_id, skill_name, skill_level) VALUES (%s, %s, %s)"
+            cursor.execute(query, (skill.user_id, skill.skill_name, skill.skill_level))
+            conn.commit()
+            skill.skill_id = cursor.lastrowid
+            return skill.skill_id
+        finally:
+            cursor.close()
+            conn.close()
 
     def delete(self, skill_id):
-        cursor = self.db.cursor()
-        cursor.execute("DELETE FROM UserSkill WHERE skill_id = %s", (skill_id,))
-        self.db.commit()
-        affected = cursor.rowcount
-        cursor.close()
-        return affected
-
-    def delete_by_user_and_name(self, user_id, skill_name):
-        cursor = self.db.cursor()
-        cursor.execute("DELETE FROM UserSkill WHERE user_id = %s AND skill_name = %s", (user_id, skill_name))
-        self.db.commit()
-        affected = cursor.rowcount
-        cursor.close()
-        return affected
-
-    def update(self, skill: UserSkill):
-        cursor = self.db.cursor()
-        query = """
-            UPDATE UserSkill
-            SET skill_name = %s, skill_level = %s
-            WHERE skill_id = %s
-        """
-        cursor.execute(query, (skill.skill_name, skill.skill_level, skill.skill_id))
-        self.db.commit()
-        affected = cursor.rowcount
-        cursor.close()
-        return affected
+        conn = self.db_manager.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("DELETE FROM user_skills WHERE skill_id = %s", (skill_id,))
+            conn.commit()
+            return cursor.rowcount
+        finally:
+            cursor.close()
+            conn.close()

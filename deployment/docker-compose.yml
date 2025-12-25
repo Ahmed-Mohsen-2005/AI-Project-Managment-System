@@ -1,46 +1,30 @@
 services:
   # ---------------------------------------------------
-  # 1. MySQL Database Service (The Database Model)
+  # 1. MySQL Database Service
   # ---------------------------------------------------
   mysql-db:
     image: mysql:8.0
     container_name: aipms_mysql_db
-    # Restart if it stops, unless manually stopped
     restart: unless-stopped
-    # Mount a volume to keep data persistent across container restarts
     volumes:
       - mysql_data:/var/lib/mysql
-    
-    # Securely inject environment variables for MySQL setup
+    command: --lower_case_table_names=1
     environment:
-      # Database access details matching database_config.py's fallback values
-<<<<<<< HEAD
-      MYSQL_ROOT_PASSWORD: ali2005
-=======
-      MYSQL_ROOT_PASSWORD: ali2005
->>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
+      MYSQL_ROOT_PASSWORD: AhmedMohsen2005
       MYSQL_DATABASE: AIPMS
-      MYSQL_USER: root
-      # Note: We use the MySQL root user credentials directly for development simplicity
     
-    # --- FIX APPLIED: Robust Health Check using Simple SQL Command ---
+    # Robust Health Check
     healthcheck:
-      # Execute a simple authenticated query that must succeed
-<<<<<<< HEAD
-      test: ["CMD", "mysql", "--user=root", "--password=ali2005", "--execute", "SELECT 1"]
-=======
-      test: ["CMD", "mysql", "--user=root", "--password=ali2005", "--execute", "SELECT 1"]
->>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
+      test: ["CMD", "mysql", "--user=root", "--password=AhmedMohsen2005", "--execute", "SELECT 1"]
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 40s # Increased start period slightly for extra caution
-    
+      start_period: 10s
+
   # ---------------------------------------------------
-  # 2. AIPMS Core Flask Application (The Controller/View)
+  # 2. AIPMS Core Flask Application
   # ---------------------------------------------------
   aipms-core:
-    # Build context is set to the project root (../)
     build: 
       context: ..
       dockerfile: deployment/Dockerfile
@@ -49,30 +33,43 @@ services:
       - "5000:5000"
     restart: always
     
-    # Application environment variables
-    environment:
-      # Inject the credentials directly to override 'localhost' and 'fallback' values
-      DB_HOST: "mysql-db"            # CRITICAL: Use the service name as the host
-      DB_PORT: "3306"
-      DB_NAME: "AIPMS"
-      DB_USER: "root"                # Use the MySQL root user name
-<<<<<<< HEAD
-      DB_PASSWORD: "ali2005" # Use the MySQL root user password
-=======
-      DB_PASSWORD: "ali2005" # Use the MySQL root user password
->>>>>>> 2f8b3c7c4f9e9ed46a4bccf498ed0f5c86fa730b
-      DB_TYPE: "mysql+pymysql"       # Ensure correct SQLAlchemy dialect
-      SECRET_KEY: "Jana-Ahmed-Ali-Mazen-Hany-2025"
-      
-    # Ensure the Flask app waits for the MySQL service to be ready
+    # Ensure Flask waits for DB to be ready
     depends_on:
       mysql-db:
         condition: service_healthy
-        
-    # Volumes for code synchronization (local development)
+
+    # Sync code for live updates
     volumes:
       - ..:/usr/src/app
 
-# Define the volume for persistent MySQL data storage
+    environment:
+      # --- Database Connection ---
+      DB_HOST: "mysql-db"
+      DB_PORT: "3306"
+      DB_NAME: "AIPMS"
+      DB_USER: "root"
+      DB_PASSWORD: "AhmedMohsen2005"
+      DB_TYPE: "mysql+pymysql"
+      
+      # --- Security ---
+      SECRET_KEY: "Jana-Ahmed-Ali-Mazen-Hany-2025"
+
+      # --- GitHub Integration (New) ---
+      # Replace these placeholders with the values from your GitHub App settings
+      GITHUB_CLIENT_ID: "PLACEHOLDER_CLIENT_ID"
+      GITHUB_CLIENT_SECRET: "PLACEHOLDER_CLIENT_SECRET"
+      
+      # The Public URL from ngrok (This is required for callbacks)
+      # WARNING: If you restart ngrok, this URL will change! Update it here.
+      BASE_URL: "https://nonfossiliferous-laughingly-malaya.ngrok-free.dev"
+
+      # --- Email Settings (Flask-Mail) ---
+      # Update these to send real emails (e.g., for GitHub notifications)
+      MAIL_SERVER: "smtp.gmail.com"
+      MAIL_PORT: "587"
+      MAIL_USE_TLS: "True"
+      MAIL_USERNAME: "ahmedazab@gmail.com"
+      MAIL_PASSWORD: "irutaktwowcddgkc"
+
 volumes:
   mysql_data:
