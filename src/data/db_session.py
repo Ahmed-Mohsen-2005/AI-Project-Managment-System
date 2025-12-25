@@ -10,15 +10,14 @@ class DatabaseConnection:
         if cls._instance is None:
             cls._instance = super(DatabaseConnection, cls).__new__(cls)
             try:
-                # 1. Read config from Docker Environment Variables
+                # 1. READ DOCKER ENV VARS (Crucial Fix)
                 db_host = os.getenv('DB_HOST', 'localhost')
                 db_user = os.getenv('DB_USER', 'root')
                 db_password = os.getenv('DB_PASSWORD', 'AhmedMohsen2005')
                 db_name = os.getenv('DB_NAME', 'AIPMS')
 
-                print(f"DEBUG: Connecting to {db_host} as {db_user}...")
+                print(f"DEBUG (Data Session): Connecting to {db_host}...")
 
-                # 2. Initialize the pool
                 cls._pool = pooling.MySQLConnectionPool(
                     pool_name="mypool",
                     pool_size=5,
@@ -28,27 +27,23 @@ class DatabaseConnection:
                     password=db_password,
                     database=db_name
                 )
-                print("Connection pool initialized successfully")
+                print("Connection pool initialized successfully in data/db_session")
             except Error as e:
                 print(f"Error creating connection pool: {e}")
-                cls._pool = None # Ensure pool is None if failed
+                cls._pool = None
         return cls._instance
 
     def get_connection(self):
-        """Returns a connection from the pool."""
         if self._pool is None:
-             raise Exception("Database pool was not initialized.")
+             self.__new__(self.__class__)
+        if self._pool is None:
+             raise Exception("Database pool failed to initialize.")
         return self._pool.get_connection()
 
-# --- Helper function for your Controllers ---
+# 2. ADD THIS MISSING FUNCTION (Crucial Fix)
 def get_db():
-    # FIX: Don't create a new connection manually! 
-    # Use the singleton class to get a connection from the pool.
+    """
+    Retrieves a connection from the Singleton pool.
+    """
     db_instance = DatabaseConnection()
-    conn = db_instance.get_connection()
-    
-    # Optional: Verify connection
-    if conn.is_connected():
-        print("Successfully retrieved connection from pool")
-        
-    return conn
+    return db_instance.get_connection()

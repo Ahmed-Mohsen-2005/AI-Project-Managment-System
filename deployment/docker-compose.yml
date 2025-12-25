@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     volumes:
       - mysql_data:/var/lib/mysql
+    command: --lower_case_table_names=1
     environment:
       MYSQL_ROOT_PASSWORD: AhmedMohsen2005
       MYSQL_DATABASE: AIPMS

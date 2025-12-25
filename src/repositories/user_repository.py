@@ -32,7 +32,6 @@ class UserRepository:
 
     def get_by_id(self, user_id: int) -> Userr | None:
         conn = self.db_manager.get_connection()
-        # Added dictionary=True here so you can use Userr(**row)
         cursor = conn.cursor(dictionary=True) 
         try:
             cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE user_id=%s", (user_id,))
@@ -44,7 +43,7 @@ class UserRepository:
 
     def get_by_email(self, email: str) -> Userr | None:
         conn = self.db_manager.get_connection()
-        cursor = conn.cursor(dictionary=True) # Added dictionary=True
+        cursor = conn.cursor(dictionary=True)
         try:
             cursor.execute("SELECT user_id, name, email, type, role, password_hash AS password FROM userr WHERE email=%s", (email,))
             row = cursor.fetchone()
@@ -63,7 +62,7 @@ class UserRepository:
             """
             values = (user.name, user.email, user.password_hash, user.role)
             cursor.execute(sql, values)
-            conn.commit()  # CHANGED: use conn.commit(), not self.db.commit()
+            conn.commit()
             user.user_id = cursor.lastrowid 
             return user
         finally:
@@ -80,20 +79,16 @@ class UserRepository:
             WHERE user_id = %s
             """
             cursor.execute(query, (user.name, user.email, user.role, user.user_id))
-            conn.commit()  # CHANGED: use conn.commit(), not self.db.commit()
+            conn.commit()
             return cursor.rowcount
         finally:
             cursor.close()
             conn.close()
-    # In repositories/user_repository.py
-
-    # In repositories/user_repository.py
 
     def update_password(self, email: str, new_password_hash: str) -> bool:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
-            # Note: 'userr' table as per your previous code
             query = "UPDATE userr SET password_hash = %s WHERE email = %s"
             cursor.execute(query, (new_password_hash, email))
             conn.commit()

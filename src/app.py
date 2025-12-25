@@ -1,7 +1,6 @@
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
-from controllers.documentation_controller import docs_bp
 from controllers.task_controller import task_bp
 from controllers.report_controller import report_bp
 from controllers.note_controller import note_bp 
@@ -32,15 +31,19 @@ def create_app():
     print("Project Sentinel Application and SQL Server connection pool initialized.")
     mail.init_app(app)
     # app.py or extensions.py
+    base_url = os.getenv('BASE_URL', 'https://nonfossiliferous-laughingly-malaya.ngrok-free.dev')
     app.config.update(
+        BASE_URL=base_url,
         MAIL_SERVER='smtp.gmail.com',
         MAIL_PORT=465,
         MAIL_USE_TLS=False,
         MAIL_USE_SSL=True,  # Must be False if using TLS/587
         MAIL_USERNAME='ahmedazab05@gmail.com',
         MAIL_PASSWORD='irutaktwowcddgkc',  # The App Password, NO SPACES
-        MAIL_DEFAULT_SENDER='ahmedazab05@gmail.com'
-    )
+        MAIL_DEFAULT_SENDER='ahmedazab05@gmail.com',
+        GITHUB_CLIENT_ID='Ov23liq32CIu50Dq3TPd',
+        GITHUB_CLIENT_SECRET='6796059b992356cf037943b6c7391d5b05327607', # <--- PASTE YOUR SECRET HERE
+        GITHUB_REDIRECT_URI=f"{base_url}/integration/github/callback")
 
     # Register blueprints
     app.register_blueprint(user_bp)
@@ -73,7 +76,8 @@ def create_app():
         """Make variables available to all templates"""
         return {
             'current_lang': g.current_lang,
-            't': g.t
+            't': g.t,
+            'BASE_URL': app.config.get('BASE_URL')
         }
 
     # ✅ API ENDPOINT - Language change
@@ -188,6 +192,14 @@ def create_app():
             print(f"[PROFILE] User ID {user_id} not found!")
         
         return render_template("profile.html", current_user_email=user_email, current_user_name=user_name)
+
+    @app.route("/__routes__")
+    def show_routes():
+        routes = []
+        for rule in app.url_map.iter_rules():
+            routes.append(f"{rule} -> {rule.endpoint}")
+        return "<br>".join(sorted(routes))
+
     return app
 if __name__ == "__main__":
     app = create_app()

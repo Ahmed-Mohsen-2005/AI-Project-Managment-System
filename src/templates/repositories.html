@@ -62,7 +62,7 @@
 
                 <div id="github-config" class="config-settings hidden">
                     <p class="config-label">{{ t.webhook_url }}</p>
-                    <input type="text" value="https://aipms.com/v1/webhook/github" readonly>
+                    <input type="text" value="{{ BASE_URL }}/v1/webhook/github" readonly>
                     <button class="btn btn-secondary btn-sm copy-btn"><i class="fas fa-copy"></i> {{ t.copy }}</button>
                     
                     <h3 class="config-subtitle">{{ t.default_notifications }}</h3>

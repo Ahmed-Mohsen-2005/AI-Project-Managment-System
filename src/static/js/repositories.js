@@ -3,24 +3,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const githubStatus = document.getElementById('github-status');
     const githubConfig = document.getElementById('github-config');
     const repoTableBody = document.querySelector('#repo-table tbody');
-    const copyBtn = document.querySelector('.copy-btn');
 
-    // --- Simulated Data Source (Would come from your Flask API) ---
-    const MOCK_REPOS = [
-        { name: 'AIPMS-Core-Backend', updated: '1 hour ago', owner: 'Jane Doe', status: 'Active' },
-        { name: 'AIPMS-Frontend-UI', updated: '5 hours ago', owner: 'You', status: 'Syncing' },
-        { name: 'AI-Prediction-Models', updated: '2 days ago', owner: 'DevOps Team', status: 'Inactive' },
-        { name: 'Documentation-Wiki', updated: '1 week ago', owner: 'Alice J.', status: 'Active' },
-    ];
-
-    // --- Helper Function ---
+    // --- Helper Function to Render ---
     function renderRepos(repos) {
-        repoTableBody.innerHTML = ''; // Clear loading message
+        repoTableBody.innerHTML = ''; 
+        if (repos.length === 0) {
+            repoTableBody.innerHTML = '<tr><td colspan="4">No repositories found.</td></tr>';
+            return;
+        }
+
         repos.forEach(repo => {
-            const statusClass = repo.status.toLowerCase().replace(' ', '');
+            const statusClass = repo.status.toLowerCase();
             const row = `
                 <tr>
-                    <td>${repo.name}</td>
+                    <td><a href="${repo.url}" target="_blank">${repo.name}</a></td>
                     <td>${repo.updated}</td>
                     <td>${repo.owner}</td>
                     <td><span class="status-badge ${statusClass}">${repo.status}</span></td>
@@ -30,37 +26,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 1. Load Initial Repository Data ---
+    // --- 1. Load Real Data from Backend ---
     async function loadRepositories() {
-        console.log("Fetching repository list from /api/v1/integration/repositories");
+        console.log("Fetching repositories...");
         
-        // --- REAL API CALL (Simulation) ---
-        // Replace this setTimeout with a real fetch() call to your Flask Controller:
-        // const response = await fetch('/api/v1/integration/repos');
-        // const data = await response.json();
-        // renderRepos(data.repositories);
-        
-        // Simulating 1.5s latency:
-        setTimeout(() => {
-            renderRepos(MOCK_REPOS);
-            // After loading, check the current GitHub status (mocked here)
-            checkIntegrationStatus(true); // Assuming connection is successful on load
-        }, 1500);
+        try {
+            const response = await fetch('/integration/api/repos');
+            const data = await response.json();
+
+            if (data.connected) {
+                checkIntegrationStatus(true);
+                renderRepos(data.repositories);
+            } else {
+                checkIntegrationStatus(false);
+                repoTableBody.innerHTML = '<tr><td colspan="4">Connect to GitHub to see repositories.</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error fetching repos:', error);
+            repoTableBody.innerHTML = '<tr><td colspan="4">Error loading data.</td></tr>';
+        }
     }
 
-    // --- 2. GitHub Connection Logic (OAuth Initiation) ---
+    // --- 2. Connect Button Logic ---
     connectGithubBtn.addEventListener('click', () => {
-        // --- REAL API CALL ---
-        // This button should hit your Flask Integration Controller (e.g., /api/v1/integration/github/connect)
-        // The Flask Controller will then handle the OAuth redirect.
-        
-        console.log("Initiating GitHub OAuth flow...");
-        alert("Simulating redirect to GitHub for Authorization. This action must be handled by the backend (Flask Controller) to ensure secure OAuth.");
-        
-        // In reality, Flask returns a Redirect response (HTTP 302) here.
-        // window.location.href = '/api/v1/integration/github/connect';
+        if (connectGithubBtn.textContent.includes('Disconnect')) {
+            window.location.href = '/integration/github/disconnect';
+        } else {
+            // Redirect to backend to start OAuth
+            window.location.href = '/integration/github/connect';
+        }
     });
-    
+
     // --- 3. UI Status Management ---
     function checkIntegrationStatus(isConnected) {
         if (isConnected) {
@@ -72,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             connectGithubBtn.classList.add('btn-secondary');
             githubConfig.classList.remove('hidden');
         } else {
-            // Restore disconnected state
             githubStatus.classList.add('disconnected');
             githubStatus.classList.remove('connected');
             githubStatus.querySelector('.status-text').textContent = 'Status: Disconnected';
@@ -82,16 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             githubConfig.classList.add('hidden');
         }
     }
-    
-    // --- 4. Copy Webhook Button ---
-    copyBtn.addEventListener('click', () => {
-        const webhookInput = document.querySelector('#github-config input');
-        webhookInput.select();
-        document.execCommand('copy');
-        alert('Webhook URL copied to clipboard!');
-    });
 
-
-    // Start the process
+    // Initialize
     loadRepositories();
 });
