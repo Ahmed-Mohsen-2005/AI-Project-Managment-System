@@ -30,13 +30,13 @@
                 
                 <!-- Main Links -->
                 <a href="/home" id="nav-home" class="nav-item">
-                    <i class="fas fa-home-alt"></i> <span>Home</span>
+                    <i class="fas fa-home-alt"></i> <span>{{ t.home }}</span>
                 </a>
                 
                 <!-- Nested Boards Section (Project Management) -->
                 <div class="nav-item-parent" id="nav-boards-parent">
                     <div class="nav-item has-submenu" id="boards-toggle">
-                        <i class="fas fa-columns"></i> <span>Boards</span>
+                        <i class="fas fa-columns"></i> <span>{{ t.boards }}</span>
                         <i class="fas fa-chevron-down submenu-icon"></i>
                     </div>
                     <div class="submenu" id="boards-submenu">
@@ -48,13 +48,13 @@
                 </div>
                 
                 <a href="/reports" id="nav-reports" class="nav-item">
-                    <i class="fas fa-chart-line"></i> <span>Reports</span>
+                    <i class="fas fa-chart-line"></i> <span>{{ t.reports }}</span>
                 </a>
                 <a href="/chats" id="nav-chats" class="nav-item">
-                    <i class="fas fa-comments"></i> <span>Chats</span>
+                    <i class="fas fa-comments"></i> <span>{{ t.chats }}</span>
                 </a>
                 <a href="/repositories" id="nav-repos" class="nav-item">
-                    <i class="fas fa-code-branch"></i> <span>Repos</span>
+                    <i class="fas fa-code-branch"></i> <span>{{ t.repos }}</span>
                 </a>
                 <a href="/docs" id="nav-docs" class="nav-item">
                     <i class="fas fa-file-alt"></i> <span>Docs</span>
@@ -66,14 +66,14 @@
             <!-- Settings and Logout -->
             <div class="sidebar-footer">
                 <a href="/settings" class="nav-item">
-                    <i class="fas fa-cog"></i> <span>Settings</span>
+                    <i class="fas fa-cog"></i> <span>{{ t.settings }}</span>
                 </a>
                 <a href="/profile" class="nav-item">
-                    <i class="fas fa-user-circle"></i> <span>Profile</span>
+                    <i class="fas fa-user-circle"></i> <span>{{ t.profile }}</span>
                 </a>
                 <!-- EDITED: Changed <a> to <button> to trigger modal -->
                 <button id="logout-button" class="nav-item logout">
-                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                    <i class="fas fa-sign-out-alt"></i> <span>{{ t.logout }}</span>
                 </button>
             </div>
         </aside>
@@ -84,7 +84,7 @@
             <header id="top-header">
                 <button id="sidebar-toggle" title="Toggle Sidebar" class="icon-btn"><i class="fas fa-bars"></i></button>
                 <div class="user-actions">
-                    <button id="add-new-btn" class="btn btn-primary"><i class="fas fa-plus"></i> <span class="btn-text">Add New</span></button>
+                    <button id="add-new-btn" class="btn btn-primary"><i class="fas fa-plus"></i> <span class="btn-text">{{ t.add_new }}</span></button>
                     <!-- From Uiverse.io by andrew-demchenk0 --> 
                     <label class="switch">
                     <span class="sun"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="#ffd43b"><circle r="5" cy="12" cx="12"></circle><path d="m21 13h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm-17 0h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm13.66-5.66a1 1 0 0 1 -.66-.29 1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1 -.75.29zm-12.02 12.02a1 1 0 0 1 -.71-.29 1 1 0 0 1 0-1.41l.71-.66a1 1 0 0 1 1.41 1.41l-.71.71a1 1 0 0 1 -.7.24zm6.36-14.36a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm0 17a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm-5.66-14.66a1 1 0 0 1 -.7-.29l-.71-.71a1 1 0 0 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.29zm12.02 12.02a1 1 0 0 1 -.7-.29l-.66-.71a1 1 0 0 1 1.36-1.36l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.24z"></path></g></svg></span>
@@ -92,7 +92,7 @@
                     <input type="checkbox" class="input">
                     <span class="slider"></span>
                     </label>
-                    <button id="notification-btn" title="Notifications" class="icon-btn"><i class="fas fa-bell"></i></button>
+                    <button id="notification-btn" title="{{ t.notifications }}" class="icon-btn"><i class="fas fa-bell"></i></button>
                     
                     <a href="/profile" class="user-profile-link" title="Profile">
                         <img src="https://placehold.co/36x36/3498db/FFFFFF?text=U" alt="User Profile" class="profile-avatar">
@@ -111,7 +111,7 @@
         <!-- Global Notification Panel (Initially Hidden) -->
         <div id="notification-panel" class="notification-panel hidden">
              <div class="panel-header">
-                 <h3>Notifications</h3>
+                 <h3>{{ t.notifications }}</h3>
                  <button id="close-notifications" class="icon-btn"><i class="fas fa-times"></i></button>
              </div>
              <ul id="notification-list">
@@ -133,11 +133,11 @@
     <!-- 3. Logout Confirmation MODAL (Floating Window) -->
     <div id="logout-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="modal-title"><i class="fas fa-sign-out-alt"></i> Confirm Logout</h2>
-            <p>Are you sure you want to end your session and log out of AIPMS?</p>
+            <h2 class="modal-title"><i class="fas fa-sign-out-alt"></i> {{ t.logout }}</h2>
+            <p>{{ t.confirm_logout_message }}</p>
             <div class="modal-actions">
-                <button id="cancel-logout" class="btn btn-secondary">Cancel</button>
-                <button id="confirm-logout" class="btn btn-primary btn-danger-style">Log Out</button>
+                <button id="cancel-logout" class="btn btn-secondary">{{ t.cancel }}</button>
+                <button id="confirm-logout" class="btn btn-primary btn-danger-style">{{ t.logout }}</button>
             </div>
         </div>
     </div>

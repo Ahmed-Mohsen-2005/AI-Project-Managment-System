@@ -3,19 +3,18 @@ from models.sprint import Sprint
 
 class SprintRepository:
     def __init__(self):
-        # Store the manager, not the connection itself
         self.db_manager = DatabaseConnection()
 
     def create(self, sprint: Sprint):
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
-            # Validation for start_date
             if not sprint.start_date:
                 raise ValueError("Start Date is required")
 
+            # FIX: 'Sprint' -> 'sprint'
             query = """
-            INSERT INTO Sprint (project_id, name, start_date, end_date, velocity) 
+            INSERT INTO sprint (project_id, name, start_date, end_date, velocity) 
             VALUES (%s, %s, %s, %s, %s)
             """
             values = (
@@ -27,7 +26,7 @@ class SprintRepository:
             )
             
             cursor.execute(query, values)
-            conn.commit() # Commit using the borrowed connection
+            conn.commit()
             return cursor.lastrowid
         finally:
             cursor.close()
@@ -37,7 +36,8 @@ class SprintRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT sprint_id, project_id, name, start_date, end_date, velocity, status FROM Sprint")
+            # FIX: 'Sprint' -> 'sprint'
+            cursor.execute("SELECT sprint_id, project_id, name, start_date, end_date, velocity, status FROM sprint")
             rows = cursor.fetchall()
             return [Sprint(**row) for row in rows]
         finally:
@@ -48,9 +48,10 @@ class SprintRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
+            # FIX: 'Sprint' -> 'sprint'
             query = """
             SELECT sprint_id, project_id, name, start_date, end_date, velocity, status
-            FROM Sprint 
+            FROM sprint 
             WHERE project_id = %s 
             ORDER BY start_date DESC
             """
@@ -65,7 +66,8 @@ class SprintRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            query = "SELECT * FROM Sprint WHERE sprint_id = %s"
+            # FIX: 'Sprint' -> 'sprint'
+            query = "SELECT * FROM sprint WHERE sprint_id = %s"
             cursor.execute(query, (sprint_id,))
             row = cursor.fetchone()
             if row:
@@ -79,8 +81,9 @@ class SprintRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
+            # FIX: 'Sprint' -> 'sprint'
             query = """
-                UPDATE Sprint 
+                UPDATE sprint 
                 SET name = %s, start_date = %s, end_date = %s 
                 WHERE sprint_id = %s
             """
@@ -96,7 +99,8 @@ class SprintRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
         try:
-            query = "UPDATE Sprint SET status = %s WHERE sprint_id = %s"
+            # FIX: 'Sprint' -> 'sprint'
+            query = "UPDATE sprint SET status = %s WHERE sprint_id = %s"
             cursor.execute(query, (new_status, sprint_id))
             conn.commit()
             return cursor.rowcount > 0
