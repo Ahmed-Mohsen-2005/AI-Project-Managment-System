@@ -1,5 +1,5 @@
 /**
- * AIPMS Settings Page - Complete Functionality
+ * AIPMS Settings Page - Complete Functionality (FIXED DARK MODE)
  * Handles all settings management, dark mode, integrations, and user preferences
  */
 
@@ -95,49 +95,66 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==================== THEME MANAGEMENT ====================
     
     function initializeTheme() {
+        console.log('[THEME] Initializing theme...');
+        
         // Get saved theme from localStorage or use system preference
         let savedTheme = localStorage.getItem('theme-preference');
+        console.log('[THEME] Saved preference:', savedTheme);
         
         if (!savedTheme) {
             // Check system preference
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             savedTheme = prefersDark ? 'dark' : 'light';
+            console.log('[THEME] System preference:', savedTheme);
         }
         
         applyTheme(savedTheme);
     }
     
     function toggleTheme() {
+        console.log('[THEME] Toggle button clicked');
+        
         const html = document.documentElement;
         const currentTheme = html.getAttribute('data-theme') || 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        console.log('[THEME] Current:', currentTheme, '→ New:', newTheme);
         
         applyTheme(newTheme);
     }
     
     function applyTheme(theme) {
+        console.log('[THEME] Applying theme:', theme);
+        
         const html = document.documentElement;
         const toggleBtn = document.getElementById('theme-toggle');
         const toggleText = toggleBtn?.querySelector('.toggle-text');
         const toggleIcon = toggleBtn?.querySelector('i');
         
+        // Set theme on HTML element
         html.setAttribute('data-theme', theme);
+        console.log('[THEME] Set data-theme attribute to:', theme);
+        
+        // Save preference
         localStorage.setItem('theme-preference', theme);
+        console.log('[THEME] Saved to localStorage:', theme);
         
         // Update button appearance
         if (toggleBtn) {
             if (theme === 'dark') {
+                console.log('[THEME] Switching to dark mode button appearance');
                 toggleIcon?.classList.remove('fa-moon');
                 toggleIcon?.classList.add('fa-sun');
                 if (toggleText) toggleText.textContent = 'Light Mode';
             } else {
+                console.log('[THEME] Switching to light mode button appearance');
                 toggleIcon?.classList.remove('fa-sun');
                 toggleIcon?.classList.add('fa-moon');
                 if (toggleText) toggleText.textContent = 'Dark Mode';
             }
         }
         
-        console.log('[THEME] Switched to', theme, 'mode');
+        console.log('[THEME] Theme successfully applied:', theme);
     }
     
     // ==================== TAB MANAGEMENT ====================
