@@ -514,6 +514,10 @@ body[data-theme="dark"] #top-header {
     text-align: center;
 }
 
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
 
 /* 6. Logout Modal Styling */
 .modal {
@@ -523,22 +527,21 @@ body[data-theme="dark"] #top-header {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
-    display: none; /* Controlled by JS */
+    display: flex; /* Changed from none - controlled by .hidden class */
+    align-items: center;
+    justify-content: center;
     z-index: 999;
     backdrop-filter: blur(3px);
 }
 
 .modal-content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
     background-color: var(--color-background-card);
     padding: var(--spacing-lg);
     border-radius: var(--border-radius-base);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
     animation: modalSlideIn 0.3s ease-out;
 }
 
