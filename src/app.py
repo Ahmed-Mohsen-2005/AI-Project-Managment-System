@@ -1,3 +1,7 @@
+from flask import Flask, g, session, jsonify, request, render_template, Response
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
@@ -20,7 +24,7 @@ from controllers.dashboard_controller import dashboard_bp
 # from controllers.time_controller import time_bp  # Commented out - not registered
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
-from flask import Blueprint, render_template
+from flask import Blueprint
 from services.task_service import TaskService
 from i18n import get_locale, get_t  # Import the functions we created
 from flask_mail import Mail
@@ -56,6 +60,7 @@ def create_app():
     app.register_blueprint(task_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(slack_bp)
     app.register_blueprint(docs_bp)
     app.register_blueprint(view_bp)
     app.register_blueprint(project_bp)

@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // const HOME_PAGE_URL = "{{ url_for('homepage') }}";
 
     // Define API Endpoints using a global object (assuming your 'auth_bp' prefix is /api/v1/auth)
-    // NOTE: If you are using Jinja for the HTML, it's safer to define these URLs in the HTML too.
     const API_ENDPOINTS = {
         login: '/api/v1/auth/login',
         register: '/api/v1/auth/register'
@@ -91,8 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 alert('Login successful! Welcome, ' + data.user.name + '!');
 
-                // --- REDIRECTION LOGIC ---
-                window.location.href = HOME_PAGE_URL;
+                // --- REDIRECTION LOGIC (FIXED) ---
+                if (data.is_admin) {
+                    // Redirect to Admin Panel if user is admin
+                    window.location.href = '/admin/panel';
+                } else {
+                    // Redirect to standard Home Page for normal users
+                    window.location.href = HOME_PAGE_URL;
+                }
+                
             } else {
                 // Failed Login (Status 401/400/etc)
                 displayError(data.message || 'Login failed. Please try again.');
@@ -136,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Account created successfully! Welcome!');
 
                 // --- REDIRECTION LOGIC ---
+                // New users usually aren't admins, so go to home
                 window.location.href = HOME_PAGE_URL;
             } else {
                 // Failed Signup (Status 409 Conflict, 400 Bad Request, etc.)

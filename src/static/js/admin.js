@@ -40,11 +40,7 @@ const AdminPanel = {
         document.getElementById('edit-user-form').addEventListener('submit', (e) => this.saveUser(e));
         document.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                if (e.target.closest('.modal-close')) {
-                    e.target.closest('.modal').classList.remove('show');
-                } else {
-                    e.target.closest('.modal').classList.remove('show');
-                }
+                e.target.closest('.modal').classList.remove('show');
             });
         });
 
@@ -105,6 +101,10 @@ const AdminPanel = {
     showEditModal(userId) {
         const modal = document.getElementById('edit-user-modal');
         const form = document.getElementById('edit-user-form');
+        const title = document.getElementById('modal-title');
+
+        // Reset password field for security
+        document.getElementById('edit-user-password').value = '';
 
         if (userId) {
             // Edit mode
@@ -115,13 +115,13 @@ const AdminPanel = {
                 document.getElementById('edit-user-email').value = user.email;
                 document.getElementById('edit-user-role').value = user.role || 'user';
                 document.getElementById('edit-user-type').value = user.type || '';
-                modal.querySelector('.modal-header h3').textContent = 'Edit User';
+                title.textContent = 'Edit User';
             }
         } else {
             // Add mode
             form.reset();
             document.getElementById('edit-user-id').value = '';
-            modal.querySelector('.modal-header h3').textContent = 'Add New User';
+            title.textContent = 'Add New User';
         }
 
         modal.classList.add('show');
@@ -136,13 +136,20 @@ const AdminPanel = {
         const email = document.getElementById('edit-user-email').value;
         const role = document.getElementById('edit-user-role').value;
         const type = document.getElementById('edit-user-type').value;
+        const password = document.getElementById('edit-user-password').value;
 
         if (!name || !email) {
-            alert('Please fill in all required fields');
+            alert('Please fill in Name and Email');
             return;
         }
 
-        const data = { name, email, role, type };
+        // Require password for new users
+        if (!userId && !password) {
+            alert('Password is required for new users');
+            return;
+        }
+
+        const data = { name, email, role, type, password };
         const method = userId ? 'PUT' : 'POST';
         const url = userId ? this.api.userUpdate(userId) : this.api.users;
 
@@ -213,11 +220,9 @@ const AdminPanel = {
 
     // Switch Tabs
     switchTab(tabBtn) {
-        // Deactivate all tabs
         document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.admin-tab-pane').forEach(pane => pane.classList.remove('active'));
 
-        // Activate clicked tab
         tabBtn.classList.add('active');
         const tabId = tabBtn.dataset.tab;
         document.getElementById(`tab-${tabId}`).classList.add('active');
@@ -243,12 +248,10 @@ const AdminPanel = {
     }
 };
 
-// Initialize Admin Panel
 function initializeAdmin() {
     AdminPanel.init();
 }
 
-// Close modals when clicking outside
 window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
         e.target.classList.remove('show');

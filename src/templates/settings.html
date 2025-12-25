@@ -4,17 +4,24 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 {% endblock extra_css %}
 
 {% block content %}
     <div class="settings-container card" data-user-id="{{ user_id }}">
-        <h1 class="page-title"><i class="fas fa-cog"></i> {{ t.settings_title }}</h1>
+        <div class="settings-header">
+            <h1 class="page-title">
+                <i class="fas fa-cog"></i> {{ t.settings }}
+            </h1>
+            
+
+        </div>
 
         <!-- Search Bar -->
         <div style="margin-bottom: 20px;">
             <div class="search-bar-container">
                 <i class="fas fa-search search-icon"></i>
-                <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
+                <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}" aria-label="Search settings">
             </div>
         </div>
 
@@ -22,11 +29,15 @@
             
             <!-- Column 1: Navigation Tabs -->
             <aside class="settings-tabs">
-                <button class="tab-item active" data-tab="general"><i class="fas fa-sliders-h"></i> General & Profile</button>
-                <button class="tab-item" data-tab="security"><i class="fas fa-shield-alt"></i> Security & RBAC</button>
-                <button class="tab-item" data-tab="integrations"><i class="fas fa-plug"></i> Integrations</button>
-                <button class="tab-item" data-tab="ai-governance"><i class="fas fa-brain"></i> AI Governance</button>
-                <button class="tab-item" data-tab="notifications"><i class="fas fa-bell"></i> Notifications</button>
+                <button class="tab-item active" data-tab="general" type="button">
+                    <i class="fas fa-sliders-h"></i> {{ t.settings_general_profile }}
+                </button>
+                <button class="tab-item" data-tab="integrations" type="button">
+                    <i class="fas fa-plug"></i> {{ t.settings_integrations }}
+                </button>
+                <button class="tab-item" data-tab="ai-governance" type="button">
+                    <i class="fas fa-brain"></i> {{ t.settings_ai_governance }}
+                </button>
             </aside>
 
             <!-- Column 2: Tab Content -->
@@ -34,181 +45,169 @@
                 
                 <!-- 1. General & Profile Tab -->
                 <div class="tab-pane active" id="pane-general">
-                    <h2 class="pane-title">General Application Settings</h2>
+                    <h2 class="pane-title">{{ t.settings_general_app_settings }}</h2>
                     
                     <section class="setting-section">
-                        <h3>Display Preferences</h3>
+                        <h3>{{ t.settings_display_preferences }}</h3>
 
                         <div class="setting-group">
-                            <label for="language-select">Language</label>
-                            <select id="language-select">
-                                <option value="en"{% if current_lang == 'en' %} selected{% endif %}>English (US)</option>
-                                <option value="ar"{% if current_lang == 'ar' %} selected{% endif %}>Arabic (AR)</option>
-                                <option value="fr"{% if current_lang == 'fr' %} selected{% endif %}>Français (FR)</option>
+                            <label for="language-select">{{ t.settings_language }}</label>
+                            <select id="language-select" class="form-select">
+                                <option value="en"{% if current_lang == 'en' %} selected{% endif %}>
+                                    {{ t.settings_language_en }}
+                                </option>
+                                <option value="ar"{% if current_lang == 'ar' %} selected{% endif %}>
+                                    {{ t.settings_language_ar }}
+                                </option>
+                                <option value="fr"{% if current_lang == 'fr' %} selected{% endif %}>
+                                    {{ t.settings_language_fr }}
+                                </option>
                             </select>
                         </div>
                     </section>
                     
                     <section class="setting-section">
-                        <h3>Account Actions</h3>
-                        <div class="setting-group">
-                            <p>{{ t.current_email }}: <span id="user-email">{{ current_user_email }}</span></p>
-                        </div>
-                        <div class="setting-group">
-                            <p>{{ t.current_role }}: <span id="current-role">{{ current_user_role }}</span></p>
-                        </div>
-                        <div class="setting-group">
-                            <button id="update-profile-btn" class="btn btn-primary">Update Profile</button>
-                            <button id="delete-account-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete Account</button>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- 2. Security & RBAC Tab -->
-                <div class="tab-pane" id="pane-security">
-                    <h2 class="pane-title">Security & Role Management (Admin Only)</h2>
-                    
-                    <section class="setting-section">
-                        <h3>Authentication</h3>
-                        <div class="setting-group flex-justify">
-                            <label>Two-Factor Authentication (2FA)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="2fa-toggle" checked>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </section>
-                    
-                    <section class="setting-section" id="rbac-management-section">
-                        <h3>Role-Based Access Control (FR-201)</h3>
-                        <div class="setting-group">
-                            <label for="manage-user-select">Manage User Permissions:</label>
-                            <select id="manage-user-select" class="full-width-input">
-                                <option value="1">Alice J. (Team Member)</option>
-                                <option value="2">Bob S. (Project Manager)</option>
-                            </select>
-                        </div>
-                        <div class="setting-group">
-                            <label for="current-role">Current Role:</label>
-                            <span id="current-role" class="status-badge status-active">Project Manager</span>
+                        <h3>{{ t.settings_account_actions }}</h3>
+                        
+                        <div class="setting-group info-item">
+                            <span class="info-label">{{ t.current_email }}:</span>
+                            <span id="user-email" class="info-value">{{ current_user_email }}</span>
                         </div>
                         
-                        <div class="setting-group permission-grid">
-                            <label class="grid-header">Permission</label>
-                            <label class="grid-header">Status</label>
-                            
-                            <!-- Permission Item 1 -->
-                            <span class="permission-name">Manage Budget (FR-403)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" data-permission="manage_budget" checked>
-                                <span class="slider round"></span>
-                            </label>
-
-                            <!-- Permission Item 2 -->
-                            <span class="permission-name">Create Projects (FR-101)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" data-permission="create_project">
-                                <span class="slider round"></span>
-                            </label>
+                        <div class="setting-group info-item">
+                            <span class="info-label">{{ t.current_role }}:</span>
+                            <span id="current-role" class="info-value">{{ current_user_role }}</span>
                         </div>
-                        <button id="save-rbac-btn" class="btn btn-primary mt-md">Save Permissions</button>
+                        
+                        <div class="setting-group button-group">
+                            <button id="update-profile-btn" class="btn btn-primary" type="button">
+                                <i class="fas fa-user-edit"></i> {{ t.settings_update_profile }}
+                            </button>
+                            <button id="delete-account-btn" class="btn btn-danger" type="button">
+                                <i class="fas fa-trash-alt"></i> {{ t.settings_delete_account }}
+                            </button>
+                        </div>
                     </section>
                 </div>
 
                 <!-- 3. Integrations Tab -->
                 <div class="tab-pane" id="pane-integrations">
-                    <h2 class="pane-title">External Tool Connections</h2>
+                    <h2 class="pane-title">{{ t.settings_external_tool_connections }}</h2>
                     
                     <section class="setting-section integration-item">
                         <div class="integration-info">
-                            <i class="fab fa-github"></i> <h3>GitHub</h3>
-                            <span class="status-indicator status-connected">Connected</span>
+                            <i class="fab fa-github"></i>
+                            <div class="integration-details">
+                                <h3>{{ t.settings_github }}</h3>
+                                <span class="status-indicator status-connected">
+                                    <i class="fas fa-circle"></i> {{ t.settings_status_connected }}
+                                </span>
+                            </div>
                         </div>
-                        <button class="btn btn-secondary disconnect-btn" data-integration="github">Disconnect</button>
+                        <button class="btn btn-secondary disconnect-btn" data-integration="github" type="button">
+                            <i class="fas fa-unlink"></i> {{ t.settings_disconnect }}
+                        </button>
                     </section>
                     
                     <section class="setting-section integration-item">
                         <div class="integration-info">
-                            <i class="fab fa-slack"></i> <h3>Slack Notifications</h3>
-                            <span class="status-indicator status-connected">Connected</span>
+                            <i class="fab fa-slack"></i>
+                            <div class="integration-details">
+                                <h3>{{ t.settings_slack_notifications }}</h3>
+                                <span class="status-indicator status-connected">
+                                    <i class="fas fa-circle"></i> {{ t.settings_status_connected }}
+                                </span>
+                            </div>
                         </div>
-                        <button class="btn btn-secondary disconnect-btn" data-integration="slack">Disconnect</button>
+                        <button class="btn btn-secondary disconnect-btn" data-integration="slack" type="button">
+                            <i class="fas fa-unlink"></i> {{ t.settings_disconnect }}
+                        </button>
                     </section>
                     
                     <section class="setting-section integration-item">
                         <div class="integration-info">
-                            <i class="fab fa-google-drive"></i> <h3>Google Drive (Audit/Files)</h3>
-                            <span class="status-indicator status-disconnected">Disconnected</span>
+                            <i class="fab fa-google-drive"></i>
+                            <div class="integration-details">
+                                <h3>{{ t.settings_google_drive_audit_files }}</h3>
+                                <span class="status-indicator status-disconnected">
+                                    <i class="fas fa-circle"></i> {{ t.settings_status_disconnected }}
+                                </span>
+                            </div>
                         </div>
-                        <button class="btn btn-primary connect-btn" data-integration="gdrive">Connect</button>
+                        <button class="btn btn-primary connect-btn" data-integration="gdrive" type="button">
+                            <i class="fas fa-link"></i> {{ t.settings_connect }}
+                        </button>
                     </section>
                 </div>
 
                 <!-- 4. AI Governance Tab -->
                 <div class="tab-pane" id="pane-ai-governance">
-                    <h2 class="pane-title">AI Model & Governance (FR-508)</h2>
+                    <h2 class="pane-title">{{ t.settings_ai_model_governance_fr508 }}</h2>
                     
                     <section class="setting-section">
-                        <h3>Model Information</h3>
-                        <p><strong>Active Model Version:</strong> <span id="model-version">v2.1.4 (Active)</span></p>
-                        <p><strong>Last Training Date:</strong> 2025-11-28</p>
-                    </section>
-                    
-                    <section class="setting-section">
-                        <h3>AI Feature Controls</h3>
-                        <div class="setting-group flex-justify">
-                            <label>Enable Predictive Risk Scores (FR-203)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider round"></span>
-                            </label>
+                        <h3>{{ t.settings_model_information }}</h3>
+                        <div class="info-item">
+                            <strong>{{ t.settings_active_model_version }}</strong>
+                            <span id="model-version">v2.1.4 ({{ t.settings_status_active }})</span>
                         </div>
-                        <div class="setting-group flex-justify">
-                            <label>Enable Sentiment Analysis (FR-503)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider round"></span>
-                            </label>
+                        <div class="info-item">
+                            <strong>{{ t.settings_last_training_date }}</strong>
+                            <span>2025-11-28</span>
                         </div>
                     </section>
                     
                     <section class="setting-section">
-                        <h3>Audit & Compliance (FR-508)</h3>
-                        <p>All AI decisions and model updates are logged and traceable.</p>
-                        <button class="btn btn-secondary mt-md"><i class="fas fa-file-export"></i> Export AI Audit Log</button>
-                    </section>
-                </div>
-
-                <!-- 5. Notifications Tab -->
-                <div class="tab-pane" id="pane-notifications">
-                    <h2 class="pane-title">Notification Channels</h2>
-                    
-                    <section class="setting-section">
-                        <h3>Email Preferences</h3>
+                        <h3>{{ t.settings_ai_feature_controls }}</h3>
                         <div class="setting-group flex-justify">
-                            <label>Receive Email Alerts for P1 Tasks</label>
+                            <label for="toggle-predictive">{{ t.settings_enable_predictive_risk_scores_fr203 }}</label>
                             <label class="toggle-switch">
-                                <input type="checkbox" checked>
+                                <input type="checkbox" id="toggle-predictive" checked data-setting="predictive_risk">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-group flex-justify">
+                            <label for="toggle-sentiment">{{ t.settings_enable_sentiment_analysis_fr503 }}</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle-sentiment" checked data-setting="sentiment_analysis">
                                 <span class="slider round"></span>
                             </label>
                         </div>
                     </section>
                     
                     <section class="setting-section">
-                        <h3>Slack Configuration (Linked via Integration)</h3>
-                        <p>Alerts are currently sent to **#backend-devs** on task status change.</p>
-                        <div class="setting-group flex-justify">
-                            <label>Receive Alerts for Swarm Assignment (FR-202)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
+                        <h3>{{ t.settings_audit_compliance_fr508 }}</h3>
+                        <p>{{ t.settings_ai_decisions_logged }}</p>
+                        <button id="export-audit-log-btn" class="btn btn-secondary" type="button">
+                            <i class="fas fa-file-export"></i> {{ t.settings_export_ai_audit_log }}
+                        </button>
                     </section>
                 </div>
             </main>
         </div>
     </div>
+
+    <!-- Modal for confirmations -->
+    <div id="confirmation-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Confirm Action</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel" class="btn btn-secondary" type="button">Cancel</button>
+                <button id="modal-confirm" class="btn btn-danger" type="button">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="toast" style="display: none;">
+        <span id="toast-message"></span>
+    </div>
+
 {% endblock content %}
 
 {% block extra_js %}
