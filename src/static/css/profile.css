@@ -251,3 +251,195 @@
     color: var(--color-primary);
     font-size: 16px;
 }
+
+/* ---------------------------------------------------- */
+/* 6. Enhanced Edit Profile Modal */
+/* ---------------------------------------------------- */
+
+#edit-profile-modal .modal-content {
+    max-width: 550px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+#edit-profile-modal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+}
+
+#edit-profile-modal .modal-header h3 {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#edit-profile-modal .modal-header h3 i {
+    font-size: 22px;
+}
+
+#edit-profile-modal .modal-header .icon-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#edit-profile-modal .modal-header .icon-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+#edit-profile-modal form {
+    padding: var(--spacing-xl);
+    background: var(--color-background-card);
+}
+
+#edit-profile-modal .form-group {
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+#edit-profile-modal .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-main);
+    font-size: 14px;
+}
+
+#edit-profile-modal .form-group label i {
+    margin-right: 6px;
+    color: var(--color-primary);
+    width: 16px;
+    text-align: center;
+}
+
+#edit-profile-modal .required {
+    color: #e74c3c;
+    margin-left: 3px;
+}
+
+#edit-profile-modal .form-group input,
+#edit-profile-modal .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+}
+
+#edit-profile-modal .form-group input:focus,
+#edit-profile-modal .form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    background-color: var(--color-background-card);
+}
+
+#edit-profile-modal .form-group input:hover,
+#edit-profile-modal .form-group select:hover {
+    border-color: #764ba2;
+}
+
+#edit-profile-modal .modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+#edit-profile-modal .modal-actions .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#edit-profile-modal .modal-actions .btn-secondary {
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    border: 2px solid var(--color-border);
+}
+
+#edit-profile-modal .modal-actions .btn-secondary:hover {
+    background-color: var(--color-border);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#edit-profile-modal .modal-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#edit-profile-modal .modal-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+#edit-profile-modal .modal-actions .btn-primary i {
+    font-size: 16px;
+}
+
+/* Input icons (optional enhancement) */
+#edit-profile-modal .form-group.has-icon {
+    position: relative;
+}
+
+#edit-profile-modal .form-group.has-icon input {
+    padding-left: 42px;
+}
+
+#edit-profile-modal .form-group.has-icon .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 42px;
+    color: var(--color-primary);
+    font-size: 16px;
+}
+
+/* Responsive adjustments for modal */
+@media (max-width: 600px) {
+    #edit-profile-modal .modal-content {
+        max-width: 95%;
+        margin: 20px;
+    }
+
+    #edit-profile-modal .modal-actions {
+        flex-direction: column;
+    }
+
+    #edit-profile-modal .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
