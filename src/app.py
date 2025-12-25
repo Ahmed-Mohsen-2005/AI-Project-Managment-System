@@ -9,11 +9,13 @@ from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
+from controllers.docs_controller import docs_bp
 from controllers.documentation_controller import documentation_bp
-from controllers.admin_controller import admin_bp
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
+from controllers.time_controller import time_bp
+from config.database_config import SECRET_KEY
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template

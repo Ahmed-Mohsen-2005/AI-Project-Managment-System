@@ -2,13 +2,62 @@
 /* Settings Page Specific Styles */
 /* ---------------------------------------------------- */
 
+/* ============================================= */
+/* Dark Mode Support                             */
+/* ============================================= */
+
 :root {
-    --tab-bg-active: var(--color-background-main);
-    --tab-bg-inactive: var(--color-background-card);
-    --status-connected: #4CAF50;
-    --status-disconnected: #cc3333;
-    --toggle-color: #ccc;
-    --toggle-color-active: var(--color-primary);
+    --color-background-main: #ffffff;
+    --color-background-light: #f9f9f9;
+    --color-text-main: #1a1a1a;
+    --color-text-secondary: #666666;
+    --color-border: #e0e0e0;
+    --color-primary: #3498db;
+    --color-primary-light: #5dade2;
+}
+
+[data-theme="dark"] {
+    --color-background-main: #1a1a1a;
+    --color-background-light: #242424;
+    --color-text-main: #f0f0f0;
+    --color-text-secondary: #aaaaaa;
+    --color-border: #444444;
+    --color-primary: #5dade2;
+    --color-primary-light: #85c1e9;
+}
+
+/* Make sure body/html use variables */
+html, body {
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Common card / container fix */
+.card, .settings-container, .profile-container {
+    background-color: var(--color-background-main);
+    color: var(--color-text-main);
+    border-color: var(--color-border);
+}
+
+/* Inputs, selects, buttons etc. */
+input, select, button, textarea {
+    background-color: var(--color-background-light);
+    color: var(--color-text-main);
+    border-color: var(--color-border);
+}
+
+/* Improve toggle appearance in dark mode */
+.toggle-switch .slider {
+    background-color: #ccc;
+}
+
+[data-theme="dark"] .toggle-switch .slider {
+    background-color: #555;
+}
+
+[data-theme="dark"] .toggle-switch input:checked + .slider {
+    background-color: var(--color-primary);
 }
 
 .settings-container {
