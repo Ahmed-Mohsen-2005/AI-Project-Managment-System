@@ -23,10 +23,10 @@ class DatabaseConnection:
                     pool_name="mypool_core", # Unique name for this pool
                     pool_size=5,
                     pool_reset_session=True,
-                    host="localhost",
-                    user="root",
-                    password="jana2005",
-                    database="AIPMS"
+                    host=db_host,
+                    user=db_user,
+                    password=db_password,
+                    database=db_name
                 )
                 print("Core Connection pool initialized successfully")
             except Error as e:
