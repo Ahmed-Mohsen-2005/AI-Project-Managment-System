@@ -3,19 +3,17 @@ from core.db_singleton import DatabaseConnection
 
 class NotificationRepository:
     def __init__(self):
-        # Initialize with the manager to enable connection pooling
         self.db_manager = DatabaseConnection()
 
     def get_all(self):
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            query = "SELECT notification_id, user_id, message, channel, sent_at FROM Notification"
-            cursor.execute(query)
+            # FIX: Lowercase 'notification'
+            cursor.execute("SELECT notification_id, user_id, message, channel, sent_at FROM notification")
             rows = cursor.fetchall()
             return [notification(**row) for row in rows]
         finally:
-            # Ensure resources are released
             cursor.close()
             conn.close()
 
@@ -23,13 +21,8 @@ class NotificationRepository:
         conn = self.db_manager.get_connection()
         cursor = conn.cursor(dictionary=True)
         try:
-            # Fixed column name to notification_id for consistency
-            query = """
-                SELECT notification_id, user_id, message, channel, sent_at 
-                FROM Notification 
-                WHERE notification_id = %s
-            """
-            cursor.execute(query, (notification_id,))
+            # FIX: Lowercase 'notification'
+            cursor.execute("SELECT * FROM notification WHERE notification_id = %s", (notification_id,))
             row = cursor.fetchone()
             return notification(**row) if row else None
         finally:

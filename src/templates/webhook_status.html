@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}GitHub Analytics - AIPMS{% endblock title %}
+
+{% block extra_css %}
+<style>
+    /* --- Theming & Layout --- */
+    :root {
+        --gh-merged: #a371f7;
+        --gh-open: #3fb950;
+        --gh-closed: #f85149;
+        --gh-blue: #58a6ff;
+    }
+
+    .dashboard-container {
+        padding: var(--spacing-lg);
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* --- Header & Filter --- */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .header-left h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-text-main);
+        margin: 0;
+    }
+
+    .header-left .subtitle {
+        color: var(--color-text-secondary);
+        font-size: 14px;
+    }
+
+    .repo-filter-select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-background-main);
+        color: var(--color-text-main);
+        font-size: 14px;
+        min-width: 200px;
+        cursor: pointer;
+    }
+
+    /* --- Metrics Grid --- */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .metric-card {
+        background: var(--color-background-main);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .metric-icon {
+        font-size: 20px;
+        margin-bottom: 12px;
+        color: var(--color-text-secondary);
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-text-main);
+    }
+
+    .metric-label {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        margin-top: 4px;
+    }
+
+    /* --- Content Grid --- */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+
+    .dashboard-card {
+        background: var(--color-background-main);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+    }
+
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--color-border);
+        background: var(--color-background-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--color-text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* --- Activity Lists --- */
+    .activity-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 500px; /* Scrollable area */
+        overflow-y: auto;
+    }
+
+    .activity-item {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        transition: background 0.1s;
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover { background-color: var(--color-sidebar-hover); }
+
+    .item-avatar {
+        width: 32px;
+        height: 32px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .item-details { flex: 1; }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .item-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-main);
+        text-decoration: none;
+    }
+    .item-title:hover { color: var(--color-primary); }
+
+    .item-meta {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .repo-badge {
+        background: var(--color-border);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        color: var(--color-text-main);
+    }
+    
+    .branch-badge {
+        background: rgba(88, 166, 255, 0.15);
+        color: #58a6ff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-family: monospace;
+    }
+
+    /* --- Language Bar --- */
+    .lang-container {
+        padding: 20px;
+    }
+    .lang-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .lang-name { font-size: 13px; color: var(--color-text-main); }
+    .lang-count { font-size: 12px; color: var(--color-text-secondary); }
+    
+    .progress-bar {
+        height: 8px;
+        background: var(--color-border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+    .progress-fill {
+        height: 100%;
+        background: var(--color-primary);
+        border-radius: 4px;
+    }
+    
+    /* Config Box */
+    .config-box { padding: 20px; }
+    .config-input-group { margin-bottom: 12px; }
+    .config-input { width: 100%; padding: 8px; border: 1px solid var(--color-border); background: var(--color-background-light); color: var(--color-text-main); border-radius: 4px; }
+
+    @media (max-width: 1100px) {
+        .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        .content-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1>GitHub Integration Hub</h1>
+            <div class="subtitle">Live metrics from connected repositories</div>
+        </div>
+        
+        <div class="header-right">
+            {% if is_connected %}
+                <select id="repoFilter" class="repo-filter-select">
+                    <option value="all">Showing: All Repositories</option>
+                    {% for repo_name in data.repos_list %}
+                        <option value="{{ repo_name }}">{{ repo_name }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <a href="/integration/github/connect" class="btn btn-primary"><i class="fab fa-github"></i> Connect Account</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if is_connected %}
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <i class="fas fa-code-branch metric-icon" style="color: var(--gh-blue);"></i>
+            <div class="metric-value">{{ data.stats.total_repos }}</div>
+            <div class="metric-label">Active Repositories</div>
+        </div>
+        <div class="metric-card">
+            <i class="fas fa-history metric-icon" style="color: var(--gh-open);"></i>
+            <div class="metric-value" id="total-commits-display">{{ data.stats.recent_commits }}</div>
+            <div class="metric-label">Total Commits Fetched</div>
+        </div>
+        <div class="metric-card">
+            <i class="fas fa-stream metric-icon" style="color: var(--gh-merged);"></i>
+            <div class="metric-value" id="total-branches-display">{{ data.stats.total_branches }}</div>
+            <div class="metric-label">Active Branches</div>
+        </div>
+        <div class="metric-card">
+            <i class="fas fa-random metric-icon" style="color: var(--gh-open);"></i>
+            <div class="metric-value" id="total-prs-display">{{ data.stats.open_prs }}</div>
+            <div class="metric-label">Open Pull Requests</div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        
+        <div>
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-stream"></i> All Commits</div>
+                    <span class="repo-badge">Scroll for more</span>
+                </div>
+                <ul class="activity-list" id="commitList">
+                    {% for commit in data.commits %}
+                    <li class="activity-item" data-repo="{{ commit.repo }}">
+                        <div class="item-avatar">{{ commit.author[0] | upper }}</div>
+                        <div class="item-details">
+                            <div class="item-header">
+                                <a href="{{ commit.url }}" target="_blank" class="item-title">{{ commit.message | truncate(80) }}</a>
+                                <span style="font-family:monospace; font-size:11px; color:var(--color-text-secondary);">{{ commit.sha }}</span>
+                            </div>
+                            <div class="item-meta">
+                                <span class="repo-badge">{{ commit.repo }}</span>
+                                <span>{{ commit.author }} committed on {{ commit.date }}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="activity-item" style="justify-content:center; padding: 40px; color: var(--color-text-secondary);">No commits found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-code-branch"></i> Active Branches</div>
+                </div>
+                <ul class="activity-list" id="branchList">
+                    {% for branch in data.branches %}
+                    <li class="activity-item" data-repo="{{ branch.repo }}">
+                        <div style="margin-top: 2px;">
+                            <i class="fas fa-code-branch" style="color: var(--color-text-secondary);"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-header">
+                                <span class="item-title">{{ branch.name }}</span>
+                                {% if branch.protected %}
+                                    <i class="fas fa-lock" style="font-size: 10px; color: gold; margin-left: 5px;" title="Protected Branch"></i>
+                                {% endif %}
+                            </div>
+                            <div class="item-meta">
+                                <span class="repo-badge">{{ branch.repo }}</span>
+                                <span>SHA: {{ branch.sha }}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="activity-item" style="color: var(--color-text-secondary);">No branches found.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-random"></i> Pull Requests</div>
+                </div>
+                <ul class="activity-list" id="prList">
+                    {% for pr in data.pull_requests %}
+                    <li class="activity-item" data-repo="{{ pr.repo }}">
+                        <div style="margin-top:2px;">
+                            {% if pr.status == 'merged' %} <i class="fas fa-check-circle" style="color: var(--gh-merged);"></i>
+                            {% elif pr.status == 'open' %} <i class="fas fa-dot-circle" style="color: var(--gh-open);"></i>
+                            {% else %} <i class="fas fa-times-circle" style="color: var(--gh-closed);"></i> {% endif %}
+                        </div>
+                        <div class="item-details">
+                            <a href="{{ pr.url }}" target="_blank" class="item-title">{{ pr.title }}</a>
+                            <div class="item-meta">
+                                <span class="repo-badge">{{ pr.repo }}</span>
+                                <span>{{ pr.user }}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="activity-item" style="color: var(--color-text-secondary);">No active PRs.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-language"></i> Languages</div>
+                </div>
+                <div class="lang-container">
+                    {% for lang, count in data.languages.items() %}
+                    <div class="lang-row">
+                        <span class="lang-name">{{ lang }}</span>
+                        <span class="lang-count">{{ count }} Repos</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ (count / data.stats.total_repos) * 100 }}%;"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-cog"></i> Webhook Settings</div>
+                </div>
+                <div class="config-box">
+                    <div class="config-input-group">
+                        <label>Payload URL</label>
+                        <input type="text" class="config-input" value="{{ webhook_url }}" readonly>
+                    </div>
+                    <div class="config-input-group">
+                        <label>Secret</label>
+                        <input type="text" class="config-input" value="{{ secret }}" readonly>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px; border: 2px dashed var(--color-border); border-radius: 12px; margin-top: 40px;">
+        <i class="fab fa-github" style="font-size: 48px; color: var(--color-text-secondary); margin-bottom: 20px;"></i>
+        <h2>Integration Required</h2>
+        <a href="/integration/github/connect" class="btn btn-primary">Connect Now</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // --- Filter Logic ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterSelect = document.getElementById('repoFilter');
+        if(!filterSelect) return;
+
+        filterSelect.addEventListener('change', (e) => {
+            const selectedRepo = e.target.value;
+            
+            const filterList = (listId, counterId) => {
+                const items = document.querySelectorAll(`#${listId} .activity-item`);
+                let visibleCount = 0;
+                items.forEach(item => {
+                    if (selectedRepo === 'all' || item.dataset.repo === selectedRepo) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                if(counterId) document.getElementById(counterId).textContent = visibleCount;
+            };
+
+            filterList('commitList', 'total-commits-display');
+            filterList('branchList', 'total-branches-display');
+            filterList('prList', 'total-prs-display');
+        });
+    });
+</script>
+{% endblock content %}
