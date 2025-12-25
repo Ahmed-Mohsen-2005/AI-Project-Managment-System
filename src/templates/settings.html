@@ -4,14 +4,14 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 {% endblock extra_css %}
 
 {% block content %}
     <div class="settings-container card" data-user-id="{{ user_id }}">
         <div class="settings-header">
             <h1 class="page-title">
-                <i class="fas fa-cog"></i> {{ t.settings_title }}
+                <i class="fas fa-cog"></i> {{ t.settings }}
             </h1>
             
 

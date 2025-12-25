@@ -377,6 +377,8 @@ def reports():
 
 @app.route("/settings")
 def settings():
+
+    
     """Settings page with user configuration"""
     # Get current user from session (set by before_request hook)
     if not hasattr(g, 'current_user') or g.current_user is None:
@@ -387,7 +389,7 @@ def settings():
     else:
         current_user = g.current_user
         user_id = g.current_user_id
-    
+
     if current_user:
         user_email = current_user.email
         user_role = current_user.role
@@ -396,7 +398,7 @@ def settings():
         user_email = "user@aipms.com"
         user_role = "User"
         print(f"[SETTINGS] User ID {user_id} not found!")
-    
+
     return render_template("settings.html", current_user_email=user_email, current_user_role=user_role, user_id=user_id)
 
 
