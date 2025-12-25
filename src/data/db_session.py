@@ -13,7 +13,7 @@ class DatabaseConnection:
                 # 1. READ DOCKER ENV VARS (Crucial Fix)
                 db_host = os.getenv('DB_HOST', 'localhost')
                 db_user = os.getenv('DB_USER', 'root')
-                db_password = os.getenv('DB_PASSWORD', 'mazen2004')
+                db_password = os.getenv('DB_PASSWORD', 'ali2005')
                 db_name = os.getenv('DB_NAME', 'AIPMS')
 
                 print(f"DEBUG (Data Session): Connecting to {db_host}...")
