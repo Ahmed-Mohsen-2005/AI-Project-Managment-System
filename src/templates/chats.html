@@ -17,6 +17,9 @@
     
     <div class="chat-interface-container card">
         
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        
         <!-- Column 1: Channel List / Contact List -->
         <aside class="chat-sidebar">
             <h2 class="sidebar-title"><i class="fas fa-comments"></i> Channels</h2>
@@ -25,13 +28,14 @@
             </div>
             <ul id="channel-list" class="channel-list">
                 <!-- Channels loaded by JS -->
-                <li class="channel-item active" data-channel-id="general">
+                <li class="channel-item" data-channel-id="C07ABC1234">
                     # General
-                    <span class="unread-count">3</span>
                 </li>
-                <li class="channel-item" data-channel-id="backend">
+
+                <li class="channel-item" data-channel-id="C08DEF5678">
                     # Backend-Devs
                 </li>
+
                 <li class="channel-item" data-channel-id="frontend">
                     # Frontend-UI
                 </li>
@@ -48,7 +52,12 @@
         <!-- Column 2: Main Chat Window -->
         <main class="chat-main">
             <header class="chat-header">
-                <h2 id="current-channel-name"># General</h2>
+                <div class="chat-header-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="current-channel-name"># General</h2>
+                </div>
                 <div class="chat-actions">
                     <button title="Invite Member"><i class="fas fa-user-plus"></i></button>
                     <button title="View Details"><i class="fas fa-info-circle"></i></button>
@@ -60,6 +69,11 @@
             </div>
             
             <footer class="chat-input-area">
+                <div class="typing-indicator" id="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
                 <input type="text" id="message-input" placeholder="Type a message or use /command...">
                 <button id="send-btn" class="btn btn-primary btn-styled"><i class="fas fa-paper-plane"></i></button>
             </footer>

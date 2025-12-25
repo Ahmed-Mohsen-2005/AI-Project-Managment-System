@@ -1,0 +1,24 @@
+from services.slack_integration_service import SlackService
+
+print("🔍 Testing Slack Integration...")
+
+try:
+    slack = SlackService()
+    print("✅ Service initialized")
+    
+    channels = slack.get_channels()
+    print(f"\n📋 Found {len(channels)} channels:")
+    
+    for ch in channels:
+        member_status = "✅ Member" if ch['is_member'] else "❌ Not a member"
+        print(f"  - #{ch['name']} (ID: {ch['id']}) {member_status}")
+    
+    if len(channels) == 0:
+        print("\n  No channels found!")
+        print("   Make sure to:")
+        print("   1. Add 'channels:read' scope")
+        print("   2. Reinstall app to workspace")
+        print("   3. Invite bot to channels with /invite @YourBot")
+        
+except Exception as e:
+    print(f"❌ Error: {e}")

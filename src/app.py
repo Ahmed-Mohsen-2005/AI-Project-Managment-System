@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
@@ -11,6 +14,8 @@ from controllers.file_attachment_controller import file_attachment_bp
 from controllers.admin_controller import admin_bp
 from controllers.auth_controller import auth_bp
 from controllers.documentation_controller import documentation_bp
+from controllers.slack_integration_controller import slack_bp
+
 
 from extensions import mail
 from controllers.profile_controller import profile_bp
@@ -59,6 +64,8 @@ app.register_blueprint(profile_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(note_bp)
 app.register_blueprint(documentation_bp)
+app.register_blueprint(slack_bp)
+
 
 # In your main controller or app.py where the page is served
 
