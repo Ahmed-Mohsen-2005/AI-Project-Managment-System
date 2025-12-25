@@ -1,14 +1,19 @@
 import sys
 import os
+from dotenv import load_dotenv  # <--- IMPORT THIS
+
+# 1. Load environment variables from .env file immediately
+load_dotenv()
 
 # Add project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from services.slack_integration_service import SlackService
+from src.services.slack_integration_service import SlackService
 
 print("🔍 Testing Slack Integration...")
 
 try:
+    # Now the service can find the token because load_dotenv() put it in os.environ
     slack = SlackService()
     print("✅ Service initialized")
     
