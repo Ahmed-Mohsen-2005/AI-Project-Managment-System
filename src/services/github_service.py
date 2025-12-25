@@ -33,20 +33,47 @@ class GitHubService:
 
     @staticmethod
     def get_user_repos(access_token):
+        """
+        Fetches repositories with ALL details needed for:
+        1. The 'Repositories' Dashboard Table
+        2. The 'Create Project' Dropdown
+        """
         if not access_token:
             return []
-            
-        api_url = "https://api.github.com/user/repos"
+
         headers = {
             "Authorization": f"token {access_token}",
             "Accept": "application/json"
         }
-        params = {"sort": "updated", "per_page": 10}
         
-        response = requests.get(api_url, headers=headers, params=params)
-        if response.status_code == 200:
-            return response.json()
-        return []
+        # Fetch up to 100 repos sorted by updated time
+        url = "https://api.github.com/user/repos?sort=updated&per_page=100"
+        
+        try:
+            resp = requests.get(url, headers=headers)
+            if resp.status_code == 200:
+                raw_repos = resp.json()
+                cleaned_repos = []
+                
+                for r in raw_repos:
+                    # We manually build the dict to ensure all keys exist
+                    cleaned_repos.append({
+                        'id': r.get('id'),
+                        'name': r.get('name'),
+                        'full_name': r.get('full_name'),   # Needed for Project Link
+                        'language': r.get('language') or 'N/A',
+                        'updated_at': r.get('updated_at'), # Needed for Repo Table
+                        'html_url': r.get('html_url'),     # Needed for links
+                        'private': r.get('private', False),
+                        'archived': r.get('archived', False),
+                        # Ensure 'owner' is a dictionary with 'login'
+                        'owner': r.get('owner', {'login': 'Unknown'}) 
+                    })
+                return cleaned_repos
+            return []
+        except Exception as e:
+            print(f"GitHub API Error: {e}")
+            return []
     @staticmethod
     def create_repository(access_token, name, description, is_private):
         """Creates a new repository on GitHub"""
@@ -65,7 +92,40 @@ class GitHubService:
         response = requests.post(api_url, json=payload, headers=headers)
         return response
     # ... inside class GitHubService ...
+    @staticmethod
+    def get_project_commits(access_token, repo_full_name):
+        """
+        Fetches the last 10 commits for a SPECIFIC repository.
+        repo_full_name example: 'owner/repo-name'
+        """
+        if not access_token or not repo_full_name:
+            return []
 
+        headers = {
+            "Authorization": f"token {access_token}",
+            "Accept": "application/json"
+        }
+        
+        # GitHub API URL for a specific repo's commits
+        url = f"https://api.github.com/repos/{repo_full_name}/commits?per_page=10"
+        
+        try:
+            resp = requests.get(url, headers=headers)
+            if resp.status_code == 200:
+                commits = []
+                for c in resp.json():
+                    commits.append({
+                        'message': c['commit']['message'],
+                        'author': c['commit']['author']['name'],
+                        'date': c['commit']['author']['date'].split('T')[0],
+                        'url': c['html_url'],
+                        'sha': c['sha'][:7]
+                    })
+                return commits
+            return []
+        except Exception as e:
+            print(f"GitHub API Error: {e}")
+            return []
     @staticmethod
     def get_dashboard_activity(access_token):
         if not access_token:

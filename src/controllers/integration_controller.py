@@ -3,7 +3,7 @@ import hashlib
 import requests
 from flask import Blueprint, redirect, request, session, url_for, jsonify, current_app, render_template
 from services.github_service import GitHubService
-
+from repositories.repository_factory import RepositoryFactory
 integration_bp = Blueprint('integration', __name__, url_prefix='/integration')
 
 # =========================================================
@@ -34,12 +34,12 @@ def github_callback():
         token = GitHubService.get_token(code)
         if token:
             session['github_token'] = token
-    return redirect(url_for('view.repositories'))
+    return redirect(url_for('repositories'))
 
 @integration_bp.route('/github/disconnect')
 def disconnect_github():
     session.pop('github_token', None)
-    return redirect(url_for('view.repositories'))
+    return redirect(url_for('repositories'))
 
 # =========================================================
 #  2. API ENDPOINTS
@@ -51,22 +51,67 @@ def get_repos():
     if not token:
         return jsonify({'connected': False, 'repositories': []})
     
-    repos = GitHubService.get_user_repos(token)
-    formatted_repos = []
+    # 1. Fetch GitHub Repos
+    github_repos = GitHubService.get_user_repos(token)
     
-    if repos:
-        for repo in repos:
+    # 2. Fetch Local Projects to find links
+    project_repo = RepositoryFactory.get_repository("project")
+    all_projects = project_repo.get_all()
+    
+    # Create a lookup dictionary: {'owner/repo': 'Project Name'}
+    linked_projects = {}
+    for proj in all_projects:
+        if proj.github_repo:
+            linked_projects[proj.github_repo] = {
+                'name': proj.name,
+                'id': proj.project_id
+            }
+
+    # 3. Merge Data
+    formatted_repos = []
+    if github_repos:
+        for repo in github_repos:
+            # Check if this repo is linked to any project
+            full_name = repo['full_name'] # e.g., "ahmed/backend"
+            link_info = linked_projects.get(full_name)
+            
             formatted_repos.append({
                 'name': repo['name'],
+                'full_name': full_name,
                 'updated': repo.get('updated_at', '').split('T')[0],
                 'owner': repo['owner']['login'],
                 'status': 'Active' if not repo['archived'] else 'Archived',
                 'is_private': repo['private'],
-                'url': repo['html_url']
+                'url': repo['html_url'],
+                # ✅ ADDED: The Link Info
+                'linked_project': link_info 
             })
         
     return jsonify({'connected': True, 'repositories': formatted_repos})
+# In controllers/integration_controller.py
 
+@integration_bp.route('/api/repos/link', methods=['POST'])
+def link_repo():
+    """
+    API to link a GitHub Repo to a specific Project ID.
+    Expected JSON: { "repo_name": "owner/repo", "project_id": 123 }
+    """
+    data = request.get_json()
+    repo_name = data.get('repo_name')
+    project_id = data.get('project_id')
+
+    if not repo_name or not project_id:
+        return jsonify({'success': False, 'message': 'Missing data'}), 400
+
+    project_repo = RepositoryFactory.get_repository("project")
+    
+    # Use the method we created earlier in ProjectRepository
+    rows_affected = project_repo.update_repo_link(project_id, repo_name)
+    
+    if rows_affected > 0:
+        return jsonify({'success': True, 'message': 'Repository linked successfully!'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to link. Project ID might be invalid.'}), 500
 @integration_bp.route('/api/repos/create', methods=['POST'])
 def create_repo():
     token = session.get('github_token')
@@ -105,7 +150,23 @@ def update_settings():
 # =========================================================
 #  3. WEBHOOK LISTENER (The Duplicate culprit)
 # =========================================================
-
+@integration_bp.route('/api/projects/all', methods=['GET'])
+def get_projects_for_dropdown():
+    """
+    Returns a simple JSON list of projects for the 'Link' modal.
+    URL will be: /integration/api/projects/all
+    """
+    try:
+        project_repo = RepositoryFactory.get_repository("project")
+        projects = project_repo.get_all()
+        
+        # Convert to simple JSON
+        data = [{'id': p.project_id, 'name': p.name} for p in projects]
+        
+        return jsonify({'projects': data})
+    except Exception as e:
+        print(f"Error fetching projects: {e}")
+        return jsonify({'projects': []}), 500
 @integration_bp.route('/webhook/github', methods=['POST', 'GET'])
 def github_webhook():
     # 1. VISUAL DASHBOARD (Browser Request)

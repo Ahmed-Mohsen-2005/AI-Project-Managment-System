@@ -4,16 +4,49 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/repositories.css') }}">
+    <style>
+        /* Small internal overrides for this specific page */
+        .project-link-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--color-primary);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .project-link-badge:hover {
+            background-color: var(--color-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-link-repo {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-link-repo:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+    </style>
 {% endblock extra_css %}
 
 {% block content %}
-    <!-- Search Bar -->
-    <div style="margin-bottom: 20px;">
-        <div class="search-bar-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="search" id="page-search" placeholder="{{ t.search_placeholder }}">
-        </div>
-    </div>
     
     <h1 class="page-title"><i class="fas fa-code-branch"></i> {{ t.repositories_management }}</h1>
 
@@ -27,7 +60,6 @@
 
     <div class="repositories-layout-grid">
         
-        <!-- Left Column: List of Connected Repositories -->
         <div class="card repo-list-card">
             <h2 class="widget-title">{{ t.connected_repositories }}</h2>
             <div class="repo-table-container">
@@ -38,17 +70,16 @@
                             <th>{{ t.last_updated }}</th>
                             <th>{{ t.owner }}</th>
                             <th>{{ t.status }}</th>
+                            <th>Linked Project</th> 
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Repo data will be loaded here by JavaScript -->
-                        <tr><td colspan="4" class="loading-message">{{ t.loading_repositories }}</td></tr>
+                        <tr><td colspan="5" class="loading-message">{{ t.loading_repositories }}</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Right Column: Integration Status and Configuration -->
         <div class="integration-status-card">
             <div class="card github-integration">
                 <h2 class="widget-title"><i class="fab fa-github"></i> {{ t.github_integration }}</h2>
@@ -64,17 +95,16 @@
                     <p class="config-label">{{ t.webhook_url }}</p>
                     <input type="text" value="https://nonfossiliferous-laughingly-malaya.ngrok-free.dev/integration/webhook/github" readonly>
                     <button class="btn btn-secondary btn-sm copy-btn"><i class="fas fa-copy"></i> {{ t.copy }}</button>
-                    
                 </div>
             </div>
             
-            <!-- Integration Status Placeholder for Slack/Other services -->
             <div class="card slack-integration-status">
                 <h2 class="widget-title"><i class="fab fa-slack"></i> Slack Integration</h2>
                 <p>Manage Slack notifications in <a href="/settings">Settings</a>.</p>
             </div>
         </div>
     </div>
+
     <div id="create-repo-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -94,7 +124,7 @@
                     <label>
                         <input type="checkbox" id="new-repo-private"> 
                         <span style="margin-left: 8px;">Private Repository</span>
-                        <i class="fas fa-lock" style="font-size: 12px; margin-left: 5px; color: #666;"></i>
+                        <i class="fas fa-lock" style="font-size: 12px; margin-left: 5px; color: var(--color-text-secondary);"></i>
                     </label>
                 </div>
             </div>
@@ -104,6 +134,34 @@
             </div>
         </div>
     </div>
+
+    <div id="link-project-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-link"></i> Link Project</h3>
+                <button id="close-link-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; font-size: 14px; color: var(--color-text-secondary);">
+                    Select the project that corresponds to <strong id="selected-repo-name" style="color: var(--color-primary);">...</strong>
+                </p>
+                
+                <input type="hidden" id="selected-repo-full-name">
+
+                <div class="form-group">
+                    <label>Select Project</label>
+                    <select id="project-select-dropdown" class="form-control" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-background-light); color: var(--color-text-main);">
+                        <option value="">-- Choose a Project --</option>
+                        </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-link-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-link-btn" class="btn btn-primary">Link Project</button>
+            </div>
+        </div>
+    </div>
+
 {% endblock content %}
 
 {% block extra_js %}
