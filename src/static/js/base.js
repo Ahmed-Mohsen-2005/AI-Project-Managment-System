@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app-container');
     const boardsParent = document.getElementById('nav-boards-parent');
     const boardsToggle = document.getElementById('boards-toggle');
+    const toolsParent = document.getElementById('nav-tools-parent');
+    const toolsToggle = document.getElementById('tools-toggle');
     const globalSearch = document.getElementById('global-search');
     
     // Notification Panel Elements
@@ -35,6 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (boardsToggle && boardsParent) {
         boardsToggle.addEventListener('click', () => {
             boardsParent.classList.toggle('open');
+        });
+    }
+
+    // Nested Tools Menu Toggle
+    if (toolsToggle && toolsParent) {
+        toolsToggle.addEventListener('click', () => {
+            toolsParent.classList.toggle('open');
         });
     }
 
@@ -193,9 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     createProjectForm.reset();
 
                     // Reload page to show new project in selector
-                    if (window.location.pathname.includes('/dashboard')) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 } else {
                     alert(result.error || 'Failed to create project');
                 }

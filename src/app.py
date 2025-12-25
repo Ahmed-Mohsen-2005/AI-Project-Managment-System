@@ -20,7 +20,7 @@ from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
 from services.task_service import TaskService
-from i18n import get_locale, get_t
+from i18n import get_locale, get_t  # Import the functions we created
 from flask_mail import Mail
 import os
 mail = Mail()

@@ -32,31 +32,58 @@
             </div>
         </header>
 
-        <!-- 1. Top Metrics Summary Bar -->
-        <div class="card summary-bar-grid">
-            <div class="metric-box">
-                <p class="metric-value" id="current-velocity">--</p>
-                <p class="metric-label">{{ t.avg_velocity_3 }}</p>
+        <!-- 1. Top Metrics Summary - Individual Cards -->
+        <div class="metrics-grid">
+            <!-- Metric Card 1: Velocity -->
+            <div class="card metric-card">
+                <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="metric-content">
+                    <p class="metric-value" id="current-velocity">--</p>
+                    <p class="metric-label">{{ t.avg_velocity_3 }}</p>
+                </div>
             </div>
-            <div class="metric-box">
-                <p class="metric-value" id="risk-index">--</p>
-                <p class="metric-label">{{ t.ai_risk_index }}</p>
+
+            <!-- Metric Card 2: Risk Index -->
+            <div class="card metric-card">
+                <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="metric-content">
+                    <p class="metric-value" id="risk-index">--</p>
+                    <p class="metric-label">{{ t.ai_risk_index }}</p>
+                </div>
             </div>
-            <div class="metric-box">
-                <p class="metric-value" id="tasks-remaining">--</p>
-                <p class="metric-label">{{ t.tasks_remaining }}</p>
+
+            <!-- Metric Card 3: Tasks Remaining -->
+            <div class="card metric-card">
+                <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="metric-content">
+                    <p class="metric-value" id="tasks-remaining">--</p>
+                    <p class="metric-label">{{ t.tasks_remaining }}</p>
+                </div>
             </div>
-            <div class="metric-box">
-                <p class="metric-value" id="budget-forecast">--</p>
-                <p class="metric-label">{{ t.budget_forecast }}</p>
+
+            <!-- Metric Card 4: Budget Forecast -->
+            <div class="card metric-card">
+                <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="metric-content">
+                    <p class="metric-value" id="budget-forecast">--</p>
+                    <p class="metric-label">{{ t.budget_forecast }}</p>
+                </div>
             </div>
         </div>
-        
-        <!-- 2. Main Content Grid (Charts and AI Actions) -->
+
+        <!-- 2. Main Content Grid (Charts and Activity) -->
         <div class="main-content-grid">
-            
+
             <!-- Widget 1: Burndown Chart (Key Performance Indicator) -->
-            <div class="card chart-widget full-span">
+            <div class="card chart-widget" style="grid-column: 1 / -1;">
                 <h2 class="widget-title"><i class="fas fa-chart-area"></i> Sprint Burndown (<span id="sprint-name">Active Sprint</span>)</h2>
                 <div id="burndown-chart" class="chart-container">
                     <canvas id="burndown-canvas"></canvas>
@@ -67,62 +94,8 @@
                 </div>
             </div>
 
-            <!-- Widget 2: AI Recommended Actions (FR-301) -->
-            <div class="card ai-action-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-robot"></i> {{ t.ai_recommended_actions }}</h2>
-                <ul id="ai-recommendations" class="recommendation-list scrollable-list">
-                    <!-- Recommendations loaded by JS -->
-                </ul>
-                <a href="#" class="view-link" id="run-simulation-btn">{{ t.run_simulation }} &rarr;</a>
-            </div>
-
-            <!-- Widget 3: Unassigned Critical Tasks -->
-            <div class="card unassigned-tasks-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-exclamation-circle"></i> {{ t.unassigned_critical }}</h2>
-                <ul id="critical-tasks" class="task-list scrollable-list">
-                    <!-- Tasks loaded by JS -->
-                </ul>
-                <button class="btn btn-primary btn-sm full-width-btn" id="assign-tasks-btn"><i class="fas fa-users-cog"></i> Assign Tasks</button>
-            </div>
-
-            <!-- Task Assignment Modal -->
-            <div id="assign-modal" class="modal-overlay" style="display: none;">
-                <div class="modal-container">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-user-plus"></i> Assign Task</h3>
-                        <button class="modal-close" id="close-assign-modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="task-select">Select Task:</label>
-                            <select id="task-select" class="form-control">
-                                <option value="">-- Select a task --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="user-select">Assign to:</label>
-                            <select id="user-select" class="form-control">
-                                <option value="">-- Select a user --</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" id="cancel-assign">Cancel</button>
-                        <button class="btn btn-primary" id="confirm-assign">Assign Task</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Widget 4: Team Stress Index (FR-503) -->
-            <div class="card stress-index-widget small-span">
-                <h2 class="widget-title"><i class="fas fa-heartbeat"></i> {{ t.team_stress_index }}</h2>
-                <p class="stress-value text-medium" id="stress-index">--</p>
-                <p class="stress-detail" id="stress-detail">{{ t.awaiting_analysis }}</p>
-                <a href="/chats" class="view-link">{{ t.view_communication_sentiment }} &rarr;</a>
-            </div>
-            
-            <!-- Widget 5: Recent Commits/Activity (Integration Traceability) -->
-            <div class="card activity-widget full-span" style="grid-column: 1 / -1;">
+            <!-- Widget 2: Recent Project Activity -->
+            <div class="card activity-widget" style="grid-column: 1 / -1;">
                 <h2 class="widget-title"><i class="fas fa-history"></i> Recent Project Activity</h2>
                 <ul id="recent-activity" class="activity-list scrollable-list">
                     <!-- Activities loaded by JS -->
