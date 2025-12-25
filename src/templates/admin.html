@@ -73,13 +73,102 @@
 
             <div class="admin-tab-pane" id="tab-settings">
                 <div class="section-header">
-                    <h2><i class="fas fa-cog"></i> System Settings</h2>
+                    <h2><i class="fas fa-cog"></i> {{ t.settings_security_role_management_title }}</h2>
                 </div>
-                <div class="settings-container">
-                    <p>Settings coming soon...</p>
+
+                <div class="admin-settings-panel">
+                    <div class="admin-card">
+                        <!-- Authentication -->
+                        <section class="admin-setting-section">
+                            <h3 class="admin-setting-title">{{ t.settings_authentication }}</h3>
+                            <div class="admin-setting-row">
+                                <div class="admin-setting-text">
+                                    <p class="admin-setting-label">{{ t.settings_2fa_label }}</p>
+                                    <p class="admin-setting-help">
+                                        {{ t.settings_2fa_help if t.settings_2fa_help is defined else '' }}
+                                    </p>
+                                </div>
+                                <div class="admin-setting-control">
+                                    <label class="admin-toggle-switch">
+                                        <input type="checkbox" id="admin-2fa-toggle" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Role-Based Access Control -->
+                        <section class="admin-setting-section" id="admin-rbac-management-section">
+                            <h3 class="admin-setting-title">{{ t.settings_rbac_fr201 }}</h3>
+
+                            <!-- Manage user -->
+                            <div class="admin-setting-row">
+                                <div class="admin-setting-text">
+                                    <p class="admin-setting-label">
+                                        {{ t.settings_manage_user_permissions }}
+                                    </p>
+                                </div>
+                                <div class="admin-setting-control">
+                                    <select id="admin-manage-user-select" class="form-input">
+                                        <option value="1">{{ t.settings_sample_user_alice }}</option>
+                                        <option value="2">{{ t.settings_sample_user_bob }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Current role -->
+                            <div class="admin-setting-row">
+                                <div class="admin-setting-text">
+                                    <p class="admin-setting-label">
+                                        {{ t.settings_current_role_label }}
+                                    </p>
+                                </div>
+                                <div class="admin-setting-control">
+                                    <span id="admin-current-role" class="status-badge status-active">
+                                        {{ t.settings_role_project_manager }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Permissions grid -->
+                            <div class="admin-permission-header">
+                                <span>{{ t.settings_permission_header }}</span>
+                                <span>{{ t.settings_status_header }}</span>
+                            </div>
+
+                            <div class="admin-permission-row">
+                                <span class="permission-name">
+                                    {{ t.settings_permission_manage_budget_fr403 }}
+                                </span>
+                                <label class="admin-toggle-switch">
+                                    <input type="checkbox" data-permission="manage_budget" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div class="admin-permission-row">
+                                <span class="permission-name">
+                                    {{ t.settings_permission_create_projects_fr101 }}
+                                </span>
+                                <label class="admin-toggle-switch">
+                                    <input type="checkbox" data-permission="create_project">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div class="admin-settings-footer">
+                                <button id="admin-save-rbac-btn" class="btn btn-primary">
+                                    {{ t.settings_save_permissions }}
+                                </button>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
 
+
+
+            <!-- Audit Log Tab -->
             <div class="admin-tab-pane" id="tab-audit">
                 <div class="section-header">
                     <h2><i class="fas fa-history"></i> Audit Log</h2>
