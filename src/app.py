@@ -1,3 +1,4 @@
+from flask import Flask, g, session, jsonify, request, render_template, Response
 from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env file
 
@@ -24,7 +25,7 @@ from controllers.dashboard_controller import dashboard_bp
 # from controllers.time_controller import time_bp  # Commented out - not registered
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
-from flask import Blueprint, render_template
+from flask import Blueprint
 from services.task_service import TaskService
 from i18n import get_locale, get_t  # Import the functions we created
 from flask_mail import Mail
