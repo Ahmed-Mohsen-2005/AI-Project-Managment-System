@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from services.slack_integration_service import SlackService
+from services.ai_chat_service import AIChatService
 import hmac
 import hashlib
 import time
@@ -106,10 +107,35 @@ def get_user(user_id):
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@slack_bp.route("/summarize-chat", methods=["POST"])
+def summarize_chat():
+    """Generate AI summary of chat messages"""
+    try:
+        data = request.get_json()
+        messages = data.get('messages', [])
+        
+        if not messages:
+            return jsonify({"error": "No messages provided"}), 400
+        
+        ai_service = AIChatService()
+        summary = ai_service.summarize_chat(messages)
+        sentiment = ai_service.analyze_sentiment(messages)
+        
+        return jsonify({
+            "summary": summary,
+            "sentiment": sentiment
+        }), 200
+        
+    except Exception as e:
+        print(f"[ERROR] Summarize chat failed: {e}")
+        return jsonify({"error": str(e)}), 500
     
 
 @slack_bp.route("/events", methods=["POST"])
 def slack_events():
+    """Handle Slack events webhook"""
     # Verify Slack signature for security
     if not verify_slack_signature(request):
         return jsonify({"error": "Invalid signature"}), 403
@@ -131,7 +157,7 @@ def slack_events():
 
         print("[SLACK EVENT]", channel_id, user_id, text)
 
-        # TODO (next step): Save to DB
-        # TODO (next step): Trigger AI analysis
+        # TODO: Save to DB
+        # TODO: Trigger AI analysis
 
     return jsonify({"ok": True})

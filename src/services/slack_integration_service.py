@@ -1,9 +1,10 @@
 import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+import time
 
 class SlackService:
-    """Service for Slack integration"""
+    """Service for Slack integration with rate limit handling"""
     
     def __init__(self, integration_id=None):
         """
@@ -14,6 +15,9 @@ class SlackService:
         """
         self.integration_id = integration_id
         self._user_cache = {}
+        self._users_list_cache = None
+        self._users_list_cache_time = 0
+        self._cache_ttl = 3600  # Cache users list for 1 hour
         
         if integration_id:
             # Load from database (placeholder for future implementation)
@@ -85,13 +89,13 @@ class SlackService:
                 if user_id:
                     user_ids.add(user_id)
             
-            # Batch fetch user info
-            user_info_map = self._get_users_info_batch(list(user_ids))
+            # Load all users once and cache them
+            self._preload_users_cache()
             
-            # Build messages with user info
+            # Build messages with user info from cache
             for msg in response['messages']:
                 user_id = msg.get('user', '')
-                user_info = user_info_map.get(user_id, {'real_name': 'Unknown', 'email': ''})
+                user_info = self._get_user_from_cache(user_id)
                 
                 messages.append({
                     'text': msg.get('text', ''),
@@ -114,7 +118,8 @@ class SlackService:
         """
         try:
             response = self.client.conversations_list(
-                types="public_channel,private_channel"
+                types="public_channel,private_channel",
+                limit=100
             )
             
             channels = []
@@ -130,50 +135,72 @@ class SlackService:
             print(f"[ERROR] Slack get channels failed: {e.response['error']}")
             return []
     
-    def _get_users_info_batch(self, user_ids):
+    def _preload_users_cache(self):
         """
-        Batch fetch user info for multiple users
-        
-        Args:
-            user_ids: List of user IDs
-        
-        Returns:
-            dict: Map of user_id to user info
+        Preload all users into cache to avoid multiple API calls
+        Only fetches if cache is expired or empty
         """
-        user_info_map = {}
+        current_time = time.time()
         
-        # Check cache first
-        uncached_ids = []
-        for user_id in user_ids:
-            if user_id in self._user_cache:
-                user_info_map[user_id] = self._user_cache[user_id]
-            else:
-                uncached_ids.append(user_id)
+        # Check if cache is still valid
+        if self._users_list_cache and (current_time - self._users_list_cache_time) < self._cache_ttl:
+            return
         
-        if not uncached_ids:
-            return user_info_map
-        
-        # Fetch uncached users in batches (Slack API allows up to 1000 users per call)
         try:
+            print("[INFO] Preloading users cache...")
             response = self.client.users_list()
+            
+            # Clear existing cache
+            self._user_cache = {}
+            
+            # Cache all users
             for user in response['members']:
                 user_id = user['id']
-                if user_id in uncached_ids:
-                    user_info = {
-                        'real_name': user.get('real_name', 'Unknown'),
-                        'email': user.get('profile', {}).get('email', ''),
-                        'avatar': user.get('profile', {}).get('image_72', ''),
-                    }
-                    self._user_cache[user_id] = user_info
-                    user_info_map[user_id] = user_info
+                user_info = {
+                    'real_name': user.get('real_name', user.get('name', 'Unknown')),
+                    'email': user.get('profile', {}).get('email', ''),
+                    'avatar': user.get('profile', {}).get('image_72', ''),
+                    'display_name': user.get('profile', {}).get('display_name', ''),
+                }
+                self._user_cache[user_id] = user_info
+            
+            self._users_list_cache = True
+            self._users_list_cache_time = current_time
+            print(f"[INFO] Cached {len(self._user_cache)} users")
+            
         except SlackApiError as e:
-            print(f"[ERROR] Slack batch get users failed: {e.response['error']}")
+            print(f"[ERROR] Failed to preload users: {e.response['error']}")
+            # Don't fail completely, just use empty cache
+            self._users_list_cache = False
+    
+    def _get_user_from_cache(self, user_id):
+        """
+        Get user info from cache
         
-        return user_info_map
+        Args:
+            user_id: Slack user ID
+        
+        Returns:
+            dict: User info
+        """
+        if not user_id:
+            return {'real_name': 'Unknown', 'email': '', 'avatar': ''}
+        
+        # Try to get from cache
+        if user_id in self._user_cache:
+            return self._user_cache[user_id]
+        
+        # If not in cache, return default
+        # Don't make individual API calls to avoid rate limiting
+        return {
+            'real_name': f'User-{user_id[:8]}',
+            'email': '',
+            'avatar': ''
+        }
     
     def get_user_info(self, user_id):
         """
-        Get user information from Slack
+        Get user information from Slack (uses cache)
         
         Args:
             user_id: Slack user ID
@@ -188,20 +215,31 @@ class SlackService:
         if user_id in self._user_cache:
             return self._user_cache[user_id]
         
+        # If not in cache, try to fetch (with rate limit protection)
         try:
             response = self.client.users_info(user=user_id)
             user = response['user']
             user_info = {
-                'real_name': user.get('real_name', 'Unknown'),
+                'real_name': user.get('real_name', user.get('name', 'Unknown')),
                 'email': user.get('profile', {}).get('email', ''),
                 'avatar': user.get('profile', {}).get('image_72', ''),
+                'display_name': user.get('profile', {}).get('display_name', ''),
             }
             # Cache the result
             self._user_cache[user_id] = user_info
             return user_info
         except SlackApiError as e:
-            print(f"[ERROR] Slack get user info failed: {e.response['error']}")
-            return {'real_name': 'Unknown', 'email': ''}
+            if e.response['error'] == 'ratelimited':
+                print(f"[WARNING] Rate limited when fetching user {user_id}, using cache")
+                # Return a default value
+                return {
+                    'real_name': f'User-{user_id[:8]}',
+                    'email': '',
+                    'avatar': ''
+                }
+            else:
+                print(f"[ERROR] Slack get user info failed: {e.response['error']}")
+                return {'real_name': 'Unknown', 'email': ''}
     
     def _format_timestamp(self, ts):
         """Convert Slack timestamp to readable format"""
