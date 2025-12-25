@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const reportTypeSelect = document.getElementById('report-type-select');
-    const sprintFilter = document.getElementById('sprint-filter');
+    const projectFilter = document.getElementById('project-filter');  // CHANGED from sprint-filter
     const generateBtn = document.getElementById('generate-report-btn');
     
     // Output areas
@@ -10,17 +10,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisDetails = document.getElementById('analysis-details-list');
 
     // API URLs
-    const SPRINT_API_URL = '/api/v1/sprints';
-    const TASK_API_URL = '/api/v1/tasks';
     const PROJECT_API_URL = '/api/v1/projects';
     const DOCUMENTATION_API_URL = '/api/v1/documentation';
+    // Inside your DOMContentLoaded listener
+    const exportBtn = document.getElementById('export-report-btn');
+
+    exportBtn.addEventListener('click', async () => {
+            const projectId = projectFilter.value;
+            const reportTypeLabel = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
+            const aiContent = summaryOutput.innerHTML;
+
+            // Validation: Ensure a report exists before exporting
+            if (!projectId || aiContent.includes('loading-message')) {
+                alert('Please generate a report first before exporting.');
+                return;
+            }
+
+            // Visual feedback
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+
+            try {
+                const response = await fetch(`/api/v1/documentation/project/${projectId}/export`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        content: aiContent,
+                        report_type: reportTypeLabel 
+                    })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Project_Report_${projectId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert('Server error during PDF generation.');
+                }
+            } catch (err) {
+                console.error('Export failed:', err);
+                alert('Connection error. Could not export PDF.');
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="fas fa-download"></i> Export PDF';
+            }
+        });
 
     // Initialize
-    loadSprints();
+    loadProjects();  // CHANGED from loadSprints()
     reportTypeSelect.addEventListener('change', updateUILayout);
     generateBtn.addEventListener('click', handleGenerateReport);
     
-    // Set initial view state
     updateUILayout(); 
 
     // ============================================
@@ -36,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i].trim();
             
-            // Check for table
             if (line.includes('|')) {
                 if (!inTable) {
                     inTable = true;
@@ -45,11 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableRows.push(line);
                 continue;
             } else if (inTable) {
-                // End of table
                 html += parseTable(tableRows);
                 inTable = false;
                 tableRows = [];
-                // Fall through to process current line
             }
             
             if (line.startsWith('# ')) {
@@ -76,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inList) html += '</ul>';
         if (inTable) html += parseTable(tableRows);
         
-        // Bold and italic
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         
@@ -86,37 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function parseTable(rows) {
         if (rows.length < 2) return '';
         
-        let html = '<table border="1" style="border-collapse: collapse; width: 100%;">';
+        let html = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 15px 0;">';
         
-        // First row is header
         let headerCells = rows[0].split('|').slice(1, -1).map(cell => cell.trim());
         html += '<thead><tr>';
         headerCells.forEach(cell => {
-            html += '<th style="padding: 8px; text-align: left; background-color: #f2f2f2;">' + cell + '</th>';
+            html += '<th style="padding: 10px; text-align: left; background-color: #f3f4f6; border: 1px solid #e5e7eb;">' + cell + '</th>';
         });
         html += '</tr></thead>';
         
-        // Check if second row is separator
         if (rows.length > 1 && rows[1].includes('---')) {
-            // Data rows start from index 2
             html += '<tbody>';
             for (let i = 2; i < rows.length; i++) {
                 let cells = rows[i].split('|').slice(1, -1).map(cell => cell.trim());
                 html += '<tr>';
                 cells.forEach(cell => {
-                    html += '<td style="padding: 8px;">' + cell + '</td>';
-                });
-                html += '</tr>';
-            }
-            html += '</tbody>';
-        } else {
-            // No separator, treat all as data
-            html += '<tbody>';
-            for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].split('|').slice(1, -1).map(cell => cell.trim());
-                html += '<tr>';
-                cells.forEach(cell => {
-                    html += '<td style="padding: 8px;">' + cell + '</td>';
+                    html += '<td style="padding: 10px; border: 1px solid #e5e7eb;">' + cell + '</td>';
                 });
                 html += '</tr>';
             }
@@ -128,27 +154,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // LOAD SPRINTS
+    // LOAD PROJECTS (CHANGED from loadSprints)
     // ============================================
-    async function loadSprints() {
+    async function loadProjects() {
         try {
-            const res = await fetch(SPRINT_API_URL);
-            if (!res.ok) throw new Error('Failed to fetch sprints');
+            const res = await fetch(PROJECT_API_URL);
+            if (!res.ok) throw new Error('Failed to fetch projects');
             
-            const sprints = await res.json();
-            sprintFilter.innerHTML = '<option value="">Select Sprint</option>';
+            const projects = await res.json();
+            projectFilter.innerHTML = '<option value="">Select Project</option>';
             
-            sprints.forEach(s => {
+            projects.forEach(p => {
                 const opt = document.createElement('option');
-                opt.value = s.sprint_id;
-                opt.textContent = s.name;
-                sprintFilter.appendChild(opt);
+                opt.value = p.project_id;
+                opt.textContent = p.name || `Project ${p.project_id}`;
+                projectFilter.appendChild(opt);
             });
+            
+            console.log(`✅ Loaded ${projects.length} projects`);
         } catch (err) {
-            console.error('[ERROR] Load sprints failed:', err);
+            console.error('[ERROR] Load projects failed:', err);
+            projectFilter.innerHTML = '<option value="">Failed to load projects</option>';
         }
     }
-    // --- UI/STATE CONTROL ---
+
     function updateUILayout() {
         const reportType = reportTypeSelect.value;
         
@@ -160,86 +189,75 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         const chartTitles = {
-            'summary': "Project Risk/Health Score Over Time",
+            'summary': "Project Health Score Over Time",
             'velocity': "Completed Points vs. Target Line",
             'risk': "Risk Probability Over Time",
             'rca': "Blocker Timeline"
         };
 
-        // Update titles
         reportOutputTitle.textContent = titles[reportType] || "Report";
         chartTitle.textContent = chartTitles[reportType] || "Chart";
         
-        // Clear previous content
-        summaryOutput.innerHTML = '<p class="loading-message">Select a sprint and click Generate Report to view AI-generated analysis.</p>';
+        summaryOutput.innerHTML = '<p class="loading-message">Select a project and click Generate Report to view AI-generated analysis.</p>';
         analysisDetails.innerHTML = '';
         
-        // Update Chart Placeholder
         const chartArea = document.getElementById('chart-visualization');
         chartArea.innerHTML = `<img src="https://placehold.co/400x300/e6e9ee/2c3e50?text=${(chartTitles[reportType] || 'Chart').replace(/\s/g, '+')}" alt="Chart Placeholder">`;
     }
 
-    // --- GENERATE REPORT ---
+    // ============================================
+    // GENERATE REPORT (UPDATED for projects)
+    // ============================================
     async function handleGenerateReport() {
         const reportType = reportTypeSelect.value;
-        const sprintId = sprintFilter.value;
+        const projectId = projectFilter.value;  // CHANGED from sprintId
         
-        if (!sprintId) {
-            alert('Please select a sprint');
+        if (!projectId) {
+            alert('Please select a project');
             return;
         }
 
-        // Show Loading State
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-        summaryOutput.innerHTML = '<p class="loading-message">Querying AI Services and historical data...</p>';
+        summaryOutput.innerHTML = '<p class="loading-message"><i class="fas fa-robot"></i> Querying AI with project data, notes, and historical context...</p>';
 
-        console.log(`[REPORT] Generating ${reportType} report for Sprint ${sprintId}...`);
+        console.log(`[REPORT] Generating ${reportType} report for Project ${projectId}...`);
 
         try {
-            // Fetch comprehensive project data
-            const [sprintRes, tasksRes, allSprintsRes, projectsRes] = await Promise.all([
-                fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}`),
-                fetch(TASK_API_URL),
-                fetch(SPRINT_API_URL),
-                fetch(PROJECT_API_URL).catch(() => ({ ok: false, json: () => Promise.resolve([]) }))
-            ]);
+            // Fetch comprehensive project data with notes
+            const projectRes = await fetch(`${DOCUMENTATION_API_URL}/project/${projectId}`);
 
-            if (!sprintRes.ok || !tasksRes.ok || !allSprintsRes.ok) {
-                throw new Error('Failed to fetch required project data');
+            if (!projectRes.ok) {
+                throw new Error('Failed to fetch project data');
             }
 
-            const sprintData = await sprintRes.json();
-            const allTasks = await tasksRes.json();
-            const allSprints = await allSprintsRes.json();
-            const allProjects = projectsRes.ok ? await projectsRes.json() : [];
+            const projectData = await projectRes.json();
+            console.log('✅ Project data loaded:', projectData);
 
-            // Build comprehensive context
-            const context = {
-                currentSprint: sprintData,
-                allTasks: allTasks,
-                allSprints: allSprints,
-                allProjects: allProjects,
-                reportType: reportType
-            };
-
-            // Enhanced prompts with full context
+            // Build enhanced prompt with notes
             const basePrompts = {
-                'summary': `Generate an executive summary for Sprint "${sprintData.sprint_info.name}" based on the following comprehensive project data. Include key accomplishments, metrics, recommendations, and insights from the broader project context.`,
-                'velocity': `Analyze the sprint velocity history and team performance trends using all available sprint and task data. Provide insights on patterns, improvements, and predictions.`,
-                'risk': `Perform a comprehensive predictive risk analysis for Sprint "${sprintData.sprint_info.name}" considering all project sprints, tasks, and historical data. Identify potential issues and mitigation strategies.`,
-                'rca': `Conduct a thorough root cause analysis for Sprint "${sprintData.sprint_info.name}" using complete project history, task data, and sprint information. Identify root causes and corrective actions.`
+                'summary': `Generate an executive summary for "${projectData.project_info.name}" based on comprehensive project data including team notes and insights.`,
+                'velocity': `Analyze the sprint velocity history and team performance trends for "${projectData.project_info.name}" using all available data and team notes.`,
+                'risk': `Perform a comprehensive predictive risk analysis for "${projectData.project_info.name}" considering project history, blocked tasks, and team notes about challenges.`,
+                'rca': `Conduct a thorough root cause analysis for "${projectData.project_info.name}" using complete project history, task data, and team notes about issues and blockers.`
             };
 
             const enhancedPrompt = `${basePrompts[reportType]}
 
 PROJECT CONTEXT:
-${JSON.stringify(context, null, 2)}
+${JSON.stringify(projectData, null, 2)}
 
-Please analyze this data and provide a detailed, insightful report in Markdown format with sections, lists, and tables where appropriate.`;
+The data includes:
+- ${projectData.overall_metrics.total_sprints} sprints
+- ${projectData.overall_metrics.total_tasks} tasks
+- ${projectData.notes.length} team notes and insights
+- Sprint performance history
+- Blocked tasks and challenges
+
+Please analyze this comprehensive data and provide a detailed, insightful report in Markdown format with sections, lists, and tables where appropriate. Pay special attention to the team notes as they contain valuable context about challenges, decisions, and insights.`;
 
             // Generate AI report
-            const aiRes = await fetch(`${DOCUMENTATION_API_URL}/sprint/${sprintId}/ai-summary`, {
+            const aiRes = await fetch(`${DOCUMENTATION_API_URL}/project/${projectId}/ai-summary`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: enhancedPrompt })
@@ -248,37 +266,41 @@ Please analyze this data and provide a detailed, insightful report in Markdown f
             if (!aiRes.ok) throw new Error('AI generation failed');
             const aiData = await aiRes.json();
 
-            // Render Results
+            // Render Results with Markdown
             let summaryHtml = simpleMarkdown(aiData.summary);
             summaryOutput.innerHTML = summaryHtml;
 
             // Render Analysis Details
             analysisDetails.innerHTML = '';
             const details = [
-                { label: 'Sprint', value: sprintData.sprint_info.name },
-                { label: 'Completion Rate', value: `${sprintData.metrics.completion_rate}%` },
-                { label: 'Completed Tasks', value: sprintData.metrics.completed_tasks },
-                { label: 'Total Tasks in Project', value: allTasks.length },
-                { label: 'Total Sprints', value: allSprints.length },
-                { label: 'Total Projects', value: allProjects.length }
+                { label: 'Project', value: projectData.project_info.name },
+                { label: 'Total Sprints', value: projectData.overall_metrics.total_sprints },
+                { label: 'Overall Completion Rate', value: `${projectData.overall_metrics.overall_completion_rate}%` },
+                { label: 'Total Tasks', value: projectData.overall_metrics.total_tasks },
+                { label: 'Completed Tasks', value: projectData.overall_metrics.completed_tasks },
+                { label: 'Blocked Tasks', value: projectData.overall_metrics.blocked_tasks },
+                { label: 'Average Velocity', value: projectData.overall_metrics.average_sprint_velocity },
+                { label: 'Total Notes', value: projectData.notes.length },
+                { label: 'Completed Hours', value: `${projectData.overall_metrics.completed_hours}h` }
             ];
             
             details.forEach(detail => {
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>${detail.label}</strong> <span>${detail.value}</span>`;
+                li.innerHTML = `<strong>${detail.label}:</strong> <span>${detail.value}</span>`;
                 analysisDetails.appendChild(li);
             });
 
+            console.log('✅ Report generated successfully');
+
         } catch (err) {
             console.error('[ERROR] Report generation failed:', err);
-            summaryOutput.innerHTML = `<p style="color: #ef4444;">Error: ${err.message}</p>`;
+            summaryOutput.innerHTML = `<p style="color: #ef4444;">❌ Error: ${err.message}</p>`;
         }
 
-        // Final state
         generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fas fa-microchip"></i> Report Complete';
+        generateBtn.innerHTML = '<i class="fas fa-check"></i> Report Complete';
         setTimeout(() => {
-            generateBtn.innerHTML = '<i class="fas fa-microchip"></i> Generate Report';
+            generateBtn.innerHTM = '<i class="fas fa-microchip"></i> Generate Report';
         }, 3000);
     }
 });

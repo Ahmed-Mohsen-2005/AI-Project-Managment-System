@@ -13,7 +13,7 @@ class DatabaseConnection:
                 # 1. READ DOCKER ENV VARS (Force it to use 'mysql-db')
                 db_host = os.getenv('DB_HOST', 'localhost')
                 db_user = os.getenv('DB_USER', 'root')
-                db_password = os.getenv('DB_PASSWORD', 'AhmedMohsen2005')
+                db_password = os.getenv('DB_PASSWORD', 'jana2005')
                 db_name = os.getenv('DB_NAME', 'AIPMS')
 
                 print(f"DEBUG (Core Singleton): Connecting to {db_host}...")

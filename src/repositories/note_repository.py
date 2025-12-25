@@ -6,6 +6,7 @@ class NoteRepository:
     def __init__(self):
         # Store the manager instance
         self.db_manager = DatabaseConnection()
+        super().__init__()
 
     # ================================
     # Get all notes
@@ -118,3 +119,11 @@ class NoteRepository:
         finally:
             cursor.close()
             conn.close()
+
+            
+    def get_by_project_id(self, project_id):
+            # Now self.db will exist
+            cursor = self.db.cursor(dictionary=True)
+            query = "SELECT * FROM notes WHERE project_id = %s"
+            cursor.execute(query, (project_id,))
+            return cursor.fetchall()

@@ -9,6 +9,8 @@ from repositories.task_repository import TaskRepository
 from repositories.user_skill_repository import UserSkillRepository
 from repositories.user_activity_repository import UserActivityRepository
 from repositories.time_repository import TimeTrackingRepository
+from repositories.note_repository import NoteRepository
+
 
 
 class RepositoryFactory:
@@ -38,5 +40,7 @@ class RepositoryFactory:
             return UserActivityRepository()
         elif entity_type == "time_tracking":
             return TimeTrackingRepository()
+        elif entity_type == "note":
+            return NoteRepository()
         else:
             raise ValueError(f"Unknown repository type: {entity_type}")

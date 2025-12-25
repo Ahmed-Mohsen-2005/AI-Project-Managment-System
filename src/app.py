@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from .env file
-
 from flask import Flask, g, session, jsonify, request
 from controllers.user_controller import user_bp
 from controllers.sprint_controller import sprint_bp
@@ -10,17 +7,17 @@ from controllers.note_controller import note_bp
 from controllers.project_controller import project_bp
 from controllers.notification_controller import notification_bp
 from controllers.integration_controller import integration_bp
+from controllers.admin_controller import admin_bp
+from controllers.docs_controller import docs_bp
 from controllers.file_attachment_controller import file_attachment_bp
 from controllers.auth_controller import auth_bp
-from controllers.documentation_controller import documentation_bp
 from controllers.slack_integration_controller import slack_bp
-
-
+# from controllers.docs_controller import docs_bp  # Commented out - requires google_auth_oauthlib
+from controllers.documentation_controller import documentation_bp
 from extensions import mail
 from controllers.profile_controller import profile_bp
 from controllers.dashboard_controller import dashboard_bp
-from controllers.time_controller import time_bp
-from config.database_config import SECRET_KEY
+# from controllers.time_controller import time_bp  # Commented out - not registered
 from data.db_session import get_db
 from controllers.view_controller import view_bp  
 from flask import Blueprint, render_template
@@ -59,6 +56,7 @@ def create_app():
     app.register_blueprint(task_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(docs_bp)
     app.register_blueprint(view_bp)
     app.register_blueprint(project_bp)
     app.register_blueprint(documentation_bp)
@@ -69,6 +67,7 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(note_bp)  
+    app.register_blueprint(slack_bp)
     # In your main controller or app.py where the page is served
 
     # ✅ LANGUAGE SETUP - Runs before every request
@@ -207,6 +206,22 @@ def create_app():
         for rule in app.url_map.iter_rules():
             routes.append(f"{rule} -> {rule.endpoint}")
         return "<br>".join(sorted(routes))
+    @app.route("/whiteboard")
+    def whiteboard():
+        return render_template("whiteboard.html")
+
+    @app.route("/drawio")
+    def drawio():
+        return render_template("drawio.html")
+    @app.route("/docs")
+    def docs():
+        return render_template("docs.html")
+
+    @app.route('/api/v1/documentation/project/<int:project_id>/export', methods=['POST'])
+    def export_pdf_route(project_id):
+        from controllers import documentation_controller
+        return documentation_controller.export_project_pdf(project_id)
+        
 
     return app
 if __name__ == "__main__":
